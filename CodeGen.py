@@ -52,6 +52,13 @@ class CodingAgent:
                 file_set[norm_f] = self.ast_map[norm_f]
             else:
                 file_set[norm_f] = SymbolExt.get_ast_map("", file_path=norm_f)
+
+        for f in step['files_to_import']:
+            norm_f = os.path.normpath(f)
+            if norm_f in self.ast_map:
+                file_set[norm_f] = self.ast_map[norm_f]
+            else:
+                file_set[norm_f] = SymbolExt.get_ast_map("", file_path=norm_f)
         
         context = SymbolExt.extract_symbol_tree(self.ast_map, file_set)
         import_list = SymbolExt.list_imports(None, file_set)
@@ -67,13 +74,15 @@ class CodingAgent:
 
         IMPORT:
         <import lines...>
+
         3. After you draft the code, review every requirement, if the requirement is not fulfilled, modify the code until it does.
 
         CODING RULES:
-        1. Raad the symbol table, if there are exisiting code or import, you're job is to add new code that is not repeated. 
+        1. Raad the symbol table, it includes the context
+        First part includes context of the files you need to edit / add, and files you need to import and use its existing functions.
+        Second part, after IMPORT: are the library that are already imported, you don't have to import again.
         2. If there is no existing code, only generate code according to the descrption.
-        3. list the functions and imports you see from the symbol table before the code.
-        4. The output MUST strictly follow this format:
+        3. The output MUST strictly follow this format:
         [Filename]
         ```
         code
@@ -83,8 +92,8 @@ class CodingAgent:
         code
         ```
         ...
-        5. when indicating the filename, don't use # filename.py, use [filename.py]
-        6. check all of the requested files are included.
+        4. when indicating the filename, don't use # filename.py, use [filename.py]
+        5. check all of the requested files are included.
         6. add docstring for each function and class.
         """
 
@@ -116,7 +125,8 @@ class CodingAgent:
                 max_tokens=3000,
                 stream=False
             )
-            print(response)
+            if type(response.choices[0].message.content.strip()) == type(None):
+                return self.call_nova(step)
             return response.choices[0].message.content
         except Exception as e:
             if ("Error code: 429" in str(e)):

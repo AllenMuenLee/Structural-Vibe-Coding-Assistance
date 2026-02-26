@@ -4,7 +4,7 @@
   "steps": {
     "step1": {
       "id": "step1",
-      "description": "Start the calculator project",
+      "description": "Start the process",
       "filenames": [],
       "children": [
         "step2"
@@ -12,12 +12,9 @@
     },
     "step2": {
       "id": "step2",
-      "description": "Set up Flask application structure",
+      "description": "Set up the project environment",
       "filenames": [
-        "project_1/app.py",
-        "project_1/templates/base.html",
-        "project_1/templates/index.html",
-        "project_1/static/styles.css"
+        "project_1/setup.py"
       ],
       "children": [
         "step3"
@@ -25,9 +22,9 @@
     },
     "step3": {
       "id": "step3",
-      "description": "Implement calculator logic in Python",
+      "description": "Create the main application file",
       "filenames": [
-        "project_1/calculator_logic.py"
+        "project_1/app.py"
       ],
       "children": [
         "step4"
@@ -35,9 +32,9 @@
     },
     "step4": {
       "id": "step4",
-      "description": "Create HTML templates for user interface",
+      "description": "Create the calculator logic",
       "filenames": [
-        "project_1/templates/calculator.html"
+        "project_1/calculator.py"
       ],
       "children": [
         "step5"
@@ -45,9 +42,9 @@
     },
     "step5": {
       "id": "step5",
-      "description": "Add CSS styling for the calculator",
+      "description": "Create the Flask routes for the calculator",
       "filenames": [
-        "project_1/static/calculator.css"
+        "project_1/routes.py"
       ],
       "children": [
         "step6"
@@ -55,7 +52,7 @@
     },
     "step6": {
       "id": "step6",
-      "description": "Integrate calculator logic with Flask routes",
+      "description": "Integrate the routes with the main application",
       "filenames": [
         "project_1/app.py"
       ],
@@ -65,9 +62,8 @@
     },
     "step7": {
       "id": "step7",
-      "description": "Set up SQLite database for storing calculation history (optional)",
+      "description": "Set up the SQLite database",
       "filenames": [
-        "project_1/models.py",
         "project_1/database.py"
       ],
       "children": [
@@ -76,9 +72,9 @@
     },
     "step8": {
       "id": "step8",
-      "description": "Test the calculator application",
+      "description": "Integrate the database with the application",
       "filenames": [
-        "project_1/test_calculator.py"
+        "project_1/app.py"
       ],
       "children": [
         "step9"
@@ -86,7 +82,7 @@
     },
     "step9": {
       "id": "step9",
-      "description": "Deploy and launch the calculator application",
+      "description": "End the process",
       "filenames": [],
       "children": []
     }
