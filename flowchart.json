@@ -1,10 +1,10 @@
 {
-  "name": "create a web API with database",
+  "name": "create a calculator",
   "start_id": "step1",
   "steps": {
     "step1": {
       "id": "step1",
-      "description": "Start the process",
+      "description": "Start the calculator creation process",
       "filenames": [],
       "children": [
         "step2"
@@ -12,11 +12,11 @@
     },
     "step2": {
       "id": "step2",
-      "description": "Set up the project structure",
+      "description": "Set up the Flask application structure",
       "filenames": [
-        "requirements.txt",
         "app.py",
-        "config.py"
+        "templates/index.html",
+        "requirements.txt"
       ],
       "children": [
         "step3"
@@ -24,9 +24,9 @@
     },
     "step3": {
       "id": "step3",
-      "description": "Install dependencies",
+      "description": "Implement calculator logic in Python",
       "filenames": [
-        "requirements.txt"
+        "calculator.py"
       ],
       "children": [
         "step4"
@@ -34,10 +34,11 @@
     },
     "step4": {
       "id": "step4",
-      "description": "Initialize Flask application and configure SQLite database",
+      "description": "Create HTML templates for the calculator UI",
       "filenames": [
-        "app.py",
-        "config.py"
+        "templates/index.html",
+        "static/style.css",
+        "static/script.js"
       ],
       "children": [
         "step5"
@@ -45,9 +46,9 @@
     },
     "step5": {
       "id": "step5",
-      "description": "Define database models using SQLAlchemy",
+      "description": "Integrate Flask routes and calculator functions",
       "filenames": [
-        "models.py"
+        "app.py"
       ],
       "children": [
         "step6"
@@ -55,9 +56,10 @@
     },
     "step6": {
       "id": "step6",
-      "description": "Create database tables",
+      "description": "Set up SQLite database for storing calculation history (optional)",
       "filenames": [
-        "db_create.py"
+        "models.py",
+        "database.py"
       ],
       "children": [
         "step7"
@@ -65,10 +67,9 @@
     },
     "step7": {
       "id": "step7",
-      "description": "Implement API routes and endpoints",
+      "description": "Test the calculator functionality",
       "filenames": [
-        "app.py",
-        "routes.py"
+        "test_calculator.py"
       ],
       "children": [
         "step8"
@@ -76,30 +77,10 @@
     },
     "step8": {
       "id": "step8",
-      "description": "Add error handling and validation",
+      "description": "Deploy and run the calculator application",
       "filenames": [
-        "app.py",
-        "routes.py",
-        "validators.py"
+        "run.py"
       ],
-      "children": [
-        "step9"
-      ]
-    },
-    "step9": {
-      "id": "step9",
-      "description": "Test the API endpoints using a tool like Postman or curl",
-      "filenames": [
-        "test_api.py"
-      ],
-      "children": [
-        "step10"
-      ]
-    },
-    "step10": {
-      "id": "step10",
-      "description": "End the process",
-      "filenames": [],
       "children": []
     }
   },

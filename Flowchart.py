@@ -157,6 +157,7 @@ class Flowchart:
             step = Step(
                 id=step_id,
                 description=description,
+                filenames=filenames,
                 children=next_steps
             )
             

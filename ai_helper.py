@@ -2,6 +2,9 @@ import os
 import json
 import re
 from openai import OpenAI
+from dotenv import load_dotenv
+
+load_dotenv()
 
 
 def generate_flowchart_from_description(task_description):
@@ -11,7 +14,7 @@ def generate_flowchart_from_description(task_description):
     """
     
     # Get API key from environment variable
-    api_key = os.environ.get('NOVA_API_KEY')
+    api_key = os.getenv("NOVA_API_KEY")
     
     # Check if API key exists
     if not api_key:
