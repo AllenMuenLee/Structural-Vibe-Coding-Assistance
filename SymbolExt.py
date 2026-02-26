@@ -154,6 +154,38 @@ def _walk_symbols(source_bytes, node, language, class_stack, tags):
         return
 
 
+def _walk_python_imports(source_bytes, node, imports, include_line=False):
+    if node.type in ("import_statement", "import_from_statement"):
+        text = _node_text(source_bytes, node).strip()
+        if text:
+            if include_line:
+                imports.append({
+                    "name": text,
+                    "kind": "import",
+                    "line": node.start_point[0] + 1,
+                })
+            else:
+                imports.append(text)
+    for child in node.children:
+        _walk_python_imports(source_bytes, child, imports, include_line=include_line)
+
+
+def _walk_js_imports(source_bytes, node, imports, include_line=False):
+    if node.type == "import_statement":
+        text = _node_text(source_bytes, node).strip()
+        if text:
+            if include_line:
+                imports.append({
+                    "name": text,
+                    "kind": "import",
+                    "line": node.start_point[0] + 1,
+                })
+            else:
+                imports.append(text)
+    for child in node.children:
+        _walk_js_imports(source_bytes, child, imports, include_line=include_line)
+
+
 def get_ast_map(code, file_path):
     language = _detect_language(file_path)
     if not language:
@@ -164,6 +196,57 @@ def get_ast_map(code, file_path):
     tags = []
     _walk_symbols(source_bytes, tree.root_node, language, [], tags)
     return tags
+
+
+def initialize_ast_map(root_dir, ast_map=None):
+    """Populate ast_map by scanning existing source files."""
+    skip_dirs = {".git", "__pycache__"}
+    ast_map = ast_map or {}
+    for dirpath, dirnames, filenames in os.walk(root_dir):
+        dirnames[:] = [d for d in dirnames if d not in skip_dirs]
+        for filename in filenames:
+            file_path = os.path.join(dirpath, filename)
+            try:
+                with open(file_path, "r", encoding="utf-8") as f:
+                    code = f.read()
+                norm_path = os.path.normpath(file_path)
+                ast_map[norm_path] = get_ast_map(code, file_path=norm_path)
+            except Exception:
+                continue
+    return ast_map
+
+
+def list_imports(code, fileset, include_line=False):
+    if isinstance(fileset, (list, tuple, set)):
+        imports = []
+        seen_paths = set()
+        for path in fileset:
+            norm_path = os.path.normpath(path)
+            if norm_path in seen_paths:
+                continue
+            seen_paths.add(norm_path)
+            if not os.path.exists(norm_path):
+                continue
+            try:
+                with open(norm_path, "r", encoding="utf-8") as fh:
+                    file_code = fh.read()
+            except Exception:
+                continue
+            imports.extend(list_imports(file_code, norm_path, include_line=include_line))
+        return imports
+
+    language = _detect_language(fileset)
+    if not language:
+        return []
+    parser = get_parser(language)
+    source_bytes = code.encode("utf-8", errors="ignore")
+    tree = parser.parse(source_bytes)
+    imports = []
+    if language == "python":
+        _walk_python_imports(source_bytes, tree.root_node, imports, include_line=include_line)
+    elif language in ("javascript", "typescript", "tsx"):
+        _walk_js_imports(source_bytes, tree.root_node, imports, include_line=include_line)
+    return imports
 
 
 def _summarize_leaf_text(text):
@@ -254,54 +337,63 @@ def extract_symbol_tree(ast_map, file_set):
         if tags:
             normalized_ast_map[norm_f].extend(tags)
 
-    def _get_leading_comment(lines, line_no):
+    def _get_doc_comment(lines, line_no, language):
         if not line_no or line_no < 1 or line_no > len(lines):
             return ""
-        idx = line_no - 2
-        comments = []
-        in_block = False
-        while idx >= 0:
-            raw = lines[idx]
-            line = raw.rstrip()
-            stripped = line.strip()
-            if not stripped:
-                if comments:
+        idx = line_no - 1
+
+        if language == "python":
+            for j in range(idx, min(idx + 6, len(lines))):
+                stripped = lines[j].strip()
+                if stripped.startswith(("'''", '"""')):
+                    quote = stripped[:3]
+                    content = stripped[3:]
+                    if content.endswith(quote) and len(content) > 3:
+                        return content[:-3].strip()
+                    parts = []
+                    if content:
+                        parts.append(content)
+                    k = j + 1
+                    while k < len(lines):
+                        line = lines[k]
+                        if quote in line:
+                            before, _sep, _after = line.partition(quote)
+                            parts.append(before)
+                            break
+                        parts.append(line)
+                        k += 1
+                    return " ".join(p.strip() for p in parts if p.strip())
+            return ""
+
+        idx -= 1
+        while idx >= 0 and not lines[idx].strip():
+            idx -= 1
+        if idx < 0:
+            return ""
+        if lines[idx].strip().endswith("*/"):
+            parts = []
+            while idx >= 0:
+                line = lines[idx].strip()
+                parts.append(line)
+                if line.startswith("/**"):
                     break
                 idx -= 1
-                continue
-            if stripped.startswith("#"):
-                comments.append(stripped.lstrip("#").strip())
-                idx -= 1
-                continue
-            if stripped.endswith("*/"):
-                in_block = True
-                comments.append(stripped.rstrip("*/").strip())
-                idx -= 1
-                continue
-            if in_block:
-                if stripped.startswith("/*"):
-                    in_block = False
-                    comments.append(stripped.lstrip("/*").strip())
-                else:
-                    comments.append(stripped.lstrip("*").strip())
-                idx -= 1
-                continue
-            if stripped.startswith("//"):
-                comments.append(stripped.lstrip("/").strip())
-                idx -= 1
-                continue
-            break
-        comments = [c for c in reversed(comments) if c]
-        return " ".join(comments)
+            parts = list(reversed(parts))
+            body = " ".join(
+                p.replace("/**", "").replace("*/", "").lstrip("*").strip()
+                for p in parts
+            ).strip()
+            return body
+        return ""
 
-    def _format_tag(tag, lines):
+    def _format_tag(tag, lines, language):
         kind = tag.get("kind", "symbol").capitalize()
         name = tag.get("name", "?")
         line = tag.get("line")
         parent = tag.get("parent")
         line_part = f" (line {line})" if line else ""
         parent_part = f" in `{parent}`" if parent else ""
-        comment = _get_leading_comment(lines, line) if lines else ""
+        comment = _get_doc_comment(lines, line, language) if lines else ""
         comment_part = comment if comment else "(no comment)"
         return f"- [{kind}] `{name}`{line_part}{parent_part} -> {comment_part}"
 
@@ -310,13 +402,14 @@ def extract_symbol_tree(ast_map, file_set):
             context_lines.append(f"File {path_key}:\n# (no symbols)")
             return
         lines = None
+        language = _detect_language(path_key)
         if os.path.exists(path_key):
             try:
                 with open(path_key, "r", encoding="utf-8") as fh:
                     lines = fh.read().splitlines()
             except Exception:
                 lines = None
-        tag_lines = [_format_tag(t, lines) for t in tags]
+        tag_lines = [_format_tag(t, lines, language) for t in tags]
         context_lines.append(f"File {path_key}:\n" + "\n".join(tag_lines))
 
     if normalized_file_set:

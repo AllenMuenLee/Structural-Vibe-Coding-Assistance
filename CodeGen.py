@@ -10,7 +10,7 @@ import SymbolExt
 load_dotenv()
 
 client = OpenAI(
-    api_key=os.getenv("AWS_SECRET_ACCESS_KEY"),
+    api_key=os.getenv("NOVA_API_KEY"),
     base_url="https://api.nova.amazon.com/v1"
 )
 
@@ -19,25 +19,8 @@ class CodingAgent:
         self.ast_map = {}
         self.project_name = project_name
         if not self._load_ast_map():
-            self.initialize_ast_map(self.project_name)
-
-    def initialize_ast_map(self, root_dir):
-        """Populate ast_map by scanning existing source files."""
-        skip_dirs = {".git", "__pycache__"}
-        for dirpath, dirnames, filenames in os.walk(root_dir):
-            dirnames[:] = [d for d in dirnames if d not in skip_dirs]
-            for filename in filenames:
-                file_path = os.path.join(dirpath, filename)
-                try:
-                    with open(file_path, "r", encoding="utf-8") as f:
-                        code = f.read()
-                    norm_path = os.path.normpath(file_path)
-                    self.ast_map[norm_path] = SymbolExt.get_ast_map(
-                        code, file_path=norm_path
-                    )
-                except Exception:
-                    continue
-        self._save_ast_map()
+            self.ast_map = SymbolExt.initialize_ast_map(self.project_name, self.ast_map)
+            self._save_ast_map()
 
     def _save_ast_map(self):
         ast_map_path = self.project_name + "/ast_map.json"
@@ -55,52 +38,49 @@ class CodingAgent:
         except Exception:
             return False
 
-    def call_nova(self, data):
-        file_set = {p for p in data.get("filenames", [])}
+    def call_nova(self, step):
+        file_set = {p for p in step.get("filenames", [])}
         
         context = SymbolExt.extract_symbol_tree(self.ast_map, file_set)
+        import_list = SymbolExt.list_imports(None, file_set)
+        context += "\n\nIMPORTS:\n" + "\n".join(import_list)
         print(context)
         SYSTEM_PROMPT = """You are a senior software architect and coding agent. the user will give you a description of a coding task, which is a step in a larger project.
         GENERAL RULES:
         1. Provide the code you want to implement. No conversational filler or explanations.
         2. you will be provided a context, which is a symbol table. Use it to context of the current file. The format of the symbol table will be:
-        - [type] `name` (line #) -> #comment
+        File filepath:
+        - [type] `name` (line #) -> (docstring)
+
+        IMPORT:
+        <import lines>
 
         CODING RULES:
-        1. Raad the symbol table, if there are exisiting code, you're job is to add new code that is not repeated. 
+        1. Raad the symbol table, if there are exisiting code or import, you're job is to add new code that is not repeated. 
         2. If there is no existing code, only generate code according to the descrption.
-        3. If you have new code to implementation, output MUST use this format ONLY, this is an example:
-        [main.py]
-        ```python
-        def new_function():
-            #comment
-            pass
-        ```
-        3. comment every functions and classes with this format:
-        function definitions / class definitions:
-            #comment
+        3. list the functions and imports you see from the symbol table before the code.
+        4. If you have new code to implementation, output MUST use this format ONLY (every words indicate the content you should fill, not the literal word):
 
-        QUESTION RULES:
-        1. unless you think the code will not work, don't ask questions.
-        1. If anything like
-            -unclear description
-            -no new code to generate
-        please clarify that using the format below and don't generate the code:
-        ### QUESTION: [Your question here]
+        [Filename.py]
+        ```
+        <code>
+        ```
+        3. add docstring for each function and class.
         """
 
         prompt = f"""
         CONTEXT OF EXISTING FILES:
         {context}
 
-        TASK: {data['description']}
-        FILES TO GENERATE: {data['filenames']}
+        TASK: {step['description']}
+        FILES TO GENERATE: {step['filenames']}
 
-        Please give the raw code and comment right below the function or class definition, don't put it above
+        Please give the list of functions and imports you see from the symbol table as a comment
+        Please give the raw code and docstring right below the function or class definition, don't put it above
         or ask questions if the code is repeated or not clear context, please don't skip asking question even if the code is short.
         """
         response = client.chat.completions.create(
-            model="nova-2-lite-v1",
+            model="nova-pro-v1",
             messages=[
                 {
                     "role": "system",
@@ -121,25 +101,20 @@ class CodingAgent:
         return response.choices[0].message.content
 
 
-    def generate_by_steps(self, procedure, visited_nodes = []):
-        """Iterates through the dictionary structure: {ID: {data}}"""
-        for step_id, data in procedure.items():
-            if (step_id in visited_nodes):
-                continue
-            visited_nodes.append(step_id)
-            print(f"--- Executing Step {step_id}: {data['description']} ---")
+    def generate(self, step):
             
-            # Build context from previously created file skeletons
-            
-            raw_code = self.call_nova(data)
-            self.save_and_update(raw_code)
+        raw_code = self.call_nova(step)
+        if "### QUESTION:" in raw_code:
+            print(raw_code)
+            return raw_code
+        self.save_and_update(raw_code)
 
             # If this node has children (as IDs), you would handle them here
             # In your format, 'children' is a list of keys to other dict entries
-            if data.get("children"):
-                # Filter the main dict for only these children and recurse
-                child_subdict = {c_id: procedure[c_id] for c_id in data["children"] if c_id in procedure}
-                self.generate_by_steps(child_subdict)
+        for c in step["children"]:
+            self.generate(c)
+
+        return None
 
     def save_and_update(self, text):
         pattern = r"\[([^\]]+)\]:?\s*```(?:[a-zA-Z0-9_+-]*)\n(.*?)\n```"
@@ -167,4 +142,4 @@ if __name__ == "__main__":
     agent = CodingAgent(project_name)
     filepath = project_name + "/procedure.json"
     procedure = FileMng.get_procedure(filepath)
-    agent.generate_by_steps(procedure)
+    agent.generate(procedure["start"])
