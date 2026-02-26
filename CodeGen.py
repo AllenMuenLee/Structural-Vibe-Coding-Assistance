@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 import FileMng
 import SymbolExt
 from pathlib import Path
+import time
 
 load_dotenv()
 
@@ -42,8 +43,6 @@ class CodingAgent:
     def call_nova(self, step):
         file_set = {}
 
-        print(step)
-
         if (not step['filenames']):
             return ""
 
@@ -64,21 +63,29 @@ class CodingAgent:
         2. you will be provided a context, which is a symbol table. Use it to context of the current file. The format of the symbol table will be:
         File filepath:
         - [type] `name` (line #) -> (docstring)
+        ...
 
         IMPORT:
-        <import lines>
+        <import lines...>
+        3. After you draft the code, review every requirement, if the requirement is not fulfilled, modify the code until it does.
 
         CODING RULES:
         1. Raad the symbol table, if there are exisiting code or import, you're job is to add new code that is not repeated. 
         2. If there is no existing code, only generate code according to the descrption.
         3. list the functions and imports you see from the symbol table before the code.
-        4. If you have new code to implementation, output MUST use this format ONLY (every words indicate the content you should fill, not the literal word):
-
-        [Filename.py]
+        4. The output MUST strictly follow this format:
+        [Filename]
         ```
-        <code>
+        code
         ```
-        3. add docstring for each function and class.
+        [Filename]
+        ```
+        code
+        ```
+        ...
+        5. when indicating the filename, don't use # filename.py, use [filename.py]
+        6. check all of the requested files are included.
+        6. add docstring for each function and class.
         """
 
         prompt = f"""
@@ -92,35 +99,39 @@ class CodingAgent:
         Please give the raw code and docstring right below the function or class definition, don't put it above
         or ask questions if the code is repeated or not clear context, please don't skip asking question even if the code is short.
         """
-        response = client.chat.completions.create(
-            model="nova-pro-v1",
-            messages=[
-                {
-                    "role": "system",
-                    "content": SYSTEM_PROMPT
-                },
-                {
-                    "role": "user",
-                    "content": prompt
-                },
-            ],
-            temperature=0.1,
-            max_tokens=3000,
-            stream=False
-        )
-
-        print(response.choices[0].message.content)
-        
-        return response.choices[0].message.content
+        try:
+            response = client.chat.completions.create(
+                model="nova-pro-v1",
+                messages=[
+                    {
+                        "role": "system",
+                        "content": SYSTEM_PROMPT
+                    },
+                    {
+                        "role": "user",
+                        "content": prompt
+                    },
+                ],
+                temperature=0.1,
+                max_tokens=3000,
+                stream=False
+            )
+            print(response)
+            return response.choices[0].message.content
+        except Exception as e:
+            if ("Error code: 429" in str(e)):
+                time.sleep(10)
+                return self.call_nova(step)
 
 
     def generate(self, procedure,step):
             
         raw_code = self.call_nova(step)
-        if "### QUESTION:" in raw_code:
-            print(raw_code)
-            return raw_code
-        self.save_and_update(raw_code)
+        if (type(raw_code) != type(None)):
+            if "### QUESTION:" in raw_code:
+                print(raw_code)
+                return raw_code
+            self.save_and_update(raw_code)
 
             # If this node has children (as IDs), you would handle them here
             # In your format, 'children' is a list of keys to other dict entries
@@ -137,16 +148,16 @@ class CodingAgent:
         
         extracted_data = {}
         for filename, code in matches:
+            norm_filename = os.path.normpath(filename)
+            norm_filename = Path(norm_filename)
+            norm_filename.parent.mkdir(parents=True, exist_ok=True)
+
             with open(filename, "a", encoding="utf-8") as f:
                 f.write(code)
                 f.write("\n\n")  # Add spacing between code blocks if multiple are added to the same file
 
             with open(filename, "r", encoding="utf-8") as f:
                 full_code = f.read()
-
-            norm_filename = os.path.normpath(filename)
-            norm_filename = Path(norm_filename)
-            norm_fliename.parent.mkdir(parents=True, exist_ok=True)
 
             self.ast_map[norm_filename] = SymbolExt.get_ast_map(
                 full_code, file_path=norm_filename

@@ -1,0 +1,48 @@
+/* General styling for the calculator */
+.calculator {
+    border: 1px solid #ccc;
+    padding: 20px;
+    background-color: #f9f9f9;
+    width: 300px;
+    margin: 0 auto;
+    border-radius: 5px;
+}
+
+/* Styling for the display */
+.display {
+    background-color: #fff;
+    border: 1px solid #ccc;
+    padding: 10px;
+    font-size: 1.5em;
+    text-align: right;
+    margin-bottom: 10px;
+}
+
+/* Styling for buttons */
+.button {
+    background-color: #f0f0f0;
+    border: 1px solid #ccc;
+    padding: 10px;
+    font-size: 1.2em;
+    margin: 5px;
+    cursor: pointer;
+    border-radius: 3px;
+}
+
+/* Styling for the equals button */
+.button.equals {
+    background-color: #ff9500;
+    color: white;
+}
+
+/* Styling for the clear button */
+.button.clear {
+    background-color: #ff3b30;
+    color: white;
+}
+
+/* Hover effect for buttons */
+.button:hover {
+    background-color: #e0e0e0;
+}
+

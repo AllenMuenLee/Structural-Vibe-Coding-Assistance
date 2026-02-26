@@ -33,7 +33,7 @@ def main():
     
     # Step 4: Save to JSON file
     filename = "flowchart.json"
-    my_flowchart.save_to_file(filename)
+    my_flowchart.save_to_file(my_flowchart.project_name + '/' +filename)
     print(f"✓ Saved to {filename}")
     print()
     

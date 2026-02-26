@@ -1,0 +1,95 @@
+{
+  "name": "create a calculator",
+  "start_id": "step1",
+  "steps": {
+    "step1": {
+      "id": "step1",
+      "description": "Start the calculator project",
+      "filenames": [],
+      "children": [
+        "step2"
+      ]
+    },
+    "step2": {
+      "id": "step2",
+      "description": "Set up Flask application structure",
+      "filenames": [
+        "project_1/app.py",
+        "project_1/templates/base.html",
+        "project_1/templates/index.html",
+        "project_1/static/styles.css"
+      ],
+      "children": [
+        "step3"
+      ]
+    },
+    "step3": {
+      "id": "step3",
+      "description": "Implement calculator logic in Python",
+      "filenames": [
+        "project_1/calculator_logic.py"
+      ],
+      "children": [
+        "step4"
+      ]
+    },
+    "step4": {
+      "id": "step4",
+      "description": "Create HTML templates for user interface",
+      "filenames": [
+        "project_1/templates/calculator.html"
+      ],
+      "children": [
+        "step5"
+      ]
+    },
+    "step5": {
+      "id": "step5",
+      "description": "Add CSS styling for the calculator",
+      "filenames": [
+        "project_1/static/calculator.css"
+      ],
+      "children": [
+        "step6"
+      ]
+    },
+    "step6": {
+      "id": "step6",
+      "description": "Integrate calculator logic with Flask routes",
+      "filenames": [
+        "project_1/app.py"
+      ],
+      "children": [
+        "step7"
+      ]
+    },
+    "step7": {
+      "id": "step7",
+      "description": "Set up SQLite database for storing calculation history (optional)",
+      "filenames": [
+        "project_1/models.py",
+        "project_1/database.py"
+      ],
+      "children": [
+        "step8"
+      ]
+    },
+    "step8": {
+      "id": "step8",
+      "description": "Test the calculator application",
+      "filenames": [
+        "project_1/test_calculator.py"
+      ],
+      "children": [
+        "step9"
+      ]
+    },
+    "step9": {
+      "id": "step9",
+      "description": "Deploy and launch the calculator application",
+      "filenames": [],
+      "children": []
+    }
+  },
+  "framework": "Python, Flask, SQLite"
+}
