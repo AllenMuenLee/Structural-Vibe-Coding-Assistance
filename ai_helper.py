@@ -28,27 +28,34 @@ def generate_flowchart_from_description(task_description):
 
 Return ONLY a valid JSON object with this exact structure (no extra text):
 {{
+    "framework": "Python, Flask, SQLite",
     "steps": [
         {{
             "id": "step1",
             "type": "start",
             "description": "Start the process",
+            "filenames": [],
             "next": ["step2"]
         }},
         {{
             "id": "step2",
             "type": "process",
             "description": "Do something",
+            "filenames": ["example.py"],
             "next": ["step3"]
         }},
         {{
             "id": "step3",
             "type": "end",
             "description": "End the process",
+            "filenames": [],
             "next": []
         }}
     ]
 }}
+
+- "framework": comma-separated list of tools/languages needed for the ENTIRE project
+- "filenames": list of files needed for each individual step
 
 Make sure the flowchart makes sense for: {task_description}"""
     
@@ -56,7 +63,7 @@ Make sure the flowchart makes sense for: {task_description}"""
     response = client.chat.completions.create(
         model="nova-2-lite-v1",
         messages=[
-            {"role": "system", "content": "You are a helpful assistant that creates flowcharts. Always respond with valid JSON only."},
+            {"role": "system", "content": "You are a helpful assistant that creates detailed flowcharts with file information. Always respond with valid JSON only."},
             {"role": "user", "content": prompt}
         ],
         temperature=0.7,
@@ -78,9 +85,7 @@ Make sure the flowchart makes sense for: {task_description}"""
         ai_response = re.sub(r'\n```\s*$', '', ai_response)
     
     # Parse JSON
-    try:
-        flowchart_data = json.loads(ai_response)
-    except json.JSONDecodeError as e:
-        raise Exception(f"Could not parse JSON: {e}\nResponse: {ai_response[:200]}")
+    
+    flowchart_data = json.loads(ai_response)
     
     return flowchart_data

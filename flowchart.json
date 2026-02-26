@@ -1,0 +1,107 @@
+{
+  "name": "create a web API with database",
+  "start_id": "step1",
+  "steps": {
+    "step1": {
+      "id": "step1",
+      "description": "Start the process",
+      "filenames": [],
+      "children": [
+        "step2"
+      ]
+    },
+    "step2": {
+      "id": "step2",
+      "description": "Set up the project structure",
+      "filenames": [
+        "requirements.txt",
+        "app.py",
+        "config.py"
+      ],
+      "children": [
+        "step3"
+      ]
+    },
+    "step3": {
+      "id": "step3",
+      "description": "Install dependencies",
+      "filenames": [
+        "requirements.txt"
+      ],
+      "children": [
+        "step4"
+      ]
+    },
+    "step4": {
+      "id": "step4",
+      "description": "Initialize Flask application and configure SQLite database",
+      "filenames": [
+        "app.py",
+        "config.py"
+      ],
+      "children": [
+        "step5"
+      ]
+    },
+    "step5": {
+      "id": "step5",
+      "description": "Define database models using SQLAlchemy",
+      "filenames": [
+        "models.py"
+      ],
+      "children": [
+        "step6"
+      ]
+    },
+    "step6": {
+      "id": "step6",
+      "description": "Create database tables",
+      "filenames": [
+        "db_create.py"
+      ],
+      "children": [
+        "step7"
+      ]
+    },
+    "step7": {
+      "id": "step7",
+      "description": "Implement API routes and endpoints",
+      "filenames": [
+        "app.py",
+        "routes.py"
+      ],
+      "children": [
+        "step8"
+      ]
+    },
+    "step8": {
+      "id": "step8",
+      "description": "Add error handling and validation",
+      "filenames": [
+        "app.py",
+        "routes.py",
+        "validators.py"
+      ],
+      "children": [
+        "step9"
+      ]
+    },
+    "step9": {
+      "id": "step9",
+      "description": "Test the API endpoints using a tool like Postman or curl",
+      "filenames": [
+        "test_api.py"
+      ],
+      "children": [
+        "step10"
+      ]
+    },
+    "step10": {
+      "id": "step10",
+      "description": "End the process",
+      "filenames": [],
+      "children": []
+    }
+  },
+  "framework": "Python, Flask, SQLite"
+}

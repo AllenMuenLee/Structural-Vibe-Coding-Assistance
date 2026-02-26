@@ -5,11 +5,12 @@ import json
 class Flowchart:
     """In-memory graph of steps; utility helpers to manage nodes/edges."""
     
-    def __init__(self, name):
+    def __init__(self, name, framework):
         """This method initializes the flowchart with the given name"""
         self.name = name #String
         self.steps = {} #Dictionary {step.id : step}
         self.start_id = None #String
+        self.framework = framework #String
     
     def add_step(self, step):
         """Add a step to the flowchart."""
@@ -63,7 +64,8 @@ class Flowchart:
         return {
             'name': self.name,
             'start_id': self.start_id,
-            'steps': steps_dict
+            'steps': steps_dict,
+            'framework': self.framework
         }
 
     def dictionary_to_flowchart(self, dictionary):
@@ -130,22 +132,40 @@ class Flowchart:
                 step.children.remove(child_id)
             return True
         return False
+
     def create_from_ai_response(self, ai_data):
         """
         Take AI response data and create flowchart.
         """
         
+        # Set framework if provided
+        if 'framework' in ai_data:
+            self.framework = ai_data['framework']
+        
         # Loop through each step in AI response
         for step_data in ai_data['steps']:
             
-            # Create a Step object
+            # Extract data
             step_id = step_data['id']
-            step_type = step_data['type']
+            step_type = step_data.get('type', 'process')
             description = step_data['description']
+            filenames = step_data.get('filenames', [])
             next_steps = step_data['next']
             
+            # Create a Step object
+            step = Step(
+                id=step_id,
+                description=description,
+                filenames=filenames,
+                children=next_steps
+            )
+            
             # Add step to flowchart
-            self.add_step(step_id, step_type, description, next_steps)
+            self.add_step(step)
+            
+            # Set the first step as start if it's type "start"
+            if step_type == "start" and self.start_id is None:
+                self.set_start(step_id)
         
         return self
 

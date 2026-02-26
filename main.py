@@ -1,7 +1,6 @@
 import json
 from Flowchart import Flowchart
 from ai_helper import generate_flowchart_from_description
-import CodeGen
 
 
 def main():
@@ -19,16 +18,15 @@ def main():
     
     # Step 2: Generate flowchart from AI
     print("Generating flowchart with AI...")
-    try:
-        ai_data = generate_flowchart_from_description(task_description)
-        print("✓ AI generated flowchart structure")
-        print()
-    except Exception as e:
-        print(f"Error calling AI: {e}")
-        return
     
-    # Step 3: Create Flowchart object with name
-    my_flowchart = Flowchart(task_description)  # ✅ Added name parameter
+    ai_data = generate_flowchart_from_description(task_description)
+    print("✓ AI generated flowchart structure")
+    print()
+    
+    
+    # Step 3: Create Flowchart object with name and framework
+    framework = ai_data.get('framework', '')  # Get framework from AI response
+    my_flowchart = Flowchart(name=task_description, framework=framework)
     my_flowchart.create_from_ai_response(ai_data)
     print("✓ Flowchart created")
     print()
