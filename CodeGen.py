@@ -8,6 +8,7 @@ import FileMng
 import SymbolExt
 from pathlib import Path
 import time
+import Command
 
 load_dotenv()
 
@@ -18,6 +19,7 @@ client = OpenAI(
 
 class CodingAgent:
     def __init__(self, project_name):
+        Command.run_command(f"cd {project_name}")
         self.ast_map = {}
         self.project_name = project_name
         if not self._load_ast_map():
@@ -42,6 +44,9 @@ class CodingAgent:
 
     def call_nova(self, step):
         file_set = {}
+
+        for c in step['command']:
+            Command.run_command(c, cwd=self.project_name)
 
         if (not step['filenames']):
             return ""

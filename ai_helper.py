@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-def generate_flowchart_from_description(task_description):
+def generate_flowchart_from_description(task_description, project_name):
     """
     Send task description to Amazon Nova AI.
     Get back flowchart structure.
@@ -30,7 +30,7 @@ def generate_flowchart_from_description(task_description):
 include id, type, description (describe what this step does), filenames (files to create or add code), files_to_import (previous built files to import, not api), and next step for each step.
 Return ONLY a valid JSON object with this exact structure (no extra text):
 {{
-    "framework": "Python, Flask, HTML, CSS, JavaScript",
+    "framework": "Any framework that's applicable",
     "steps": [
         {{
             "id": "step1",
@@ -38,6 +38,7 @@ Return ONLY a valid JSON object with this exact structure (no extra text):
             "description": "Start the process",
             "filenames": [],
             "files_to_import": [],
+            "command": ["List of command for setting up framework"],
             "next": ["step2"]
         }},
         {{
@@ -46,6 +47,7 @@ Return ONLY a valid JSON object with this exact structure (no extra text):
             "description": "Do something",
             "filenames": ["library.extension"],
             "files_to_import": [],
+            "command": ["install an api"],
             "next": ["step3"]
         }},
         {{
@@ -54,6 +56,7 @@ Return ONLY a valid JSON object with this exact structure (no extra text):
             "description": "Do something",
             "filenames": ["example.extension"],
             "files_to_import": ["library.extension"],
+            "command": [],
             "next": ["step4"]
         }},
         {{
@@ -62,6 +65,7 @@ Return ONLY a valid JSON object with this exact structure (no extra text):
             "description": "End the process",
             "filenames": [],
             "files_to_import": []
+            "command": [],
             "next": []
         }}
     ]
@@ -72,13 +76,16 @@ Return ONLY a valid JSON object with this exact structure (no extra text):
 
 Make sure the flowchart makes sense for: {task_description}"""
 
-    system_prompt = """You are a helpful assistant that creates detailed flowcharts with file information. Always respond with valid JSON only.
+    system_prompt = f"""You are a helpful assistant that creates detailed flowcharts with file information. Always respond with valid JSON only.
     For each step you create, the must follow this rule:
-    1. the less file created the better.
-    2. The step must describe the functions and elements to create in detail.
-    3. Review the flowchart, make sure it efficiently use each file's existing functions if created previously.
-    4. The framework the user put in the example is just for format reference, you can choose any framework.
-    5. write the main file at the very end.
+    1. list a list of commands to for installing library or set up enviroment.
+    2. DO NOT use create-framework-app command, instead, initialize {project_name}/, an existing folder.
+    3. Don't write cd commands
+    4. the less file created the better (1 function to 1 file is the best).
+    5. The step must describe the functions and elements to create in detail.
+    6. Review the flowchart, make sure it efficiently use each file's existing functions if created previously.
+    7. The framework the user put in the example is just for format reference, you can choose any framework.
+    8. write the main file (the one that intergrate and output the final result) at the very end
     """
     
     # Call Nova AI
@@ -89,7 +96,7 @@ Make sure the flowchart makes sense for: {task_description}"""
             {"role": "user", "content": prompt}
         ],
         temperature=0.5,
-        max_tokens=2000
+        max_tokens=2500
     )
     print(prompt)
     

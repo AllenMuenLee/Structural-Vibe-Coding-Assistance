@@ -5,13 +5,13 @@ import json
 class Flowchart:
     """In-memory graph of steps; utility helpers to manage nodes/edges."""
     
-    def __init__(self, name, framework):
+    def __init__(self, name, framework, project_name):
         """This method initializes the flowchart with the given name"""
         self.name = name #String
         self.steps = {} #Dictionary {step.id : step}
         self.start_id = None #String
         self.framework = framework #String
-        self.project_name = "project_1"
+        self.project_name = project_name
     
     def add_step(self, step):
         """Add a step to the flowchart."""
@@ -46,7 +46,7 @@ class Flowchart:
     
     def __repr__(self):
         """String representation of the flowchart."""
-        return (f"Flowchart(name='{self.name}', steps={self.steps}, start_id='{self.start_id}')")
+        return (f"Flowchart(name='{self.name}', steps={self.steps}, start_id='{self.start_id}', framework='{self.framework}')")
 
     def flowchart_to_dictionary(self):
         """Convert flowchart to dictionary for saving."""
@@ -153,6 +153,7 @@ class Flowchart:
             description = step_data['description']
             filenames = step_data.get('filenames', [])
             files_to_import = step_data.get('files_to_import', [])
+            command = step_data.get('command', [])
             next_steps = step_data['next']
 
             
@@ -162,6 +163,7 @@ class Flowchart:
                 description=description,
                 filenames=[self.project_name + '/' + f for f in filenames],
                 files_to_import=[self.project_name + '/' + f for f in files_to_import],
+                command=command,
                 children=next_steps
             )
             

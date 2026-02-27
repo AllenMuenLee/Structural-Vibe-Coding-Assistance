@@ -7,6 +7,8 @@ def main():
     """
     Main function to run the vibe coding app.
     """
+
+    project_name = "project_1"
     
     print("=== Vibe Coding App ===")
     print()
@@ -19,14 +21,16 @@ def main():
     # Step 2: Generate flowchart from AI
     print("Generating flowchart with AI...")
     
-    ai_data = generate_flowchart_from_description(task_description)
+    ai_data = generate_flowchart_from_description(task_description, project_name)
     print("✓ AI generated flowchart structure")
     print()
     
+    print(ai_data)
     
     # Step 3: Create Flowchart object with name and framework
     framework = ai_data.get('framework', '')  # Get framework from AI response
-    my_flowchart = Flowchart(name=task_description, framework=framework)
+    command = ai_data.get('COMMAND', '')  # Get command from AI response
+    my_flowchart = Flowchart(name=task_description, framework=framework, project_name=project_name)
     my_flowchart.create_from_ai_response(ai_data)
     print("✓ Flowchart created")
     print()
