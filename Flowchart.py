@@ -156,13 +156,13 @@ class Flowchart:
             command = step_data.get('command', [])
             next_steps = step_data['next']
 
-            
+            filepath = self.project_name + '/' + self.project_name + '/'
             # Create a Step object
             step = Step(
                 id=step_id,
                 description=description,
-                filenames=[self.project_name + '/' + f for f in filenames],
-                files_to_import=[self.project_name + '/' + f for f in files_to_import],
+                filenames=[filepath + f for f in filenames],
+                files_to_import=[filepath + f for f in files_to_import],
                 command=command,
                 children=next_steps
             )

@@ -27,76 +27,76 @@ def generate_flowchart_from_description(task_description, project_name):
     
     # Create the prompt for Nova
     prompt = f"""Create a flowchart for this task: {task_description}
-include id, type, description (describe what this step does), filenames (files to create or add code), files_to_import (previous built files to import, not api), and next step for each step.
-Return ONLY a valid JSON object with this exact structure (no extra text):
-{{
-    "framework": "Any framework that's applicable",
-    "steps": [
-        {{
-            "id": "step1",
-            "type": "start",
-            "description": "Start the process",
-            "filenames": [],
-            "files_to_import": [],
-            "command": ["List of command for setting up framework"],
-            "next": ["step2"]
-        }},
-        {{
-            "id": "step2",
-            "type": "process",
-            "description": "Do something",
-            "filenames": ["library.extension"],
-            "files_to_import": [],
-            "command": ["install an api"],
-            "next": ["step3"]
-        }},
-        {{
-            "id": "step3",
-            "type": "process",
-            "description": "Do something",
-            "filenames": ["example.extension"],
-            "files_to_import": ["library.extension"],
-            "command": [],
-            "next": ["step4"]
-        }},
-        {{
-            "id": "step4",
-            "type": "end",
-            "description": "End the process",
-            "filenames": [],
-            "files_to_import": []
-            "command": [],
-            "next": []
-        }}
-    ]
-}}
+    NO CREATING main.py, index.html, or page.tsx, before buliding other files
+    Return ONLY a valid JSON object with this exact structure (no extra text), like this example (this is just an example):
+    {{
+        "framework": "Any framework that's applicable",
+        "steps": [
+            {{
+                "id": "step1",
+                "type": "start",
+                "description": "Start the process",
+                "filenames": [],
+                "files_to_import": [],
+                "command": ["initialize the project"],
+                "next": ["step2"]
+            }},
+            {{
+                "id": "step2",
+                "type": "process",
+                "description": "Do something",
+                "filenames": ["library.extension"],
+                "files_to_import": [],
+                "command": ["install an api"],
+                "next": ["step3"]
+            }},
+            {{
+                "id": "step3",
+                "type": "process",
+                "description": "Do something",
+                "filenames": ["example.extension"],
+                "files_to_import": ["library.extension"],
+                "command": [],
+                "next": ["step4"]
+            }},
+            {{
+                "id": "step4",
+                "type": "end",
+                "description": "End the process",
+                "filenames": [],
+                "files_to_import": []
+                "command": [],
+                "next": []
+            }}
+        ]
+    }}
 
-- "framework": comma-separated list of tools/languages needed for the ENTIRE project
-- "filenames": list of files needed for each individual step
+    - "framework": comma-separated list of tools/languages needed for the ENTIRE project
+    - "filenames": list of files needed for each individual step
 
-Make sure the flowchart makes sense for: {task_description}"""
+    Make sure the flowchart makes sense for: {task_description}"""
 
     system_prompt = f"""You are a helpful assistant that creates detailed flowcharts with file information. Always respond with valid JSON only.
     For each step you create, the must follow this rule:
     1. list a list of commands to for installing library or set up enviroment.
-    2. DO NOT use create-framework-app command, instead, initialize {project_name}/, an existing folder.
-    3. Don't write cd commands
-    4. the less file created the better (1 function to 1 file is the best).
-    5. The step must describe the functions and elements to create in detail.
+    2. You must perform all project initialization directly within the root directry. Initialization commands should use parameters like --yes to skip all of the buliding process.
+    3. NO cd, mkdir, rmdir commands (avoid all commands that create, delete, or modify a filepath or name)
+    4. Minimum 1 function a step, maximum 1 file a step.
+    5. Each step describe all functions to implement in detail.
     6. Review the flowchart, make sure it efficiently use each file's existing functions if created previously.
     7. The framework the user put in the example is just for format reference, you can choose any framework.
-    8. write the main file (the one that intergrate and output the final result) at the very end
+    8. NO CREATING main.py, index.html, or page.tsx, before buliding other files.
     """
     
     # Call Nova AI
     response = client.chat.completions.create(
-        model="nova-pro-v1",
+        model="nova-2-lite-v1",
         messages=[
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": prompt}
         ],
         temperature=0.5,
-        max_tokens=2500
+        max_tokens=3000
     )
     print(prompt)
     

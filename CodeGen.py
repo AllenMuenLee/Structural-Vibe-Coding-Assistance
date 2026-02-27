@@ -19,7 +19,9 @@ client = OpenAI(
 
 class CodingAgent:
     def __init__(self, project_name):
-        Command.run_command(f"cd {project_name}")
+        project_path = Path(project_name + '/' + project_name)
+        project_path.mkdir(parents=True, exist_ok=True)
+
         self.ast_map = {}
         self.project_name = project_name
         if not self._load_ast_map():
@@ -42,11 +44,11 @@ class CodingAgent:
         except Exception:
             return False
 
-    def call_nova(self, step):
+    def call_nova(self, step, topic):
         file_set = {}
 
         for c in step['command']:
-            Command.run_command(c, cwd=self.project_name)
+            Command.run_command(c, cwd=self.project_name + '/' + self.project_name)
 
         if (not step['filenames']):
             return ""
@@ -81,13 +83,16 @@ class CodingAgent:
         <import lines...>
 
         3. After you draft the code, review every requirement, if the requirement is not fulfilled, modify the code until it does.
+        4. NO ASSUMING UNDER ANY CIRCUMSTANCE
+        5. NEVER REPEAT IMPORT AND CODE
 
         CODING RULES:
         1. Raad the symbol table, it includes the context
         First part includes context of the files you need to edit / add, and files you need to import and use its existing functions.
         Second part, after IMPORT: are the library that are already imported, you don't have to import again.
         2. If there is no existing code, generate code according to the descrption.
-        3. The output MUST strictly follow this format:
+        3. you can only import existing library or files listed in FILES YOU MIGHT NEED TO IMPORT
+        4. The output MUST strictly follow this format:
         [Filename]
         ```
         code
@@ -97,18 +102,22 @@ class CodingAgent:
         code
         ```
         ...
-        4. when indicating the filename, don't use # filename.py, use [filename.py]
-        5. all files in FILES TO GENERATE must be generated.
-        6. add docstring for each function and class.
+        5. when indicating the filename, don't use # filename.py, use [filename.py]
+        6. all files in FILES TO GENERATE must be generated.
+        7. add docstring for each function and class.
         """
 
         prompt = f"""
         CONTEXT OF EXISTING FILES:
         {context}
 
+        TOPIC: {topic}
         TASK: {step['description']}
         FILES TO GENERATE: {step['filenames']}
         FILES YOU MIGHT NEED TO IMPORT: {step['files_to_import']}
+
+        NO ASSUMING UNDER ANY CIRCUMSTANCE
+        NEVER REPEAT IMPORT AND CODE
 
         Please give the list of functions and imports you see from the symbol table as a comment
         Please give the raw code and docstring right below the function or class definition, don't put it above
@@ -143,9 +152,9 @@ class CodingAgent:
                 return self.call_nova(step)
 
 
-    def generate(self, procedure,step):
+    def generate(self, procedure, step):
             
-        raw_code = self.call_nova(step)
+        raw_code = self.call_nova(step, procedure["name"])
         if (type(raw_code) != type(None)):
             if "### QUESTION:" in raw_code:
                 print(raw_code)
