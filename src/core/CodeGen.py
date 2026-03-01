@@ -4,8 +4,8 @@ import boto3
 import re
 from openai import OpenAI
 from dotenv import load_dotenv
-import FileMng
-import SymbolExt
+import src.util.FileMng as FileMng
+import src.util.SymbolExt as SymbolExt
 from pathlib import Path
 import time
 import Terminal
