@@ -1,4 +1,5 @@
 import json
+import os
 
 def get_procedure(file_path = "procedure.json"):
     with open(file_path, "r") as f:
@@ -22,3 +23,10 @@ def init_procedure_files(procedure):
             with open(filename, "w") as f:
                 pass
             f.close()
+
+
+def add_folder(folder_name):
+    if not folder_name:
+        return False
+    os.makedirs(folder_name, exist_ok=True)
+    return True
