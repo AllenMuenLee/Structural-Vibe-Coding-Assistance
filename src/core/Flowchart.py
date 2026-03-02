@@ -99,7 +99,7 @@ class Flowchart:
         # Convert flowchart to dictionary
         appdata_root = os.path.join(os.getenv("APPDATA", ""), "SVCA")
         os.makedirs(appdata_root, exist_ok=True)
-        projects_path = os.path.join(appdata_root, f"{project_id}.flowchart.json")
+        project_path = os.path.join(appdata_root, f"{project_id}.flowchart.json")
         
         # Open file and write JSON
         with open(project_path, 'w') as file:
@@ -112,7 +112,7 @@ class Flowchart:
 
         appdata_root = os.path.join(os.getenv("APPDATA", ""), "SVCA")
         os.makedirs(appdata_root, exist_ok=True)
-        projects_path = os.path.join(appdata_root, f"{project_id}.flowchart.json")
+        project_path = os.path.join(appdata_root, f"{project_id}.flowchart.json")
         
         # Open file and read JSON
         with open(projects_path, 'r') as file:
