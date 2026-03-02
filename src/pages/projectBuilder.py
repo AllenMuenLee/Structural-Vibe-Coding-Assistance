@@ -138,7 +138,7 @@ def build_project_builder() -> QWidget:
 
             flowchart_id = my_flowchart.flowchart_id
             
-            my_flowchart.save_to_file(flowhchart_id)
+            my_flowchart.save_to_file(flowchart_id)
             FileMng.save_project(flowchart_id, project_root)
             save_current_project_id(flowchart_id)
 
