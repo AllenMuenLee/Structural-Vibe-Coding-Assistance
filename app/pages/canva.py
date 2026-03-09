@@ -1,21 +1,22 @@
 import sys
 import os
 import json
+from functools import partial
+from pathlib import Path
 from PyQt6.QtWidgets import (
-    QApplication, QWidget, QVBoxLayout, QHBoxLayout, 
+    QApplication, QWidget, QVBoxLayout, QHBoxLayout,
     QPushButton, QLabel, QScrollArea, QMessageBox,
-    QTextEdit, QFrame, QDialog, QListWidget, QInputDialog
+    QTextEdit, QListWidget, QInputDialog
 )
-from PyQt6.QtCore import Qt, QPoint
-from PyQt6.QtGui import QPainter, QPen, QColor
+from PyQt6.QtCore import Qt, QThread, pyqtSignal
 from app.components.draggable_block import DraggableBlock
 from src.utils.CacheMng import load_cache
 from app.pages.loadingScreen import LoadingScreen
+from src.core.CodeEdt import CodeEditor
 from app.components.ConnectionLine import ConnectionLine
-from PyQt6.QtCore import QThread, pyqtSignal
 
 
-def build_canva(flowchart_data=None) -> QWidget:
+def build_canva(flowchart_data=None, on_back=None) -> QWidget:
     """Build the canvas page with flowchart visualization."""
     
     root = QWidget()
@@ -34,24 +35,44 @@ def build_canva(flowchart_data=None) -> QWidget:
     # Toolbar
     toolbar = QHBoxLayout()
     
-    add_step_btn = QPushButton("+ Add Step")
+    add_step_btn = QPushButton("Add Step")
     add_step_btn.setObjectName("ToolbarButton")
+    add_step_btn.setToolTip("Add step")
     add_step_btn.clicked.connect(lambda: on_add_step(root))
     
-    delete_step_btn = QPushButton("🗑 Delete Step")
+    delete_step_btn = QPushButton("Delete Step")
     delete_step_btn.setObjectName("ToolbarButton")
+    delete_step_btn.setToolTip("Delete step")
     delete_step_btn.clicked.connect(lambda: on_delete_step(root))
     
-    generate_btn = QPushButton("⚡ Generate Code")
+    generate_btn = QPushButton("Generate Code")
     generate_btn.setObjectName("PrimaryButton")
+    generate_btn.setToolTip("Generate code")
     generate_btn.clicked.connect(lambda: on_generate_code(root))
+
+    open_editor_btn = QPushButton("Open Editor")
+    open_editor_btn.setObjectName("ToolbarButton")
+    open_editor_btn.setToolTip("Open code editor")
+    open_editor_btn.clicked.connect(lambda: on_open_editor(root))
+    open_editor_btn.hide()
     
     toolbar.addWidget(add_step_btn)
     toolbar.addWidget(delete_step_btn)
     toolbar.addStretch()
     toolbar.addWidget(generate_btn)
+    toolbar.addWidget(open_editor_btn)
     
     left_layout.addLayout(toolbar)
+
+    back_row = QHBoxLayout()
+    back_btn = QPushButton("Back")
+    back_btn.setObjectName("BackButton")
+    back_btn.setToolTip("Back")
+    back_btn.setEnabled(on_back is not None)
+    back_btn.clicked.connect(lambda: on_back() if on_back else None)
+    back_row.addWidget(back_btn, alignment=Qt.AlignmentFlag.AlignLeft)
+    back_row.addStretch()
+    left_layout.addLayout(back_row)
     
     # Canvas scroll area
     scroll = QScrollArea()
@@ -76,27 +97,20 @@ def build_canva(flowchart_data=None) -> QWidget:
     # Details panel title
     details_title = QLabel("Step Details")
     details_title.setObjectName("DetailsPanelTitle")
-    details_title.setStyleSheet("""
-        font-size: 18px;
-        font-weight: bold;
-        color: #e2e8f0;
-        margin-bottom: 10px;
-    """)
     details_layout.addWidget(details_title)
     
     # Step ID (read-only)
     step_id_label = QLabel("Step ID:")
-    step_id_label.setStyleSheet("color: #94a3b8; font-size: 12px; margin-top: 10px;")
+    step_id_label.setObjectName("DetailsLabel")
     details_layout.addWidget(step_id_label)
     
     step_id_value = QLabel("No step selected")
     step_id_value.setObjectName("StepIdValue")
-    step_id_value.setStyleSheet("color: #e2e8f0; font-size: 14px; font-weight: 600;")
     details_layout.addWidget(step_id_value)
     
     # Description
     desc_label = QLabel("Description:")
-    desc_label.setStyleSheet("color: #94a3b8; font-size: 12px; margin-top: 15px;")
+    desc_label.setObjectName("DetailsLabel")
     details_layout.addWidget(desc_label)
     
     desc_value = QTextEdit()
@@ -104,44 +118,26 @@ def build_canva(flowchart_data=None) -> QWidget:
     desc_value.setReadOnly(False)
     desc_value.setPlaceholderText("Select a step to edit")
     desc_value.setMaximumHeight(100)
-    desc_value.setStyleSheet("""
-        QTextEdit {
-            background: #1e293b;
-            color: #e2e8f0;
-            border: 1px solid #334155;
-            border-radius: 6px;
-            padding: 10px;
-            font-size: 13px;
-        }
-    """)
     details_layout.addWidget(desc_value)
     
     # Files
     files_label = QLabel("Files to Generate:")
-    files_label.setStyleSheet("color: #94a3b8; font-size: 12px; margin-top: 15px;")
+    files_label.setObjectName("DetailsLabel")
     details_layout.addWidget(files_label)
     
     files_list = QListWidget()
     files_list.setObjectName("FilesList")
     files_list.setMaximumHeight(100)
-    files_list.setStyleSheet("""
-        QListWidget {
-            background: #1e293b;
-            color: #e2e8f0;
-            border: 1px solid #334155;
-            border-radius: 6px;
-            padding: 5px;
-            font-size: 12px;
-        }
-    """)
     details_layout.addWidget(files_list)
     
     # File buttons
     file_buttons = QHBoxLayout()
-    add_file_btn = QPushButton("+ File")
-    remove_file_btn = QPushButton("- File")
-    add_file_btn.setStyleSheet("font-size: 11px; padding: 4px 8px;")
-    remove_file_btn.setStyleSheet("font-size: 11px; padding: 4px 8px;")
+    add_file_btn = QPushButton("Add File")
+    remove_file_btn = QPushButton("Remove File")
+    add_file_btn.setObjectName("MiniButton")
+    remove_file_btn.setObjectName("MiniButton")
+    add_file_btn.setToolTip("Add file")
+    remove_file_btn.setToolTip("Remove file")
     add_file_btn.clicked.connect(lambda: on_add_file(root))
     remove_file_btn.clicked.connect(lambda: on_remove_file(root))
     file_buttons.addWidget(add_file_btn)
@@ -150,30 +146,22 @@ def build_canva(flowchart_data=None) -> QWidget:
     
     # ✅ Children/Connections editor
     children_label = QLabel("Next Steps (Children):")
-    children_label.setStyleSheet("color: #94a3b8; font-size: 12px; margin-top: 15px;")
+    children_label.setObjectName("DetailsLabel")
     details_layout.addWidget(children_label)
     
     children_list = QListWidget()
     children_list.setObjectName("ChildrenList")
     children_list.setMaximumHeight(80)
-    children_list.setStyleSheet("""
-        QListWidget {
-            background: #1e293b;
-            color: #e2e8f0;
-            border: 1px solid #334155;
-            border-radius: 6px;
-            padding: 5px;
-            font-size: 12px;
-        }
-    """)
     details_layout.addWidget(children_list)
     
     # Children buttons
     children_buttons = QHBoxLayout()
-    add_child_btn = QPushButton("+ Connect")
-    remove_child_btn = QPushButton("- Remove")
-    add_child_btn.setStyleSheet("font-size: 11px; padding: 4px 8px;")
-    remove_child_btn.setStyleSheet("font-size: 11px; padding: 4px 8px;")
+    add_child_btn = QPushButton("Add Connection")
+    remove_child_btn = QPushButton("Remove Connection")
+    add_child_btn.setObjectName("MiniButton")
+    remove_child_btn.setObjectName("MiniButton")
+    add_child_btn.setToolTip("Add connection")
+    remove_child_btn.setToolTip("Remove connection")
     add_child_btn.clicked.connect(lambda: on_add_child(root))
     remove_child_btn.clicked.connect(lambda: on_remove_child(root))
     children_buttons.addWidget(add_child_btn)
@@ -182,7 +170,7 @@ def build_canva(flowchart_data=None) -> QWidget:
     
     # Commands
     commands_label = QLabel("Commands:")
-    commands_label.setStyleSheet("color: #94a3b8; font-size: 12px; margin-top: 15px;")
+    commands_label.setObjectName("DetailsLabel")
     details_layout.addWidget(commands_label)
     
     commands_value = QTextEdit()
@@ -190,37 +178,12 @@ def build_canva(flowchart_data=None) -> QWidget:
     commands_value.setReadOnly(False)
     commands_value.setMaximumHeight(80)
     commands_value.setPlaceholderText("One command per line")
-    commands_value.setStyleSheet("""
-        QTextEdit {
-            background: #1e293b;
-            color: #e2e8f0;
-            border: 1px solid #334155;
-            border-radius: 6px;
-            padding: 10px;
-            font-size: 12px;
-            font-family: monospace;
-        }
-    """)
     details_layout.addWidget(commands_value)
     
     # Save button
-    save_btn = QPushButton("💾 Save Changes")
+    save_btn = QPushButton("Save Changes")
     save_btn.setObjectName("SaveButton")
-    save_btn.setStyleSheet("""
-        QPushButton#SaveButton {
-            background: #059669;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            padding: 10px;
-            font-size: 13px;
-            font-weight: 600;
-            margin-top: 15px;
-        }
-        QPushButton#SaveButton:hover {
-            background: #047857;
-        }
-    """)
+    save_btn.setToolTip("Save changes")
     save_btn.clicked.connect(lambda: on_save_changes(root))
     details_layout.addWidget(save_btn)
     
@@ -243,6 +206,24 @@ def build_canva(flowchart_data=None) -> QWidget:
     root.connections = []
     root.selected_step_id = None
     root.flowchart_data = flowchart_data
+    root.code_generated = False
+    root.generate_btn = generate_btn
+    root.open_editor_btn = open_editor_btn
+
+    if flowchart_data:
+        project_root = flowchart_data.get("project_root", "")
+        if project_root:
+            root.code_editor_engine = CodeEditor(project_root)
+        else:
+            root.code_editor_engine = None
+    else:
+        root.code_editor_engine = None
+
+    if flowchart_data:
+        project_root = flowchart_data.get("project_root", "")
+        if project_root:
+            root.code_generated = _detect_code_generated(project_root)
+            update_generate_button(root)
     
     if flowchart_data:
         load_flowchart(root, flowchart_data)
@@ -374,29 +355,17 @@ def on_block_click(root, step_id, step_data, event):
     root.details_panel['commands'].setPlainText('\n'.join(commands))
     
     for block in root.blocks.values():
-        block.setStyleSheet("""
-            QLabel {
-                background: #1e293b;
-                color: #e2e8f0;
-                border: 2px solid #334155;
-                border-radius: 10px;
-                padding: 15px;
-                font-size: 13px;
-                font-weight: 600;
-            }
-        """)
-    
-    root.blocks[step_id].setStyleSheet("""
-        QLabel {
-            background: #1e40af;
-            color: #e2e8f0;
-            border: 2px solid #60a5fa;
-            border-radius: 10px;
-            padding: 15px;
-            font-size: 13px;
-            font-weight: 600;
-        }
-    """)
+        block.setProperty("selected", False)
+        block.style().unpolish(block)
+        block.style().polish(block)
+        block.update()
+
+    selected_block = root.blocks.get(step_id)
+    if selected_block:
+        selected_block.setProperty("selected", True)
+        selected_block.style().unpolish(selected_block)
+        selected_block.style().polish(selected_block)
+        selected_block.update()
 
 
 def on_save_changes(root):
@@ -405,6 +374,7 @@ def on_save_changes(root):
         return
     
     try:
+        prev_data = root.flowchart_data['steps'].get(root.selected_step_id, {})
         updated_data = {
             'id': root.selected_step_id,
             'description': root.details_panel['description'].toPlainText(),
@@ -419,6 +389,20 @@ def on_save_changes(root):
             'command': root.details_panel['commands'].toPlainText().split('\n'),
             'files_to_import': root.flowchart_data['steps'][root.selected_step_id].get('files_to_import', [])
         }
+        
+        print(root.code_editor_engine)
+
+        if root.code_editor_engine:
+            root.code_editor_engine.add_changes(
+                root.selected_step_id,
+                prev_data.get("description", ""),
+                updated_data.get("description", ""),
+                prev_data.get("filenames", []),
+                updated_data.get("filenames", []),
+                prev_data.get("children", []),
+                updated_data.get("children", []),
+            )
+            update_generate_button(root)
         
         root.flowchart_data['steps'][root.selected_step_id] = updated_data
         save_flowchart_to_file(root.flowchart_data)
@@ -562,6 +546,7 @@ def save_flowchart_to_file(flowchart_data):
 class CodeGenerationWorker(QThread):
     """Worker thread for code generation."""
     finished = pyqtSignal(bool, str)  # success, message
+    progress = pyqtSignal(str)
     
     def __init__(self, flowchart_dict, project_root):
         super().__init__()
@@ -581,18 +566,72 @@ class CodeGenerationWorker(QThread):
             start_step = flowchart.get_start()
             start_step_dict = start_step.step_to_dictionary()
             
-            agent.generate(self.flowchart_dict, start_step_dict)
+            agent.generate(self.flowchart_dict, start_step_dict, progress=self._report_progress)
             
             self.finished.emit(True, "Code generated successfully!")
         except Exception as e:
             import traceback
             traceback.print_exc()
             self.finished.emit(False, f"Code generation failed: {e}")
+
+    def _report_progress(self, step_id: str, description: str) -> None:
+        desc = description.strip() if description else ""
+        if desc:
+            self.progress.emit(f"Generating: {step_id} - {desc}")
+        else:
+            self.progress.emit(f"Generating: {step_id}")
+
+
+def _update_loading_message(loading, message: str) -> None:
+    loading.set_message(message)
+
+
+def _detect_code_generated(project_root: str) -> bool:
+    if not project_root or not os.path.exists(project_root):
+        return False
+    for dirpath, dirnames, filenames in os.walk(project_root):
+        dirnames[:] = [
+            d for d in dirnames
+            if not d.startswith('.')
+            and d not in ['__pycache__', 'node_modules', 'venv', 'env']
+        ]
+        for filename in filenames:
+            if filename.startswith('.'):
+                continue
+            if filename.endswith('.json') or filename.endswith('.pyc'):
+                continue
+            return True
+    return False
+
+
+def _call_on_code_generated(root) -> bool:
+    callback_found = False
+    widget = root
+    for level in range(10):
+        if not widget:
+            break
+        if hasattr(widget, 'on_code_generated') and widget.on_code_generated:
+            print(f"✓ Found callback on {type(widget).__name__} (level {level})")
+            widget.on_code_generated()
+            callback_found = True
+            break
+        widget = widget.parent()
+    if not callback_found:
+        print("⚠ Warning: on_code_generated callback not found!")
+        print("   Code was generated successfully but cannot navigate automatically.")
+    return callback_found
             
 
 def on_generate_code(root):
     """Generate code from flowchart."""
     from PyQt6.QtWidgets import QApplication
+
+    if root.code_generated and root.code_editor_engine and root.code_editor_engine.has_changes():
+        edits_text, edit_log = root.code_editor_engine.generate_edit()
+        root.last_edits_text = edits_text
+        root.last_edit_log = edit_log
+        QMessageBox.information(None, "Edits Generated", "Edits have been generated. Review and apply as needed.")
+        return
     
     cache = load_cache()
     project_id = cache.get("current_project_id")
@@ -627,35 +666,17 @@ def on_generate_code(root):
     
     # ✅ Create worker thread
     worker = CodeGenerationWorker(flowchart_dict, project_root)
+    worker.progress.connect(partial(_update_loading_message, loading))
     
     # ✅ Connect completion signal
     def on_finished(success, message):
         loading.close()
         if success:
             QMessageBox.information(None, "Success", message)
+            root.code_generated = True
+            update_generate_button(root)
             
-            # ✅ IMPROVED: Find and call the callback by walking up widget tree
-            callback_found = False
-            widget = root
-            
-            # Try up to 10 levels up the widget tree
-            for level in range(10):
-                if not widget:
-                    break
-                
-                # Check if this widget has the callback
-                if hasattr(widget, 'on_code_generated') and widget.on_code_generated:
-                    print(f"✓ Found callback on {type(widget).__name__} (level {level})")
-                    widget.on_code_generated()
-                    callback_found = True
-                    break
-                
-                # Move to parent
-                widget = widget.parent()
-            
-            if not callback_found:
-                print("⚠ Warning: on_code_generated callback not found!")
-                print("   Code was generated successfully but cannot navigate automatically.")
+            _call_on_code_generated(root)
         else:
             QMessageBox.critical(None, "Error", message)
     
@@ -667,23 +688,36 @@ def on_generate_code(root):
     # Store worker reference so it doesn't get garbage collected
     root.worker = worker
 
+
+def update_generate_button(root):
+    if not hasattr(root, "generate_btn") or not root.generate_btn:
+        return
+    if root.code_generated and root.code_editor_engine and root.code_editor_engine.has_changes():
+        root.generate_btn.setText("Apply Edits")
+        root.generate_btn.setToolTip("Generate edits from changes")
+    else:
+        root.generate_btn.setText("Generate Code")
+        root.generate_btn.setToolTip("Generate code")
+    if hasattr(root, "open_editor_btn") and root.open_editor_btn:
+        root.open_editor_btn.setVisible(bool(root.code_generated))
+
+
+def on_open_editor(root):
+    if not root.code_generated:
+        QMessageBox.information(root, "Not Ready", "Generate code first.")
+        return
+    _call_on_code_generated(root)
+
 class CanvaWidget(QWidget):
-    def __init__(self):
+    def __init__(self, on_back=None):
         super().__init__()
         self.setObjectName("CanvaWidget")
         self.on_code_generated = None  # ✅ Store callback
+        self.on_back = on_back
         
-        self.setStyleSheet("""
-            QWidget#CanvaWidget { background: #0f172a; }
-            QWidget#CanvaPage { background: #0f172a; }
-            QWidget#Canvas { background: #0b1f3a; }
-            QScrollArea#CanvasScroll { background: #0b1f3a; border: none; }
-            QWidget#DetailsPanel { background: #1e293b; border-left: 1px solid #334155; }
-            QPushButton#ToolbarButton { background: #1e293b; color: #e2e8f0; border: 1px solid #334155; border-radius: 6px; padding: 8px 16px; font-size: 13px; }
-            QPushButton#ToolbarButton:hover { background: #334155; }
-            QPushButton#PrimaryButton { background: #2563eb; color: white; border: none; border-radius: 6px; padding: 8px 20px; font-size: 13px; font-weight: 600; }
-            QPushButton#PrimaryButton:hover { background: #1d4ed8; }
-        """)
+        style_path = Path(__file__).resolve().parent.parent / "style" / "canva.qss"
+        if style_path.exists():
+            self.setStyleSheet(style_path.read_text(encoding="utf-8"))
         
         cache = load_cache()
         project_id = cache.get("current_project_id")
@@ -702,7 +736,7 @@ class CanvaWidget(QWidget):
         
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
-        canvas_widget = build_canva(flowchart_data)
+        canvas_widget = build_canva(flowchart_data, on_back=on_back)
         self.canvas_widget = canvas_widget  # ✅ Store reference
         layout.addWidget(canvas_widget)
     

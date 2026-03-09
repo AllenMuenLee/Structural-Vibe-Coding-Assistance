@@ -30,6 +30,8 @@ def generate_flowchart_from_description(task_description, project_name):
     # Create the prompt for Nova
     prompt = f"""Create a flowchart for this task: {task_description}
     NO CREATING main.py, index.html, or page.tsx, before buliding other files
+    I need a very detail function by function flowchart.
+    The flowchart should be tree like, not linear.
     Return ONLY a valid JSON object with this exact structure (no extra text), like this example (this is just an example):
     {{
         "framework": "Any framework that's applicable",
@@ -41,7 +43,7 @@ def generate_flowchart_from_description(task_description, project_name):
                 "filenames": [],
                 "files_to_import": [],
                 "command": ["initialize the project"],
-                "next": ["step2"]
+                "next": ["step2", "step3]
             }},
             {{
                 "id": "step2",
@@ -50,7 +52,7 @@ def generate_flowchart_from_description(task_description, project_name):
                 "filenames": ["library.extension"],
                 "files_to_import": [],
                 "command": ["install an api"],
-                "next": ["step3"]
+                "next": ["step4"]
             }},
             {{
                 "id": "step3",

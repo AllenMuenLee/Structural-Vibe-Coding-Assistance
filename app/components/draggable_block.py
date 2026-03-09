@@ -9,17 +9,7 @@ class DraggableBlock(QLabel):
         self.setObjectName("DraggableBlock")
         self.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.setFixedSize(150, 80)
-        self.setStyleSheet("""
-            QLabel {
-                background: #1e293b;
-                color: #e2e8f0;
-                border: 2px solid #334155;
-                border-radius: 10px;
-                padding: 15px;
-                font-size: 13px;
-                font-weight: 600;
-            }
-        """)
+        self.setProperty("selected", False)
         self._drag_offset = None
     
     def mousePressEvent(self, event):

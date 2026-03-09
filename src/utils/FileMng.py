@@ -45,3 +45,80 @@ def save_project(project_id, project_path):
 
     with open(projects_path, "w", encoding="utf-8") as p:
         json.dump(projects, p, indent=2)
+
+
+def load_projects():
+    appdata_root = os.path.join(os.getenv("APPDATA", ""), "SVCA")
+    projects_path = os.path.join(appdata_root, "projects.json")
+    if not os.path.exists(projects_path):
+        return []
+    try:
+        with open(projects_path, "r", encoding="utf-8") as p:
+            data = json.load(p)
+            return data if isinstance(data, list) else []
+    except Exception:
+        return []
+
+
+def delete_project(project_id):
+    appdata_root = os.path.join(os.getenv("APPDATA", ""), "SVCA")
+    projects_path = os.path.join(appdata_root, "projects.json")
+    if not os.path.exists(projects_path):
+        return False
+    try:
+        with open(projects_path, "r", encoding="utf-8") as p:
+            projects = json.load(p)
+        if not isinstance(projects, list):
+            return False
+        new_projects = [p for p in projects if p.get("id") != project_id]
+        with open(projects_path, "w", encoding="utf-8") as p:
+            json.dump(new_projects, p, indent=2)
+        return True
+    except Exception:
+        return False
+
+
+def add_file_to_project(project_root, relative_path):
+    if not project_root:
+        return False, "Project root is missing.", None
+    if not relative_path:
+        return False, "File path is empty.", None
+
+    project_root_abs = os.path.abspath(project_root)
+    rel = relative_path.strip().lstrip("/\\")
+    file_path = os.path.abspath(os.path.join(project_root_abs, rel))
+
+    if not file_path.startswith(project_root_abs):
+        return False, "Invalid file path.", None
+    if os.path.exists(file_path):
+        return False, "File already exists.", file_path
+
+    try:
+        os.makedirs(os.path.dirname(file_path), exist_ok=True)
+        with open(file_path, "w", encoding="utf-8") as f:
+            f.write("")
+        return True, "File created.", file_path
+    except Exception as exc:
+        return False, f"Failed to create file: {exc}", None
+
+
+def delete_file_from_project(project_root, relative_path):
+    if not project_root:
+        return False, "Project root is missing."
+    if not relative_path:
+        return False, "File path is empty."
+
+    project_root_abs = os.path.abspath(project_root)
+    rel = relative_path.strip().lstrip("/\\")
+    file_path = os.path.abspath(os.path.join(project_root_abs, rel))
+
+    if not file_path.startswith(project_root_abs):
+        return False, "Invalid file path."
+    if not os.path.exists(file_path):
+        return False, "File not found."
+
+    try:
+        os.remove(file_path)
+        return True, "File deleted."
+    except Exception as exc:
+        return False, f"Failed to delete file: {exc}"

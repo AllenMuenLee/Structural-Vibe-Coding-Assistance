@@ -7,7 +7,7 @@ import src.utils.FileMng as FileMng
 import src.utils.SymbolExt as SymbolExt
 from pathlib import Path
 import time
-import src.core.Terminal as Terminal
+import src.utils.Terminal as Terminal
 
 load_dotenv()
 
@@ -166,6 +166,7 @@ class CodingAgent:
             return response.choices[0].message.content
         
         except Exception as e:
+            print("error generating")
             if "Error code: 429" in str(e):
                 print(e)
                 time.sleep(10)
@@ -173,7 +174,11 @@ class CodingAgent:
             else:
                 raise  # Re-raise other exceptions
 
-    def generate(self, procedure, step):
+    def generate(self, procedure, step, progress=None):
+        if progress:
+            step_id = step.get("id", "")
+            step_desc = step.get("description", "")
+            progress(step_id, step_desc)
         raw_code = self.call_nova(step, procedure["name"])
         
         if raw_code is not None:
@@ -185,7 +190,7 @@ class CodingAgent:
         
         # Process children
         for c in step["children"]:
-            self.generate(procedure, procedure["steps"][c])
+            self.generate(procedure, procedure["steps"][c], progress=progress)
         
         return None
 

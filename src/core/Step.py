@@ -1,5 +1,4 @@
 class Step:
-    
     def __init__(self, id, description, filenames, files_to_import, command, children):
         """
         Initialize a Step object (Node).

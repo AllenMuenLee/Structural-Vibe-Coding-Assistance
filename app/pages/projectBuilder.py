@@ -1,4 +1,3 @@
-import json
 import os
 from pathlib import Path
 
@@ -26,19 +25,20 @@ from src.utils.CacheMng import save_current_project_id
 from app.pages.loadingScreen import LoadingScreen
 
 def _apply_theme(widget: QWidget) -> None:
-    style_path = Path(__file__).resolve().parent.parent / "style" / "project_builder.qss"
+    app_root = Path(__file__).resolve().parents[1]
+    style_path = app_root / "style" / "project_builder.qss"
     if style_path.exists():
         widget.setStyleSheet(style_path.read_text(encoding="utf-8"))
 
 
-def build_project_builder(on_project_created=None) -> QWidget:
+def build_project_builder(on_project_created=None, on_back=None) -> QWidget:
     root = QWidget()
     root.setObjectName("ProjectBuilderRoot")
     _apply_theme(root)
     root._on_project_created = on_project_created
 
-    app_font = QFont("Inter", 10)
-    if app_font.family() == "Inter":
+    app_font = QFont("IBM Plex Sans", 10)
+    if app_font.family() == "IBM Plex Sans":
         root.setFont(app_font)
     else:
         root.setFont(QFont("Segoe UI", 10))
@@ -46,6 +46,16 @@ def build_project_builder(on_project_created=None) -> QWidget:
     outer = QVBoxLayout(root)
     outer.setContentsMargins(32, 32, 32, 32)
     outer.setSpacing(24)
+
+    back_row = QHBoxLayout()
+    back_row.setSpacing(12)
+    back_btn = QPushButton("Back")
+    back_btn.setObjectName("BackButton")
+    back_btn.setEnabled(on_back is not None)
+    back_btn.clicked.connect(lambda: on_back() if on_back else None)
+    back_row.addWidget(back_btn, alignment=Qt.AlignmentFlag.AlignLeft)
+    back_row.addStretch()
+    outer.addLayout(back_row)
 
     header = QVBoxLayout()
     header.setSpacing(6)
@@ -55,6 +65,7 @@ def build_project_builder(on_project_created=None) -> QWidget:
     subtitle.setObjectName("Subtitle")
     header.addWidget(title)
     header.addWidget(subtitle)
+
     outer.addLayout(header)
 
     card = QFrame()
@@ -75,6 +86,7 @@ def build_project_builder(on_project_created=None) -> QWidget:
 
     browse_button = QPushButton("Browse")
     browse_button.setObjectName("BrowseButton")
+    browse_button.setToolTip("Browse")
     browse_button.setCursor(Qt.CursorShape.PointingHandCursor)
 
     path_row = QHBoxLayout()
@@ -97,6 +109,7 @@ def build_project_builder(on_project_created=None) -> QWidget:
     button_row.addStretch(1)
     create_button = QPushButton("Create Project")
     create_button.setObjectName("PrimaryButton")
+    create_button.setToolTip("Create project")
     create_button.setCursor(Qt.CursorShape.PointingHandCursor)
     button_row.addWidget(create_button)
 
@@ -174,8 +187,8 @@ def build_project_builder(on_project_created=None) -> QWidget:
 
 
 class ProjectBuilderWidget(QWidget):
-    def __init__(self, on_project_created=None):
+    def __init__(self, on_project_created=None, on_back=None):
         super().__init__()
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
-        layout.addWidget(build_project_builder(on_project_created=on_project_created))
+        layout.addWidget(build_project_builder(on_project_created=on_project_created, on_back=on_back))

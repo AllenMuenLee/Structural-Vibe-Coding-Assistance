@@ -3,6 +3,7 @@ import os
 from openai import OpenAI
 from dotenv import load_dotenv
 from src.utils.AstEmbedding import AstRagTable
+import src.utils.FileEdit as FileEdit
 import re
 
 load_dotenv()
@@ -194,54 +195,5 @@ class debugger:
             elif in_code:
                 curr.append(line)
 
-    def edit(self, lines, content, line_n):
-        print("editing")
-        lines[line_n - 1] = content + "\n"
-
-    def delete(self, lines, line_n):
-        lines[line_n - 1] = ""
-
-    def insert(self, lines, content, line_n):
-        lines.insert(line_n - 1, content + "\n")
-
-    def apply_edits(self):
-        for f in self.edits.keys():
-            with open(f, 'r', encoding='utf-8') as file:
-                lines = file.readlines()
-
-            for a in self.edits[f]:
-                if (a[0] == 'Edit'):
-                    self.edit(lines, a[2], a[1])
-                elif (a[0] == 'Insert'):
-                    self.insert(lines, a[2], a[1])
-                elif (a[0] == 'Delete'):
-                    self.delete(lines, a[2], a[1])
-
-            with open(f, 'w', encoding='utf-8') as file:
-                file.writelines(lines)
-
-
-debugger = debugger("project_1")
-error_message = f"""File "<frozen runpy>", line 198, in _run_module_as_main
-  File "<frozen runpy>", line 88, in _run_code
-  File "C:\\Users\\limue\\Documents\\SVCA-Main\\project_1\\project_1\\test.py", line 14, in <module>
-    print(add('2', 3))
-          ~~~^^^^^^^^
-  File "C:\\Users\\limue\\Documents\\SVCA-Main\\project_1\\project_1\\test.py", line 12, in add
-    return a + b
-           ~~^~~
-TypeError: can only concatenate str (not "int") to str"""
-
-
-if __name__ == "__main__":
-    ai_response = debugger.extract_error_nova(error_message)
-    print(ai_response)
-
-    debugger.parse_error_files(ai_response)
-
-    edit = debugger.generate_edits(error_message)
-    print(edit)
-
-    debugger.string_to_edit(edit)
-
-    debugger.apply_edits()
+    def fix():
+        FileEdit.apply_edit(edits)

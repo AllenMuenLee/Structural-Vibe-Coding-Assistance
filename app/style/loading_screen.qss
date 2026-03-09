@@ -1,0 +1,17 @@
+﻿QWidget#LoadingScreen {
+    background: rgba(15, 17, 21, 210);
+}
+
+QWidget#LoadingContainer {
+    background: #141820;
+    border: 1px solid #252b36;
+    border-radius: 12px;
+    padding: 22px 24px;
+}
+
+QLabel#LoadingLabel {
+    color: #e7e9ee;
+    font-size: 13px;
+    font-weight: 600;
+    background: transparent;
+}
