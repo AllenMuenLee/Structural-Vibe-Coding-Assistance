@@ -8,12 +8,13 @@ class AIChatWorker(QThread):
 
     finished = pyqtSignal(str)
 
-    def __init__(self, project_root, flowchart_data, user_message, conversation_history):
+    def __init__(self, project_root, flowchart_data, user_message, conversation_history, mode="general"):
         super().__init__()
         self.project_root = project_root
         self.flowchart_data = flowchart_data
         self.user_message = user_message
         self.conversation_history = conversation_history
+        self.mode = mode
 
     def run(self):
         try:
@@ -33,6 +34,23 @@ class AIChatWorker(QThread):
             # Get project context
             ast_map = {}
             ast_map = SymbolExt.initialize_ast_map(self.project_root, ast_map)
+
+            if self.mode == "debug":
+                from src.core.Debugger import debugger
+                dbg = debugger(self.project_root)
+                extracted = dbg.extract_error(self.user_message, ast_map)
+                dbg.parse_error_files(extracted)
+                edits = dbg.generate_edits(self.user_message)
+                dbg.string_to_edit(edits)
+                dbg.fix()
+                response = (
+                    "Extracted files:\n"
+                    f"{extracted}\n\n"
+                    "Proposed edits:\n"
+                    f"{edits}"
+                )
+                self.finished.emit(response)
+                return
 
             # Build context from project files
             context_lines = []

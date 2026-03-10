@@ -28,10 +28,10 @@ def generate_flowchart_from_description(task_description, project_name):
     )
     
     # Create the prompt for Nova
-    prompt = f"""Create a flowchart for this task: {task_description}
+    prompt = f"""Create a software structure for this task: {task_description}
     NO CREATING main.py, index.html, or page.tsx, before buliding other files
-    I need a very detail function by function flowchart.
-    The flowchart should be tree like, not linear.
+    Each node should describe one and only one function in detail.
+    The software structure should be tree like, not linear.
     Return ONLY a valid JSON object with this exact structure (no extra text), like this example (this is just an example):
     {{
         "framework": "Any framework that's applicable",

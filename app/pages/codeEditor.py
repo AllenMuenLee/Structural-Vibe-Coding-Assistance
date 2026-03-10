@@ -17,7 +17,11 @@ from app.components.code_editor.toolbar import build_toolbar
 from app.components.code_editor.content_splitter import build_content_splitter
 from app.components.code_editor.editor_panel import apply_editor_theme
 from app.components.code_editor import file_panel as file_panel_actions
-from app.components.code_editor.terminal_panel import build_terminal_panel
+from app.components.code_editor.terminal_panel import (
+    build_terminal_panel,
+    detect_terminal_error,
+    set_debug_visible,
+)
 from app.components.code_editor.page_theme import apply_code_editor_theme
 
 
@@ -65,8 +69,11 @@ def build_code_editor(flowchart_data=None, on_back_to_canvas=None) -> QWidget:
         terminal_run_btn,
         stop_process_btn,
         terminal_clear_btn,
+        terminal_debug_btn,
     ) = build_terminal_panel(
-        on_run_command=lambda: execute_terminal_command(root)
+        on_run_command=lambda: execute_terminal_command(root),
+        on_clear=lambda: _clear_terminal(root),
+        on_debug=lambda: _open_debug_from_terminal(root),
     )
     main_layout.addWidget(terminal_container, stretch=1)
 
@@ -86,6 +93,7 @@ def build_code_editor(flowchart_data=None, on_back_to_canvas=None) -> QWidget:
     root.terminal_run_btn = terminal_run_btn
     root.terminal_clear_btn = terminal_clear_btn
     root.stop_process_btn = stop_process_btn
+    root.terminal_debug_btn = terminal_debug_btn
     root.terminal_process = None
     root.content_splitter = content_splitter
     root.flowchart_data = flowchart_data
@@ -104,6 +112,10 @@ def build_code_editor(flowchart_data=None, on_back_to_canvas=None) -> QWidget:
     find_shortcut = QShortcut(QKeySequence.StandardKey.Find, root)
     find_shortcut.activated.connect(lambda: _focus_find(root))
     root.find_shortcut = find_shortcut
+
+    save_shortcut = QShortcut(QKeySequence.StandardKey.Save, root)
+    save_shortcut.activated.connect(lambda: save_file(root))
+    root.save_shortcut = save_shortcut
     apply_code_editor_theme(root)
     apply_editor_theme(root.code_editor)
 
@@ -438,6 +450,8 @@ def _run_in_terminal(root, command: str, cwd: str | None):
             root.terminal.insertPlainText(text)
             root.terminal.moveCursor(QTextCursor.MoveOperation.End)
             root.terminal.ensureCursorVisible()
+            if detect_terminal_error(text):
+                set_debug_visible(root.terminal_debug_btn, True)
 
     def on_finished(exit_code, exit_status):
         if root.terminal_input:
@@ -446,6 +460,8 @@ def _run_in_terminal(root, command: str, cwd: str | None):
             root.terminal_run_btn.setEnabled(True)
         if root.stop_process_btn:
             root.stop_process_btn.hide()
+        if exit_code and exit_code != 0:
+            set_debug_visible(root.terminal_debug_btn, True)
         root.terminal_process = None
 
     if root.terminal_input:
@@ -468,6 +484,25 @@ def _run_in_terminal(root, command: str, cwd: str | None):
         on_output=append_output,
         on_finished=on_finished,
     )
+
+
+def _clear_terminal(root):
+    if root.terminal:
+        root.terminal.clear()
+    set_debug_visible(root.terminal_debug_btn, False)
+
+
+def _open_debug_from_terminal(root):
+    if not root.terminal:
+        return
+    toggle_chatbot(root, True)
+    if root.chatbot_widget:
+        output = root.terminal.toPlainText().strip()
+        root.chatbot_widget.set_mode("debug")
+        if output:
+            root.chatbot_widget.set_input_text(
+                "Please debug this terminal output:\n\n" + output
+            )
 
 
 def _stop_terminal_process(root):

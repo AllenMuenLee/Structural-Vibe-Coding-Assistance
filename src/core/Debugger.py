@@ -2,7 +2,6 @@ import json
 import os
 from openai import OpenAI
 from dotenv import load_dotenv
-from src.utils.AstEmbedding import AstRagTable
 import src.utils.FileEdit as FileEdit
 import re
 
@@ -19,33 +18,38 @@ class debugger:
         self.edits = {}
         self.error_files = {}
 
-    def extract_error_nova(self, error_message):
-        SYSTEM_PROMPT = "You are a debugger extracter, and your job is to extract the functions and files mentioned in the error message, and return in the given format."
-        prompt = f"""
-        The error message is:
-        {error_message}
-
-        Analyze this error message and extract the following information:
-        1. The file path where the error occurred.
-        2. The line number of the error.
-
-        return in this format:
-
+    def extract_error(self, user_input, ast_tag):
+        """
+        Use Nova to read the user message + AST tags and list all likely files to inspect.
+        Returns the same format as extract_error_nova:
         filepath - #line number
         ...
+        """
+        SYSTEM_PROMPT = (
+            "You are a debugger extractor. Given a issue description, which can be a terminal message or user description, and AST tags, "
+            "identify all likely files to inspect. Return ONLY the file paths and line "
+            "numbers in the specified format."
+        )
+        prompt = f"""
+        Error description/message:
+        {user_input}
+
+        AST tags (by file):
+        {json.dumps(ast_tag, indent=2)}
+
+        Return in this exact format (one per line):
+        filepath - #line number
+        ...
+
+        If line numbers are unknown, choose the most relevant symbol line from AST tags.
+        If you are unsure, still list the most likely files.
         """
 
         response = client.chat.completions.create(
             model="nova-2-lite-v1",
             messages=[
-                {
-                    "role": "system",
-                    "content": SYSTEM_PROMPT
-                },
-                {
-                    "role": "user",
-                    "content": prompt
-                },
+                {"role": "system", "content": SYSTEM_PROMPT},
+                {"role": "user", "content": prompt},
             ],
             temperature=0.1,
             max_tokens=2000,
@@ -148,10 +152,15 @@ class debugger:
         if not query:
             query = code[:2000]
 
-        table = AstRagTable(persist_dir=None)
-        table.add_code(code, file_path)
-        matches = table.search(query, top_k=5)
-        return {"file": file_path, "line": line_number, "query": query, "matches": matches}
+        try:
+            from src.utils.AstEmbedding import AstRagTable
+            table = AstRagTable(persist_dir=None)
+            table.add_code(code, file_path)
+            matches = table.search(query, top_k=5)
+            return {"file": file_path, "line": line_number, "query": query, "matches": matches}
+        except Exception:
+            # Fallback when heavy deps (e.g., torch) are unavailable.
+            return {"file": file_path, "line": line_number, "query": query, "matches": []}
 
     def string_to_edit(self, edit_string):
         self.edits = {}
@@ -195,5 +204,5 @@ class debugger:
             elif in_code:
                 curr.append(line)
 
-    def fix():
-        FileEdit.apply_edit(edits)
+    def fix(self):
+        FileEdit.apply_edits(self.edits)

@@ -6,6 +6,8 @@ from PyQt6.QtWidgets import (
     QPushButton,
     QLineEdit,
     QCheckBox,
+    QApplication,
+    QStyle,
 )
 from PyQt6.QtGui import QFont, QColor
 from PyQt6.Qsci import QsciScintilla, QsciLexerPython
@@ -64,15 +66,29 @@ def build_editor_panel(on_save):
     editor_layout = QVBoxLayout(editor_panel)
     editor_layout.setContentsMargins(10, 10, 10, 0)
 
+    header_row = QHBoxLayout()
+    current_file_label = QLabel("No file selected")
+    current_file_label.setObjectName("CurrentFileLabel")
+    header_row.addWidget(current_file_label)
+    header_row.addStretch()
+
+    save_btn = QPushButton("")
+    save_btn.setObjectName("SaveButton")
+    save_btn.setToolTip("Save file")
+    save_icon = QApplication.style().standardIcon(QStyle.StandardPixmap.SP_DialogSaveButton)
+    save_btn.setIcon(save_icon)
+    save_btn.setIconSize(save_icon.actualSize(save_btn.sizeHint()) / 1.5)
+    save_btn.setFixedSize(22, 22)
+    save_btn.clicked.connect(on_save)
+    header_row.addWidget(save_btn)
+
+    editor_layout.addLayout(header_row)
+
     code_editor = QsciScintilla()
     apply_editor_theme(code_editor)
     apply_default_lexer(code_editor)
     code_editor.setIndentationGuides(False)
     editor_layout.addWidget(code_editor)
-
-    current_file_label = QLabel("No file selected")
-    current_file_label.setObjectName("CurrentFileLabel")
-    editor_layout.addWidget(current_file_label)
 
     find_row = QHBoxLayout()
     find_label = QLabel("Find")
@@ -97,12 +113,6 @@ def build_editor_panel(on_save):
     find_bar.setLayout(find_row)
     find_bar.setVisible(False)
     editor_layout.addWidget(find_bar)
-
-    save_btn = QPushButton("Save")
-    save_btn.setObjectName("SaveButton")
-    save_btn.setToolTip("Save file")
-    save_btn.clicked.connect(on_save)
-    editor_layout.addWidget(save_btn)
 
     print("build editor")
 

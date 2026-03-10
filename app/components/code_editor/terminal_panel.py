@@ -9,7 +9,46 @@ from PyQt6.QtWidgets import (
 )
 
 
-def build_terminal_panel(*, on_clear=None, on_run_command=None, on_stop=None):
+def detect_terminal_error(text: str) -> bool:
+    if not text:
+        return False
+    lowered = text.lower()
+    keywords = [
+        "traceback",
+        "exception",
+        "error",
+        "fatal",
+        "segmentation fault",
+        "panic",
+        "stack trace",
+        "unhandled",
+        "syntaxerror",
+        "typeerror",
+        "referenceerror",
+        "nameerror",
+        "indexerror",
+        "keyerror",
+        "attributeerror",
+        "module not found",
+        "cannot find module",
+        "enoent",
+        "epipe",
+        "npm err!",
+        "build failed",
+        "compilation failed",
+        "linker error",
+        "undefined reference",
+    ]
+    return any(k in lowered for k in keywords)
+
+
+def set_debug_visible(debug_btn: QPushButton, show: bool) -> None:
+    if not debug_btn:
+        return
+    debug_btn.setVisible(bool(show))
+
+
+def build_terminal_panel(*, on_clear=None, on_run_command=None, on_stop=None, on_debug=None):
     terminal_container = QWidget()
     terminal_container.setObjectName("TerminalContainer")
     terminal_layout = QVBoxLayout(terminal_container)
@@ -23,6 +62,14 @@ def build_terminal_panel(*, on_clear=None, on_run_command=None, on_stop=None):
     terminal_header.addWidget(terminal_label)
 
     terminal_header.addStretch()
+
+    debug_btn = QPushButton("Debug")
+    debug_btn.setObjectName("TerminalDebugButton")
+    debug_btn.setToolTip("Send terminal errors to debugger")
+    if on_debug:
+        debug_btn.clicked.connect(on_debug)
+    debug_btn.hide()
+    terminal_header.addWidget(debug_btn)
 
     clear_terminal_btn = QPushButton("Clear")
     clear_terminal_btn.setObjectName("TerminalClearButton")
@@ -77,4 +124,5 @@ def build_terminal_panel(*, on_clear=None, on_run_command=None, on_stop=None):
         run_command_btn,
         stop_process_btn,
         clear_terminal_btn,
+        debug_btn,
     )

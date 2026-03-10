@@ -34,7 +34,38 @@ class ChatbotWidget(QWidget):
         self.chat_history.setReadOnly(True)
         layout.addWidget(self.chat_history)
 
+        self.mode = "general"
+        self.mode_menu = QWidget()
+        self.mode_menu.setObjectName("ModeMenu")
+        mode_menu_layout = QHBoxLayout(self.mode_menu)
+        mode_menu_layout.setContentsMargins(0, 0, 0, 0)
+        mode_menu_layout.setSpacing(6)
+
+        self.mode_debug_btn = QPushButton("Debug")
+        self.mode_debug_btn.setObjectName("ModeButton")
+        self.mode_debug_btn.clicked.connect(lambda: self.set_mode("debug"))
+        mode_menu_layout.addWidget(self.mode_debug_btn)
+
+        self.mode_flow_btn = QPushButton("Flowchart Editing")
+        self.mode_flow_btn.setObjectName("ModeButton")
+        self.mode_flow_btn.clicked.connect(lambda: self.set_mode("flowchart"))
+        mode_menu_layout.addWidget(self.mode_flow_btn)
+
+        self.mode_general_btn = QPushButton("General")
+        self.mode_general_btn.setObjectName("ModeButton")
+        self.mode_general_btn.clicked.connect(lambda: self.set_mode("general"))
+        mode_menu_layout.addWidget(self.mode_general_btn)
+
+        self.mode_menu.setVisible(False)
+        layout.addWidget(self.mode_menu)
+
         input_layout = QHBoxLayout()
+
+        self.plus_btn = QPushButton("+")
+        self.plus_btn.setObjectName("ChatPlusButton")
+        self.plus_btn.setToolTip("Choose mode")
+        self.plus_btn.clicked.connect(self._toggle_mode_menu)
+        input_layout.addWidget(self.plus_btn)
 
         self.input_field = QTextEdit()
         self.input_field.setObjectName("ChatInput")
@@ -48,6 +79,10 @@ class ChatbotWidget(QWidget):
         input_layout.addWidget(self.send_btn)
 
         layout.addLayout(input_layout)
+
+        self.mode_tag = QLabel("Selected: General")
+        self.mode_tag.setObjectName("ModeTag")
+        layout.addWidget(self.mode_tag)
 
         self._welcome_shown = False
 
@@ -88,7 +123,10 @@ class ChatbotWidget(QWidget):
             self.flowchart_data,
             message,
             self.conversation_history,
+            self.mode,
         )
+
+        worker = self.current_worker
 
         def on_finished(response):
             cursor = self.chat_history.textCursor()
@@ -105,8 +143,9 @@ class ChatbotWidget(QWidget):
             self.send_btn.setEnabled(True)
             self.current_worker = None
 
-        self.current_worker.finished.connect(on_finished)
-        self.current_worker.start()
+        worker.finished.connect(on_finished)
+        worker.finished.connect(worker.deleteLater)
+        worker.start()
 
     def _append_user(self, message: str) -> None:
         formatted = self._format_message(message)
@@ -206,3 +245,22 @@ class ChatbotWidget(QWidget):
         escaped = re.sub(r"`([^`]+)`", r"<code>\1</code>", escaped)
         escaped = re.sub(r"_([^_]+)_", r"<i>\1</i>", escaped)
         return escaped
+
+    def _toggle_mode_menu(self):
+        self.mode_menu.setVisible(not self.mode_menu.isVisible())
+
+    def set_mode(self, mode: str):
+        if not mode:
+            return
+        self.mode = mode
+        label = {
+            "debug": "Debug",
+            "flowchart": "Flowchart Editing",
+            "general": "General",
+        }.get(mode, mode.title())
+        self.mode_tag.setText(f"Selected: {label}")
+        self.mode_menu.setVisible(False)
+
+    def set_input_text(self, text: str):
+        self.input_field.setPlainText(text)
+        self.input_field.setFocus()

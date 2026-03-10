@@ -44,9 +44,6 @@ def start_process(
         data = process.readAllStandardOutput()
         if data and on_output:
             on_output(bytes(data).decode(errors="replace"))
-        data_err = process.readAllStandardError()
-        if data_err and on_output:
-            on_output(bytes(data_err).decode(errors="replace"))
 
     def _finished(exit_code: int, exit_status: QProcess.ExitStatus):
         if on_finished:
@@ -57,7 +54,6 @@ def start_process(
             on_error(err)
 
     process.readyReadStandardOutput.connect(_read)
-    process.readyReadStandardError.connect(_read)
     process.finished.connect(_finished)
     process.errorOccurred.connect(_error)
 
