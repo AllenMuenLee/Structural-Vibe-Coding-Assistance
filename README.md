@@ -1,6 +1,6 @@
-# SVCA - Structural Vibe Coding Assistant
+# FLOWD - Structural Vibe Coding Assistant
 
-SVCA is a PyQt6 desktop app that helps you go from a high-level task description to a structured flowchart and generated code. It uses Amazon Nova models via the OpenAI client to:
+FLOWD is a PyQt6 desktop app that helps you go from a high-level task description to a structured flowchart and generated code. It uses Amazon Nova models via the OpenAI client to:
 
 - turn a task description into a software structure (flowchart JSON)
 - generate code step-by-step from that structure
