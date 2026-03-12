@@ -94,32 +94,6 @@ def get_project_id_by_root(project_root):
     return None
 
 
-def update_project_ast_map_path(project_id, ast_map_path):
-    if not project_id or not ast_map_path:
-        return False
-    appdata_root = _appdata_root()
-    projects_path = os.path.join(appdata_root, "projects.json")
-    if not os.path.exists(projects_path):
-        return False
-    try:
-        with open(projects_path, "r", encoding="utf-8") as p:
-            projects = json.load(p)
-        if not isinstance(projects, list):
-            return False
-        updated = False
-        for project in projects:
-            if project.get("id") == project_id:
-                project["ast_map_path"] = ast_map_path
-                updated = True
-                break
-        if not updated:
-            return False
-        with open(projects_path, "w", encoding="utf-8") as p:
-            json.dump(projects, p, indent=2)
-        return True
-    except Exception:
-        return False
-
 
 def save_ast_map(project_id, ast_map):
     if not project_id:

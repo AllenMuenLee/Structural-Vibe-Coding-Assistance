@@ -1,4 +1,3 @@
-import json
 import os
 import re
 from pathlib import Path
@@ -7,8 +6,9 @@ from typing import Dict, List, Optional, Tuple
 from openai import OpenAI
 from dotenv import load_dotenv
 
-import src.utils.SymbolExt as SymbolExt
 import src.utils.FileMng as FileMng
+import src.utils.FileEdit as FileEdit
+import src.utils.SymbolExt as SymbolExt
 
 
 load_dotenv()
@@ -39,17 +39,22 @@ def _truncate_text(text: str, max_chars: int = 12000) -> str:
     return text[:max_chars] + "\n# (truncated)"
 
 
+def _read_file_text(path_value: str) -> str:
+    if not path_value or not os.path.exists(path_value):
+        return ""
+    try:
+        with open(path_value, "r", encoding="utf-8") as fh:
+            return fh.read()
+    except Exception:
+        return ""
+
+
 class CodeEditor:
     def __init__(self, project_root: str):
         self.project_root = os.path.normpath(project_root)
         self.edits: Dict[str, List[List[object]]] = {}
         self.changes: Dict[str, Dict[str, Dict[str, object]]] = {}
         self.edit_log: List[Dict[str, str]] = []
-        self.ast_map: Dict[str, List[dict]] = {}
-
-        if not self._load_ast_map():
-            self.ast_map = SymbolExt.initialize_ast_map(self.project_root, self.ast_map)
-            self._save_ast_map()
 
     def add_changes(
         self,
@@ -61,6 +66,10 @@ class CodeEditor:
         prev_children: List[str],
         curr_children: List[str],
     ) -> None:
+        if (prev_des or "") == (curr_des or ""):
+            if node_id in self.changes:
+                self.changes.pop(node_id, None)
+            return
         self.changes.setdefault(node_id, {})
         self.changes[node_id]["description"] = {"prev": prev_des, "curr": curr_des}
         self.changes[node_id]["files"] = {"prev": prev_files or [], "curr": curr_files or []}
@@ -69,34 +78,8 @@ class CodeEditor:
     def has_changes(self) -> bool:
         return bool(self.changes)
 
-    def _save_ast_map(self) -> None:
-        ast_map_path = os.path.join(self.project_root, "ast_map.json")
-        normalized = {os.path.abspath(k): v for k, v in self.ast_map.items()}
-        FileMng.save_json(normalized, ast_map_path)
-        project_id = FileMng.get_project_id_by_root(self.project_root)
-        if project_id:
-            FileMng.save_ast_map(project_id, normalized)
-            FileMng.update_project_ast_map_path(project_id, ast_map_path)
-
-    def _load_ast_map(self) -> bool:
-        project_id = FileMng.get_project_id_by_root(self.project_root)
-        if project_id:
-            cached = FileMng.load_ast_map(project_id)
-            if cached:
-                self.ast_map = {os.path.abspath(k): v for k, v in cached.items()}
-                return True
-        ast_map_path = os.path.join(self.project_root, "ast_map.json")
-        if not os.path.exists(ast_map_path):
-            return False
-        try:
-            raw_map = FileMng.load_json(ast_map_path)
-            self.ast_map = {os.path.abspath(k): v for k, v in raw_map.items()}
-            return True
-        except Exception:
-            return False
-
     def save_and_update(self, text: str) -> None:
-        """Save code blocks to files and update AST map (same as CodeGen)."""
+        """Save code blocks to files and update ast_map.json."""
         pattern = r"\[([^\]]+)\]:?\s*```(?:[a-zA-Z0-9_+-]*)\n(.*?)\n```"
         matches = re.findall(pattern, text, re.DOTALL)
 
@@ -117,31 +100,49 @@ class CodeEditor:
                 with open(abs_filename, "w", encoding="utf-8") as f:
                     f.write(code)
 
-            with open(abs_filename, "r", encoding="utf-8") as f:
-                full_code = f.read()
+            self._update_ast_map_for_files([abs_filename])
 
-            self.ast_map[str(norm_filename)] = SymbolExt.get_ast_map(
-                full_code, file_path=str(norm_filename)
-            )
-            self._save_ast_map()
+    def _update_ast_map_for_files(self, files: List[str]) -> None:
+        if not files:
+            return
+        project_id = FileMng.get_project_id_by_root(self.project_root)
+        ast_map = FileMng.load_ast_map(project_id) if project_id else None
+        if not isinstance(ast_map, dict):
+            ast_map = {}
 
-    def get_ast(self, file_path: str, code: Optional[str] = None) -> Dict[str, str]:
-        """Return full AST tree for a file (not just tags)."""
-        if not file_path:
-            return {"file": file_path, "ast": "# (no file)"}
-        norm_path = _normalize_path(self.project_root, file_path)
-        if code is None and os.path.exists(norm_path):
+        for path_value in files:
+            if not path_value or not os.path.exists(path_value):
+                continue
+            code = _read_file_text(path_value)
+            if code is None:
+                continue
             try:
-                with open(norm_path, "r", encoding="utf-8") as fh:
-                    code = fh.read()
+                ast_map[os.path.abspath(path_value)] = SymbolExt.get_ast_map(
+                    code, file_path=os.path.abspath(path_value)
+                )
             except Exception:
-                code = None
-        if not code:
-            return {"file": norm_path, "ast": "# (empty or missing file)"}
-        ast_tree = SymbolExt.get_ast_tree(code, norm_path)
-        return {"file": norm_path, "ast": ast_tree}
+                continue
 
-    def generate_edit(self, changes: Optional[Dict[str, Dict[str, Dict[str, object]]]] = None) -> Tuple[str, List[Dict[str, str]]]:
+        if project_id:
+            FileMng.save_ast_map(project_id, ast_map)
+
+    def get_file_context(self, file_path: str, code: Optional[str] = None) -> Dict[str, str]:
+        """Return file context with full contents."""
+        if not file_path:
+            return {"file": file_path, "content": "# (no file)"}
+        norm_path = _normalize_path(self.project_root, file_path)
+        if code is None:
+            code = _read_file_text(norm_path)
+        if not code:
+            return {"file": norm_path, "content": "# (empty or missing file)"}
+        return {"file": norm_path, "content": code}
+
+    def generate_edit(
+        self,
+        changes: Optional[Dict[str, Dict[str, Dict[str, object]]]] = None,
+        flowchart_data: Optional[Dict[str, object]] = None,
+        progress: Optional[callable] = None,
+    ) -> Tuple[str, List[Dict[str, str]]]:
         """Generate edits node-by-node in Debugger.py format and build edit log."""
         changes = changes or self.changes
         edit_outputs: List[str] = []
@@ -150,6 +151,8 @@ class CodeEditor:
         for node_id, change in changes.items():
             if not change:
                 continue
+            if progress:
+                progress(f"Applying edits for node: {node_id}")
 
             prev_desc = change.get("description", {}).get("prev", "")
             curr_desc = change.get("description", {}).get("curr", "")
@@ -158,18 +161,37 @@ class CodeEditor:
             prev_children = change.get("children", {}).get("prev", []) or []
             curr_children = change.get("children", {}).get("curr", []) or []
 
-            related_files = list({*prev_files, *curr_files})
-            ast_chunks = []
-            for f in related_files:
-                ast_info = self.get_ast(f)
-                ast_chunks.append(f"File: {ast_info['file']}\n{ast_info['ast']}")
+            # If a node was added, generate code via CodeGen for that node.
+            if not prev_desc and curr_desc and flowchart_data:
+                steps = flowchart_data.get("steps", {}) if isinstance(flowchart_data, dict) else {}
+                step_data = steps.get(node_id, {}) if isinstance(steps, dict) else {}
+                if isinstance(step_data, dict):
+                    try:
+                        if progress:
+                            progress(f"Generating code for new node: {node_id}")
+                        from src.core.CodeGen import CodingAgent
+                        agent = CodingAgent(self.project_root)
+                        topic = flowchart_data.get("name", "") if isinstance(flowchart_data, dict) else ""
+                        raw_code = agent.call_nova(step_data, topic)
+                        if raw_code:
+                            agent.save_and_update(raw_code)
+                        continue
+                    except Exception:
+                        pass
 
-            context_ast = "\n\n".join(ast_chunks) if ast_chunks else "# (no related files)"
-            context_ast = _truncate_text(context_ast)
+            related_files = list({*prev_files, *curr_files})
+            context_chunks = []
+            for f in related_files:
+                info = self.get_file_context(f)
+                context_chunks.append(
+                    f"File: {info['file']}\n```\n{info['content']}\n```"
+                )
+
+            context_text = "\n\n".join(context_chunks) if context_chunks else "# (no related files)"
+            context_text = _truncate_text(context_text)
 
             SYSTEM_PROMPT = (
-                "You are a code editor. You will receive a node change summary and full AST context. "
-                "Generate edits in the exact Debugger.py format and also produce a rename/log summary."
+                "You are a code editor. You will receive a node change summary and full file context. "
             )
 
             prompt = f"""
@@ -193,8 +215,8 @@ class CodeEditor:
             CURRENT CHILDREN:
             {curr_children}
 
-            AST CONTEXT (FULL TREE):
-            {context_ast}
+            FILE CONTEXT (FULL CONTENT):
+            {context_text}
 
             Return output with two sections:
 
@@ -227,73 +249,126 @@ class CodeEditor:
             text = response.choices[0].message.content or ""
             edits_text, log_lines = self._split_edits_and_log(text)
             edit_outputs.append(edits_text)
+            print(edit_outputs)
             self.edit_log.extend(log_lines)
+
+        if flowchart_data:
+            parent_edits = self._generate_parent_edits(flowchart_data, changes, progress)
+            if parent_edits:
+                edit_outputs.append(parent_edits)
 
         return "\n".join(edit_outputs).strip(), self.edit_log
 
-    def adapt_changes(self, files: Optional[List[str]] = None) -> str:
-        """Use edit log + AST to generate follow-up edits across files."""
-        target_files = files or self._collect_project_files()
-        if not target_files:
+    def _generate_parent_edits(
+        self,
+        flowchart_data: Dict[str, object],
+        changes: Dict[str, Dict[str, Dict[str, object]]],
+        progress: Optional[callable] = None,
+    ) -> str:
+        steps = flowchart_data.get("steps", {}) if isinstance(flowchart_data, dict) else {}
+        if not isinstance(steps, dict) or not steps:
             return ""
 
+        def _get_children(step_data):
+            if not isinstance(step_data, dict):
+                return []
+            if "chlidren" in step_data:
+                return step_data.get("chlidren", []) or []
+            return step_data.get("children", []) or []
+
+        parents = {sid: [] for sid in steps.keys()}
+        for sid, data in steps.items():
+            for cid in _get_children(data):
+                if cid in parents:
+                    parents[cid].append(sid)
+
+        def collect_parents(start_id):
+            out = []
+            stack = list(parents.get(start_id, []))
+            seen = set()
+            while stack:
+                pid = stack.pop()
+                if pid in seen:
+                    continue
+                seen.add(pid)
+                out.append(pid)
+                stack.extend(parents.get(pid, []))
+            return out
+
         edits_out: List[str] = []
-        for file_path in target_files:
-            ast_info = self.get_ast(file_path)
-            related_logs = [e for e in self.edit_log if e.get("file") == file_path]
-            log_text = "\n".join(
-                f"[LOG] {e['file']} - {e['prev']} -> {e['curr']}: {e['detail']}"
-                for e in related_logs
-            )
-            log_text = log_text or "# (no log entries for this file)"
+        for node_id, change in changes.items():
+            if not change:
+                continue
+            if progress:
+                progress(f"Applying parent edits for node: {node_id}")
+            prev_files = change.get("files", {}).get("prev", []) or []
+            curr_files = change.get("files", {}).get("curr", []) or []
+            edited_files = sorted(set(curr_files) | set(prev_files))
+            prev_desc = change.get("description", {}).get("prev", "")
+            curr_desc = change.get("description", {}).get("curr", "")
 
-            SYSTEM_PROMPT = (
-                "You are a code editor. Using the AST and the edit log, "
-                "generate follow-up edits in Debugger.py format."
-            )
+            for parent_id in collect_parents(node_id):
+                parent = steps.get(parent_id, {})
+                parent_files = parent.get("filenames", []) if isinstance(parent, dict) else []
+                if not parent_files:
+                    continue
 
-            prompt = f"""
-            FILE: {ast_info['file']}
-            AST:
-            {_truncate_text(ast_info['ast'])}
+                context_chunks = []
+                for f in parent_files:
+                    info = self.get_file_context(f)
+                    context_chunks.append(
+                        f"File: {info['file']}\n```\n{info['content']}\n```"
+                    )
+                context_text = "\n\n".join(context_chunks) if context_chunks else "# (no related files)"
+                context_text = _truncate_text(context_text)
 
-            EDIT LOG:
-            {log_text}
+                SYSTEM_PROMPT = (
+                    "You are a code editor. A child node changed and edited/added files. "
+                    "Update the parent node files if needed. Return only Debugger.py edits."
+                )
 
-            Return edits in this format:
-            [Edit] filepath - #line number
-            ```
-            Code
-            ```
-            [Insert] filepath - #line number
-            ```
-            Code
-            ```
-            [Delete] filepath - #line number
-            """
+                prompt = f"""
+                Parent Node ID: {parent_id}
+                Child Node ID: {node_id}
 
-            response = client.chat.completions.create(
-                model="nova-pro-v1",
-                messages=[
-                    {"role": "system", "content": SYSTEM_PROMPT},
-                    {"role": "user", "content": prompt},
-                ],
-                temperature=0.1,
-                max_tokens=2000,
-                stream=False,
-            )
-            edits_out.append(response.choices[0].message.content or "")
+                Child Description Change:
+                PREVIOUS: {prev_desc}
+                CURRENT: {curr_desc}
+
+                Edited or Referenced Files:
+                {edited_files}
+
+                Parent File Context:
+                {context_text}
+
+                Return edits in this format:
+                [Edit] filepath - #line number
+                ```
+                Code
+                ```
+                [Insert] filepath - #line number
+                ```
+                Code
+                ```
+                [Delete] filepath - #line number
+                """
+
+                response = client.chat.completions.create(
+                    model="nova-pro-v1",
+                    messages=[
+                        {"role": "system", "content": SYSTEM_PROMPT},
+                        {"role": "user", "content": prompt},
+                    ],
+                    temperature=0.1,
+                    max_tokens=2000,
+                    stream=False,
+                )
+                text = response.choices[0].message.content or ""
+                edits_text, _log_lines = self._split_edits_and_log(text)
+                if edits_text:
+                    edits_out.append(edits_text)
 
         return "\n".join(edits_out).strip()
-
-    def _collect_project_files(self) -> List[str]:
-        exts = {".py", ".js", ".jsx", ".ts", ".tsx"}
-        collected: List[str] = []
-        for dirpath, _dirnames, filenames in os.walk(self.project_root):
-            for filename in filenames:
-                if os.path.splitext(filename)[1].lower() in exts:
-                    collected.append(os.path.join(dirpath, filename))
-        return sorted(set(collected))
 
     def string_to_edit(self, edit_string: str) -> Dict[str, List[List[object]]]:
         """Parse edit string to internal edits dict."""
@@ -326,6 +401,15 @@ class CodeEditor:
                 curr_code.append(line)
 
         return self.edits
+
+    def apply_edits(self, edit_string: str) -> None:
+        """Apply edits to files using FileEdit.apply_edits."""
+        edits = self.string_to_edit(edit_string or "")
+        for i in edits.keys():
+            print(i)
+        FileEdit.apply_edits(edits)
+        if edits:
+            self._update_ast_map_for_files(list(edits.keys()))
 
     def _split_edits_and_log(self, text: str) -> Tuple[str, List[Dict[str, str]]]:
         edits_lines: List[str] = []

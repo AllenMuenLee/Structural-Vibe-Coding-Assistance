@@ -1,6 +1,7 @@
 import html
 import re
 
+from PyQt6.QtCore import QThread
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QTextEdit, QPushButton, QLabel
 
 from app.components.code_editor.ai_chat_worker import AIChatWorker
@@ -15,6 +16,7 @@ class ChatbotWidget(QWidget):
         self.flowchart_data = flowchart_data
         self.conversation_history = []
         self.current_worker = None
+        self.worker_thread = None
 
         self.setObjectName("ChatbotWidget")
         self.setFixedWidth(350)
@@ -80,6 +82,7 @@ class ChatbotWidget(QWidget):
         layout.addWidget(self.mode_tag)
 
         self._welcome_shown = False
+        self.destroyed.connect(lambda _=None: self._stop_worker())
 
     def showEvent(self, event):
         """Show welcome message when chat is first opened."""
@@ -97,13 +100,20 @@ class ChatbotWidget(QWidget):
 
     def closeEvent(self, event):
         """Clean up threads when widget is closed."""
-        if self.current_worker and self.current_worker.isRunning():
-            self.current_worker.requestInterruption()
-            self.current_worker.wait(1500)  # Wait up to 1.5 seconds
-            if self.current_worker.isRunning():
-                self.current_worker.terminate()
-                self.current_worker.wait(1000)
+        self._stop_worker()
         super().closeEvent(event)
+
+    def _stop_worker(self):
+        if self.current_worker:
+            self.current_worker.request_stop()
+        if self.worker_thread and self.worker_thread.isRunning():
+            self.worker_thread.quit()
+            self.worker_thread.wait(1500)  # Wait up to 1.5 seconds
+            if self.worker_thread.isRunning():
+                self.worker_thread.terminate()
+                self.worker_thread.wait(1000)
+        self.current_worker = None
+        self.worker_thread = None
 
     def send_message(self):
         message = self.input_field.toPlainText().strip()
@@ -123,8 +133,11 @@ class ChatbotWidget(QWidget):
             self.conversation_history,
             self.mode,
         )
+        self.worker_thread = QThread(self)
+        self.current_worker.moveToThread(self.worker_thread)
 
         worker = self.current_worker
+        thread = self.worker_thread
 
         def on_finished(response):
             cursor = self.chat_history.textCursor()
@@ -140,10 +153,14 @@ class ChatbotWidget(QWidget):
 
             self.send_btn.setEnabled(True)
             self.current_worker = None
+            self.worker_thread = None
 
         worker.finished.connect(on_finished)
+        worker.finished.connect(thread.quit)
         worker.finished.connect(worker.deleteLater)
-        worker.start()
+        thread.finished.connect(thread.deleteLater)
+        thread.started.connect(worker.run)
+        thread.start()
 
     def _append_user(self, message: str) -> None:
         formatted = self._format_message(message)

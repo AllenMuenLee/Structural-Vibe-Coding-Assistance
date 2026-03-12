@@ -877,6 +877,18 @@ def on_add_step(root):
         'chlidren': []
     }
     
+    if root.code_editor_engine:
+        root.code_editor_engine.add_changes(
+            step_id,
+            "",
+            new_step.get("description", ""),
+            [],
+            [],
+            [],
+            [],
+        )
+        update_generate_button(root)
+
     root.flowchart_data['steps'][step_id] = new_step
     save_flowchart_to_file(root.flowchart_data)
     load_flowchart(root, root.flowchart_data)
@@ -899,6 +911,19 @@ def on_delete_step(root):
     if reply == QMessageBox.StandardButton.No:
         return
     
+    step_data = root.flowchart_data['steps'].get(step_id, {})
+    if root.code_editor_engine:
+        root.code_editor_engine.add_changes(
+            step_id,
+            step_data.get("description", ""),
+            "",
+            step_data.get("filenames", []) or [],
+            [],
+            _get_children(step_data),
+            [],
+        )
+        update_generate_button(root)
+
     del root.flowchart_data['steps'][step_id]
     if step_id in getattr(root, "_layout_positions", {}):
         root._layout_positions.pop(step_id, None)
@@ -951,20 +976,39 @@ class CodeGenerationWorker(QThread):
     
     def run(self):
         """Run code generation in background thread."""
+        def is_connection_error(exc: Exception) -> bool:
+            msg = str(exc).lower()
+            return (
+                "apiconnectionerror" in msg
+                or "connection error" in msg
+                or "decodingerror" in msg
+                or "decompressobj" in msg
+            )
+
         try:
             from src.core.Flowchart import Flowchart
             from src.core.CodeGen import CodingAgent
-            
+
             flowchart = Flowchart(name="", framework="", project_root=self.project_root)
             flowchart = flowchart.dictionary_to_flowchart(self.flowchart_dict)
-            
+
             agent = CodingAgent(flowchart.project_root)
             start_step = flowchart.get_start()
             start_step_dict = start_step.step_to_dictionary()
-            
-            agent.generate_project(self.flowchart_dict, progress=self._report_progress)
-            
-            self.finished.emit(True, "Code generated successfully!")
+
+            max_retries = 3
+            for attempt in range(1, max_retries + 1):
+                try:
+                    agent.generate_project(self.flowchart_dict, progress=self._report_progress)
+                    self.finished.emit(True, "Code generated successfully!")
+                    return
+                except Exception as e:
+                    if not is_connection_error(e) or attempt >= max_retries:
+                        raise
+                    self.progress.emit(
+                        f"Connection issue. Retrying in 3 seconds... ({attempt}/{max_retries})"
+                    )
+                    time.sleep(3)
         except Exception as e:
             import traceback
             traceback.print_exc()
@@ -976,6 +1020,26 @@ class CodeGenerationWorker(QThread):
             self.progress.emit(f"Generating: {step_id} - {desc}")
         else:
             self.progress.emit(f"Generating: {step_id}")
+
+
+class EditGenerationWorker(QThread):
+    finished = pyqtSignal(bool, str, object, object)  # success, message, edits_text, edit_log
+    progress = pyqtSignal(str)
+
+    def __init__(self, code_editor_engine, flowchart_data):
+        super().__init__()
+        self.code_editor_engine = code_editor_engine
+        self.flowchart_data = flowchart_data
+
+    def run(self):
+        try:
+            edits_text, edit_log = self.code_editor_engine.generate_edit(
+                flowchart_data=self.flowchart_data,
+                progress=lambda msg: self.progress.emit(msg),
+            )
+            self.finished.emit(True, "", edits_text, edit_log)
+        except Exception as e:
+            self.finished.emit(False, str(e), "", [])
 
 
 def _update_loading_message(loading, message: str) -> None:
@@ -1034,10 +1098,36 @@ def on_generate_code(root):
     from PyQt6.QtWidgets import QApplication
 
     if root.code_generated and root.code_editor_engine and root.code_editor_engine.has_changes():
-        edits_text, edit_log = root.code_editor_engine.generate_edit()
-        root.last_edits_text = edits_text
-        root.last_edit_log = edit_log
-        QMessageBox.information(None, "Edits Generated", "Edits have been generated. Review and apply as needed.")
+        loading = LoadingScreen(root, "Generating edits...")
+        loading.show()
+        QApplication.processEvents()
+        worker = EditGenerationWorker(root.code_editor_engine, root.flowchart_data)
+        worker.progress.connect(lambda msg: loading.set_message(msg))
+
+        def on_finished(success, message, edits_text, edit_log):
+            loading.close()
+            if success:
+                root.last_edits_text = edits_text
+                root.last_edit_log = edit_log
+                if not root.code_editor_engine:
+                    QMessageBox.critical(None, "Error", "Code editor engine not initialized.")
+                    return
+                if not (edits_text or "").strip():
+                    QMessageBox.information(None, "No Edits", "No edits were generated.")
+                    return
+                try:
+                    root.code_editor_engine.apply_edits(edits_text)
+                    root.code_editor_engine.changes = {}
+                    update_generate_button(root)
+                    QMessageBox.information(None, "Edits Applied", "Edits have been applied successfully.")
+                except Exception as e:
+                    QMessageBox.critical(None, "Error", f"Failed to apply edits: {e}")
+            else:
+                QMessageBox.critical(None, "Error", f"Failed to generate edits: {message}")
+
+        worker.finished.connect(on_finished)
+        worker.start()
+        root.edit_worker = worker
         return
     
     cache = load_cache()

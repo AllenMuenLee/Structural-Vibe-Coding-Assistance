@@ -1,10 +1,10 @@
 import os
 
-from PyQt6.QtCore import QThread, pyqtSignal
+from PyQt6.QtCore import QObject, pyqtSignal, pyqtSlot
 
 
-class AIChatWorker(QThread):
-    """Worker thread for AI chat responses."""
+class AIChatWorker(QObject):
+    """Worker object for AI chat responses (runs inside a QThread)."""
 
     finished = pyqtSignal(str)
 
@@ -15,10 +15,15 @@ class AIChatWorker(QThread):
         self.user_message = user_message
         self.conversation_history = conversation_history
         self.mode = mode
+        self._stop_requested = False
 
+    def request_stop(self):
+        self._stop_requested = True
+
+    @pyqtSlot()
     def run(self):
         try:
-            if self.isInterruptionRequested():
+            if self._stop_requested:
                 return
             from openai import OpenAI
             from dotenv import load_dotenv
@@ -27,14 +32,12 @@ class AIChatWorker(QThread):
 
             load_dotenv()
 
-            # Create client with timeout settings
             client = OpenAI(
                 api_key=os.getenv("NOVA_API_KEY"),
                 base_url="https://api.nova.amazon.com/v1",
-                timeout=60.0,  # 60 second timeout
+                timeout=60.0,
             )
 
-            # Get project context
             ast_map = {}
             project_id = FileMng.get_project_id_by_root(self.project_root)
             if project_id:
@@ -45,11 +48,8 @@ class AIChatWorker(QThread):
                 ast_map = SymbolExt.initialize_ast_map(self.project_root, ast_map)
                 if project_id:
                     FileMng.save_ast_map(project_id, ast_map)
-                    FileMng.update_project_ast_map_path(
-                        project_id, os.path.join(self.project_root, "ast_map.json")
-                    )
 
-            if self.isInterruptionRequested():
+            if self._stop_requested:
                 return
 
             if self.mode == "debug":
@@ -69,14 +69,13 @@ class AIChatWorker(QThread):
                 self.finished.emit(response)
                 return
 
-            # Build context from project files
             context_lines = []
             for file_path, symbols in ast_map.items():
                 rel_path = os.path.relpath(file_path, self.project_root)
                 context_lines.append(f"\n## File: {rel_path}")
 
                 if symbols:
-                    for symbol in symbols[:10]:  # Limit to first 10 symbols per file
+                    for symbol in symbols[:10]:
                         context_lines.append(
                             f"- [{symbol.get('kind', 'symbol')}] "
                             f"{symbol.get('name', '?')} "
@@ -85,7 +84,6 @@ class AIChatWorker(QThread):
 
             context = "\n".join(context_lines)
 
-            # Build conversation with context
             messages = [
                 {
                     "role": "system",
@@ -105,16 +103,12 @@ class AIChatWorker(QThread):
                 }
             ]
 
-            # Add conversation history
             messages.extend(self.conversation_history)
-
-            # Add current user message
             messages.append({"role": "user", "content": self.user_message})
 
-            # Call AI with retry logic
             max_retries = 2
             for attempt in range(max_retries):
-                if self.isInterruptionRequested():
+                if self._stop_requested:
                     return
                 try:
                     response = client.chat.completions.create(
@@ -130,9 +124,7 @@ class AIChatWorker(QThread):
 
                 except Exception as api_error:
                     if attempt < max_retries - 1:
-                        # Wait and retry
                         import time
-
                         time.sleep(1)
                         continue
                     raise api_error
@@ -143,7 +135,6 @@ class AIChatWorker(QThread):
             traceback.print_exc()
             error_msg = str(e)
 
-            # Provide helpful error message
             if "DecodingError" in error_msg or "decompressobj" in error_msg:
                 self.finished.emit(
                     "Connection issue with AI service. This is usually temporary.\n\n"

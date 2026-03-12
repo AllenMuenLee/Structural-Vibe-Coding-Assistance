@@ -17,26 +17,26 @@ client = OpenAI(
 
 
 class AstFlowchartGenerator:
-    """Generate ast_map.json with AI docstrings, then generate a flowchart from it."""
+    """Generate AST map (stored in appdata) with AI docstrings, then generate a flowchart from it."""
 
     def __init__(self, project_root):
         self.project_root = os.path.abspath(project_root)
         self.ast_map = {}
 
     def generate_all(self):
-        """Generate ast_map.json (with docstrings) and flowchart.json."""
+        """Generate AST map (with docstrings) and flowchart.json."""
         self.generate_ast_map()
         return self.generate_flowchart()
 
     def generate_ast_map(self):
-        """Scan project, build ast_map.json, and enrich with AI docstrings."""
+        """Scan project, build AST map, and enrich with AI docstrings."""
         self.ast_map = SymbolExt.initialize_ast_map(self.project_root, {})
         self._add_docstrings_to_ast_map()
         self._save_ast_map()
         return self.ast_map
 
     def generate_flowchart(self):
-        """Generate flowchart.json based on ast_map.json."""
+        """Generate flowchart.json based on the AST map."""
         if not self.ast_map:
             if not self._load_ast_map():
                 self.generate_ast_map()
@@ -50,30 +50,20 @@ class AstFlowchartGenerator:
         return flowchart_data
 
     def _save_ast_map(self):
-        ast_map_path = os.path.join(self.project_root, "ast_map.json")
         normalized = {os.path.abspath(k): v for k, v in self.ast_map.items()}
-        FileMng.save_json(normalized, ast_map_path)
         project_id = FileMng.get_project_id_by_root(self.project_root)
         if project_id:
             FileMng.save_ast_map(project_id, normalized)
-            FileMng.update_project_ast_map_path(project_id, ast_map_path)
 
     def _load_ast_map(self):
         project_id = FileMng.get_project_id_by_root(self.project_root)
-        if project_id:
-            cached = FileMng.load_ast_map(project_id)
-            if cached:
-                self.ast_map = {os.path.abspath(k): v for k, v in cached.items()}
-                return True
-        ast_map_path = os.path.join(self.project_root, "ast_map.json")
-        if not os.path.exists(ast_map_path):
+        if not project_id:
             return False
-        try:
-            raw_map = FileMng.load_json(ast_map_path)
-            self.ast_map = {os.path.abspath(k): v for k, v in raw_map.items()}
+        cached = FileMng.load_ast_map(project_id)
+        if cached:
+            self.ast_map = {os.path.abspath(k): v for k, v in cached.items()}
             return True
-        except Exception:
-            return False
+        return False
 
     def _add_docstrings_to_ast_map(self):
         for file_path, tags in self.ast_map.items():

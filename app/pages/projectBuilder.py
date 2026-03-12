@@ -26,6 +26,7 @@ from app.pages.loadingScreen import LoadingScreen
 
 class ProjectBuildWorker(QThread):
     finished = pyqtSignal(bool, str, str)  # success, message, flowchart_id
+    progress = pyqtSignal(str)
 
     def __init__(self, project_path, description):
         super().__init__()
@@ -33,8 +34,30 @@ class ProjectBuildWorker(QThread):
         self.description = description
 
     def run(self):
+        def is_connection_error(exc: Exception) -> bool:
+            msg = str(exc).lower()
+            return (
+                "apiconnectionerror" in msg
+                or "connection error" in msg
+                or "decodingerror" in msg
+                or "decompressobj" in msg
+            )
+
         try:
-            ai_data = generate_flowchart_from_description(self.description, self.project_path)
+            max_retries = 3
+            for attempt in range(1, max_retries + 1):
+                try:
+                    ai_data = generate_flowchart_from_description(self.description, self.project_path)
+                    break
+                except Exception as exc:
+                    if not is_connection_error(exc) or attempt >= max_retries:
+                        raise
+                    self.progress.emit(
+                        f"Connection issue. Retrying in 3 seconds... ({attempt}/{max_retries})"
+                    )
+                    import time
+                    time.sleep(3)
+
             framework = ai_data.get("framework", "")
             project_root = os.path.abspath(self.project_path)
 
@@ -183,6 +206,7 @@ def build_project_builder(on_project_created=None, on_back=None) -> QWidget:
         root.repaint()
 
         worker = ProjectBuildWorker(project_path, desc)
+        worker.progress.connect(lambda msg: loading.set_message(msg))
 
         def on_finished(success, message, _flowchart_id):
             loading.close()

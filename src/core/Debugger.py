@@ -167,7 +167,10 @@ class debugger:
         lines = edit_string.splitlines()
 
         print(lines)
-        
+
+        if not lines:
+            return
+
         if (lines[0] == "```"):
             lines = lines[1:]
 
@@ -175,6 +178,7 @@ class debugger:
         in_code = False
 
         curr = []
+        file_path = None
 
         for raw in lines:
             line = raw.strip()
@@ -197,7 +201,7 @@ class debugger:
 
             if line == "```":
                 in_code = not in_code
-                if not in_code and curr:
+                if not in_code and curr and file_path and file_path in self.edits:
                     self.edits[file_path][-1][2] = "\n".join(curr)
                     curr = []
                 continue

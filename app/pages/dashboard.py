@@ -1,5 +1,4 @@
 import os
-import json
 from pathlib import Path
 
 from PyQt6.QtCore import Qt, QThread, pyqtSignal
@@ -25,15 +24,38 @@ from app.pages.loadingScreen import LoadingScreen
 
 class ProjectImportWorker(QThread):
     finished = pyqtSignal(bool, str, str)  # success, message, flowchart_id
+    progress = pyqtSignal(str)
 
     def __init__(self, project_root):
         super().__init__()
         self.project_root = project_root
 
     def run(self):
+        def is_connection_error(exc: Exception) -> bool:
+            msg = str(exc).lower()
+            return (
+                "apiconnectionerror" in msg
+                or "connection error" in msg
+                or "decodingerror" in msg
+                or "decompressobj" in msg
+            )
+
         try:
-            generator = AstFlowchartGenerator(self.project_root)
-            flowchart_data = generator.generate_all()
+            max_retries = 3
+            for attempt in range(1, max_retries + 1):
+                try:
+                    generator = AstFlowchartGenerator(self.project_root)
+                    flowchart_data = generator.generate_all()
+                    break
+                except Exception as exc:
+                    if not is_connection_error(exc) or attempt >= max_retries:
+                        raise
+                    self.progress.emit(
+                        f"Connection issue. Retrying in 3 seconds... ({attempt}/{max_retries})"
+                    )
+                    import time
+                    time.sleep(3)
+
             if not flowchart_data:
                 self.finished.emit(False, "Failed to generate flowchart.", "")
                 return
@@ -51,15 +73,6 @@ class ProjectImportWorker(QThread):
             flowchart.save_to_file(flowchart_id, flowchart_dict)
             FileMng.save_project(flowchart_id, self.project_root)
             save_current_project_id(flowchart_id)
-            ast_map_path = os.path.join(self.project_root, "ast_map.json")
-            if os.path.exists(ast_map_path):
-                try:
-                    with open(ast_map_path, "r", encoding="utf-8") as f:
-                        ast_map = json.load(f)
-                    FileMng.save_ast_map(flowchart_id, ast_map)
-                    FileMng.update_project_ast_map_path(flowchart_id, ast_map_path)
-                except Exception:
-                    pass
             self.finished.emit(True, "", flowchart_id)
         except Exception as exc:
             import traceback
@@ -196,6 +209,7 @@ class DashboardWidget(QWidget):
         self.repaint()
 
         worker = ProjectImportWorker(project_root)
+        worker.progress.connect(lambda msg: loading.set_message(msg))
 
         def on_finished(success, message, flowchart_id):
             loading.close()

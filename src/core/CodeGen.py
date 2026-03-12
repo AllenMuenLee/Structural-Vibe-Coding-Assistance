@@ -1,13 +1,12 @@
 import os
-import json
 import re
 from openai import OpenAI
 from dotenv import load_dotenv
-import src.utils.FileMng as FileMng
-import src.utils.SymbolExt as SymbolExt
 from pathlib import Path
 import time
 import src.utils.Terminal as Terminal
+import src.utils.FileMng as FileMng
+import src.utils.SymbolExt as SymbolExt
 
 load_dotenv()
 
@@ -22,14 +21,9 @@ client = OpenAI(
 class CodingAgent:
     # FIXED:
     def __init__(self, project_path):
-        self.ast_map = {}
         self.project_root = str(project_path)  # ✅ Use project_path parameter
         self.project_name = Path(project_path).name  # ✅ Use project_path parameter
         self.stack = []
-        
-        if not self._load_ast_map():
-            self.ast_map = SymbolExt.initialize_ast_map(self.project_root, self.ast_map)
-            self._save_ast_map()
 
     def _to_abs_path(self, path_value):
         if not path_value:
@@ -38,35 +32,78 @@ class CodingAgent:
             return os.path.normpath(path_value)
         return os.path.normpath(os.path.join(self.project_root, path_value))
 
-    def _save_ast_map(self):
-        ast_map_path = os.path.join(self.project_root, "ast_map.json")
-        normalized = {os.path.abspath(k): v for k, v in self.ast_map.items()}
-        FileMng.save_json(normalized, ast_map_path)
-        project_id = FileMng.get_project_id_by_root(self.project_root)
-        if project_id:
-            FileMng.save_ast_map(project_id, normalized)
-            FileMng.update_project_ast_map_path(project_id, ast_map_path)
-
-    def _load_ast_map(self):
-        project_id = FileMng.get_project_id_by_root(self.project_root)
-        if project_id:
-            cached = FileMng.load_ast_map(project_id)
-            if cached:
-                self.ast_map = {os.path.abspath(k): v for k, v in cached.items()}
-                return True
-        ast_map_path = os.path.join(self.project_root, "ast_map.json")
-        if not os.path.exists(ast_map_path):
-            return False
+    def _read_file_text(self, path_value):
+        if not path_value or not os.path.exists(path_value):
+            return ""
         try:
-            raw_map = FileMng.load_json(ast_map_path)
-            self.ast_map = {os.path.abspath(k): v for k, v in raw_map.items()}
-            return True
+            with open(path_value, "r", encoding="utf-8") as f:
+                return f.read()
         except Exception:
-            return False
+            return ""
+
+    def _update_ast_map_for_file(self, abs_path):
+        if not abs_path:
+            return
+        full_code = self._read_file_text(abs_path)
+        if full_code is None:
+            return
+        try:
+            entry = SymbolExt.get_ast_map(full_code, file_path=abs_path)
+        except Exception:
+            return
+
+        project_id = FileMng.get_project_id_by_root(self.project_root)
+        ast_map = FileMng.load_ast_map(project_id) if project_id else None
+        if not isinstance(ast_map, dict):
+            ast_map = {}
+
+        ast_map[os.path.abspath(abs_path)] = entry
+
+        # Save ast_map to appdata
+        try:
+            if project_id:
+                FileMng.save_ast_map(project_id, ast_map)
+        except Exception:
+            pass
+
+    def _load_ast_tags_text(self, max_files=200, max_tags_per_file=30):
+        project_id = FileMng.get_project_id_by_root(self.project_root)
+        ast_map = FileMng.load_ast_map(project_id) if project_id else None
+        if not isinstance(ast_map, dict):
+            return "# (no tags)"
+
+        parts = []
+        count = 0
+        for file_path, entries in ast_map.items():
+            if count >= max_files:
+                break
+            if not isinstance(entries, list):
+                continue
+            tags = []
+            for entry in entries:
+                if not isinstance(entry, dict):
+                    continue
+                name = entry.get("name")
+                kind = entry.get("type") or entry.get("kind") or "symbol"
+                doc = entry.get("docstring") or entry.get("comment") or ""
+                if name:
+                    if doc:
+                        short_doc = str(doc).strip().replace("\n", " ")
+                        if len(short_doc) > 160:
+                            short_doc = short_doc[:157] + "..."
+                        tags.append(f"{kind} {name} — {short_doc}")
+                    else:
+                        tags.append(f"{kind} {name}")
+                if len(tags) >= max_tags_per_file:
+                    break
+            if not tags:
+                continue
+            parts.append(f"FILE: {file_path}\n- " + "\n- ".join(tags))
+            count += 1
+        return "\n\n".join(parts) if parts else "# (no tags)"
 
     def call_nova(self, step, topic):
-        file_set = {}
-        
+        file_set = []
         # Run commands
         for c in step['command']:
             if c and c.strip():  # ✅ Only run non-empty commands
@@ -76,47 +113,42 @@ class CodingAgent:
         
         if not step['filenames']:
             return ""
-        
         # Collect file context
         for f in step['filenames']:
             norm_f = self._to_abs_path(f)
-            if norm_f in self.ast_map:
-                file_set[norm_f] = self.ast_map[norm_f]
-            else:
-                file_set[norm_f] = SymbolExt.get_ast_map("", file_path=norm_f)
-        
+            file_set.append(norm_f)
+
         for f in step['files_to_import']:
             norm_f = self._to_abs_path(f)
-            if norm_f in self.ast_map:
-                file_set[norm_f] = self.ast_map[norm_f]
-            else:
-                file_set[norm_f] = SymbolExt.get_ast_map("", file_path=norm_f)
-        
-        # Build context
-        context = SymbolExt.extract_symbol_tree(self.ast_map, file_set)
-        import_list = SymbolExt.list_imports(None, file_set)
-        context += "\n\nIMPORTS:\n" + "\n".join(import_list)
-        
+            file_set.append(norm_f)
+
+        # Build context with full file contents
+        seen = set()
+        context_parts = []
+        for f in file_set:
+            if not f or f in seen:
+                continue
+            seen.add(f)
+            code = self._read_file_text(f)
+            context_parts.append(f"FILE: {f}\n```\n{code}\n```")
+        context = "\n\n".join(context_parts)
+
+        tags_text = self._load_ast_tags_text()
+
         print(context)
+        print(tags_text)
         
         SYSTEM_PROMPT = """You are a senior software architect and coding agent. The user will give you a description of a coding task, which is a step in a larger project.
 
         GENERAL RULES:
         1. Provide the code you want to implement. No conversational filler or explanations.
-        2. You will be provided a context, which is a symbol table. Use it to understand the context of the current file. The format of the symbol table will be:
-        File filepath:
-        - [type] `name` (line #) -> (docstring)
-        ...
-        IMPORT:
-        <import lines...>
+        2. You will be provided a context with the full content of relevant files plus a project-wide tag index. Use both to understand the current codebase.
         3. After you draft the code, review every requirement. If the requirement is not fulfilled, modify the code until it does.
         4. NO ASSUMING UNDER ANY CIRCUMSTANCE
         5. NEVER REPEAT IMPORT AND CODE
 
         CODING RULES:
-        1. Read the symbol table, it includes the context
-        First part includes context of the files you need to edit/add, and files you need to import and use its existing functions.
-        Second part, after IMPORT: are the libraries that are already imported, you don't have to import again.
+        1. Read the provided file contents and the tag index; use existing code and imports from those files.
         2. If there is no existing code, generate code according to the description.
         3. You can only import existing libraries or files listed in FILES YOU MIGHT NEED TO IMPORT
         4. The output MUST strictly follow this format:
@@ -136,6 +168,9 @@ class CodingAgent:
         """
         
         prompt = f"""
+        PROJECT TAGS (SUMMARY OF OTHER FILES):
+        {tags_text}
+
         CONTEXT OF EXISTING FILES:
         {context}
 
@@ -146,7 +181,7 @@ class CodingAgent:
 
         NO ASSUMING UNDER ANY CIRCUMSTANCE
         NEVER REPEAT GENERATING THE SAME FUNCTION, CLASS, LOGIC
-        IF IT IS NOT
+        IF THIS FILE ISN'T A MAIN FILE, IT SHOULD ONLY BULID FUNCTIONS, CLASSES, VARIABLES, AND NOT RUN ANYTHING
         
         Please give the raw code and docstring right below the function or class definition, don't put it above
         or ask questions if the code is repeated or not clear context, please don't skip asking question even if the code is short.
@@ -166,7 +201,7 @@ class CodingAgent:
                     },
                 ],
                 temperature=0.2,
-                max_tokens=2000,
+                max_tokens=3000,
             )
             
             if response.choices[0].message.content is None:
@@ -279,12 +314,6 @@ class CodingAgent:
                 # Create new file
                 with open(abs_filename, "w", encoding="utf-8") as f:
                     f.write(code)
-            
-            # Update AST map
-            with open(abs_filename, "r", encoding="utf-8") as f:
-                full_code = f.read()
-            
-            self.ast_map[str(norm_filename)] = SymbolExt.get_ast_map(
-                full_code, file_path=str(norm_filename)
-            )
-            self._save_ast_map()
+
+            # Update AST map entry for this file
+            self._update_ast_map_for_file(abs_filename)

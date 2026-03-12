@@ -9,7 +9,9 @@ def insert(lines, content, line_n):
     lines.insert(line_n - 1, content + "\n")
 
 def apply_edits(edits):
+    print(edits)
     for f, actions in (edits or {}).items():
+        print(f)
         with open(f, 'r', encoding='utf-8') as file:
             lines = file.readlines()
 
