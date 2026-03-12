@@ -1,7 +1,7 @@
 import os
 from pathlib import Path
 
-from PyQt6.QtCore import Qt, QThread, pyqtSignal
+from PyQt6.QtCore import Qt, QThread, pyqtSignal, QTimer
 from PyQt6.QtWidgets import (
     QWidget,
     QVBoxLayout,
@@ -81,11 +81,12 @@ class ProjectImportWorker(QThread):
 
 
 class DashboardWidget(QWidget):
-    def __init__(self, on_new_project=None, on_open_project=None):
+    def __init__(self, on_new_project=None, on_open_project=None, on_open_settings=None):
         super().__init__()
         self.setObjectName("DashboardPage")
         self._on_new_project = on_new_project
         self._on_open_project = on_open_project
+        self._on_open_settings = on_open_settings
 
         style_path = Path(__file__).resolve().parent.parent / "style" / "dashboard.qss"
         if style_path.exists():
@@ -110,6 +111,11 @@ class DashboardWidget(QWidget):
         layout.addWidget(self.project_list, stretch=1)
 
         actions = QHBoxLayout()
+
+        settings_btn = QPushButton("Settings")
+        settings_btn.setObjectName("DashboardButton")
+        settings_btn.clicked.connect(self._open_settings)
+        actions.addWidget(settings_btn)
         actions.addStretch()
 
         open_btn = QPushButton("Open Project")
@@ -135,6 +141,7 @@ class DashboardWidget(QWidget):
         layout.addLayout(actions)
 
         self.refresh_projects()
+        QTimer.singleShot(0, lambda: self._ensure_api_key(show_dialog=True))
 
     def refresh_projects(self):
         self.project_list.clear()
@@ -148,6 +155,8 @@ class DashboardWidget(QWidget):
             self.project_list.addItem(item)
 
     def _open_selected_project(self):
+        if not self._ensure_api_key(show_dialog=True):
+            return
         item = self.project_list.currentItem()
         if not item:
             QMessageBox.information(self, "Select Project", "Please select a project.")
@@ -161,6 +170,8 @@ class DashboardWidget(QWidget):
             self._on_open_project(project_id)
 
     def _create_new_project(self):
+        if not self._ensure_api_key(show_dialog=True):
+            return
         if self._on_new_project:
             self._on_new_project()
 
@@ -188,6 +199,8 @@ class DashboardWidget(QWidget):
             QMessageBox.warning(self, "Error", "Failed to delete project.")
 
     def _import_project(self):
+        if not self._ensure_api_key(show_dialog=True):
+            return
         folder = QFileDialog.getExistingDirectory(self, "Select Project Folder")
         if not folder:
             return
@@ -223,3 +236,37 @@ class DashboardWidget(QWidget):
         worker.finished.connect(on_finished)
         worker.start()
         self._import_worker = worker
+
+    def _env_path(self) -> Path:
+        return Path(__file__).resolve().parents[2] / ".env"
+
+    def _get_api_key(self) -> str:
+        key = os.getenv("NOVA_API_KEY", "").strip()
+        if key:
+            return key
+        env_path = self._env_path()
+        if not env_path.exists():
+            return ""
+        try:
+            for line in env_path.read_text(encoding="utf-8").splitlines():
+                if line.strip().startswith("NOVA_API_KEY="):
+                    return line.split("=", 1)[1].strip().strip('"').strip("'")
+        except Exception:
+            return ""
+        return ""
+
+    def _ensure_api_key(self, show_dialog: bool = False) -> bool:
+        if self._get_api_key():
+            return True
+        QMessageBox.warning(
+            self,
+            "API Key Required",
+            "Your API key is not set. Please add it in Settings.",
+        )
+        if show_dialog:
+            self._open_settings()
+        return False
+
+    def _open_settings(self):
+        if self._on_open_settings:
+            self._on_open_settings()

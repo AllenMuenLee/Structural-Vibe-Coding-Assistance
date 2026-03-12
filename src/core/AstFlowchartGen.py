@@ -233,6 +233,7 @@ class AstFlowchartGenerator:
                     "kind": tag.get("kind"),
                     "line": tag.get("line"),
                     "parent": tag.get("parent"),
+                    "params": tag.get("params", []),
                     "docstring": tag.get("docstring", "")
                 })
         return compact

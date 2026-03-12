@@ -7,7 +7,6 @@ from openai import OpenAI
 from dotenv import load_dotenv
 
 import src.utils.FileMng as FileMng
-import src.utils.FileEdit as FileEdit
 import src.utils.SymbolExt as SymbolExt
 
 
@@ -19,8 +18,8 @@ client = OpenAI(
 )
 
 
-EDIT_LINE_REGEX = re.compile(r"\[(Edit|Insert|Delete)\] (.+?) - #(\d+)")
 LOG_LINE_REGEX = re.compile(r"^\[LOG\]\s+(.+?)\s+-\s+(.+?)\s*->\s*(.+?)\s*:\s*(.+)$")
+FILE_BLOCK_REGEX = re.compile(r"\[([^\]]+)\]:?\s*```(?:[a-zA-Z0-9_+-]*)\n(.*?)\n```", re.DOTALL)
 
 
 def _normalize_path(project_root: str, path_value: str) -> str:
@@ -217,23 +216,23 @@ class CodeEditor:
             FILE CONTEXT (FULL CONTENT):
             {context_text}
 
-            Please generate edits for the file, if the file doesn't have anything, just insert the code.
-            Please make sure the indent is correct.
+            Please return the full updated file contents for every affected file.
+            Use this exact format:
 
-            if you want to replace #line with your code: 
-            [Edit] filepath - #line number
+            [FILES]
+            [filepath]
             ```
-            Code
+            full file content
             ```
+            [filepath]
+            ```
+            full file content
+            ```
+            ...
 
-            if you want to insert a code at #line:
-            [Insert] filepath - #line number
-            ```
-            Code
-            ```
-
-            if you want to delete #line: 
-            [Delete] filepath - #line number
+            [LOG]
+            [LOG] filepath - previous_name -> current_name: functionality, output format
+            ...
             """
 
             response = client.chat.completions.create(
@@ -324,7 +323,7 @@ class CodeEditor:
 
                 SYSTEM_PROMPT = (
                     "You are a code editor. A child node changed and edited/added files. "
-                    "Update the parent node files if needed. Return only Debugger.py edits."
+                    "Update the parent node files if needed. Return full file contents."
                 )
 
                 prompt = f"""
@@ -341,16 +340,14 @@ class CodeEditor:
                 Parent File Context:
                 {context_text}
 
-                Return edits in this format:
-                [Edit] filepath - #line number
+                Return output in this format:
+
+                [FILES]
+                [filepath]
                 ```
-                Code
+                full file content
                 ```
-                [Insert] filepath - #line number
-                ```
-                Code
-                ```
-                [Delete] filepath - #line number
+                ...
                 """
 
                 response = client.chat.completions.create(
@@ -370,46 +367,23 @@ class CodeEditor:
 
         return "\n".join(edits_out).strip()
 
-    def string_to_edit(self, edit_string: str) -> Dict[str, List[List[object]]]:
-        """Parse edit string to internal edits dict."""
-        self.edits = {}
-        lines = edit_string.splitlines()
-        if lines and lines[0].strip() == "```":
-            lines = lines[1:]
-
-        in_code = False
-        curr_code: List[str] = []
-        curr_file = ""
-        for raw in lines:
-            line = raw.rstrip()
-            if not in_code:
-                match = EDIT_LINE_REGEX.match(line.strip())
-                if match:
-                    action = match.group(1)
-                    file_path = match.group(2)
-                    line_number = int(match.group(3))
-                    curr_file = file_path
-                    self.edits.setdefault(file_path, []).append([action, line_number, ""])
-                    continue
-            if line.strip() == "```":
-                in_code = not in_code
-                if not in_code and curr_code and curr_file:
-                    self.edits[curr_file][-1][2] = "\n".join(curr_code)
-                    curr_code = []
-                continue
-            if in_code:
-                curr_code.append(line)
-
-        return self.edits
-
     def apply_edits(self, edit_string: str) -> None:
-        """Apply edits to files using FileEdit.apply_edits."""
-        edits = self.string_to_edit(edit_string or "")
-        for i in edits.keys():
-            print(i)
-        FileEdit.apply_edits(edits)
-        if edits:
-            self._update_ast_map_for_files(list(edits.keys()))
+        """Apply full-file outputs to disk."""
+        files = self._parse_file_blocks(edit_string or "")
+        if not files:
+            return
+        updated_files: List[str] = []
+        for filename, code in files:
+            abs_filename = _normalize_path(self.project_root, filename)
+            if not abs_filename:
+                continue
+            norm_filename = Path(abs_filename)
+            norm_filename.parent.mkdir(parents=True, exist_ok=True)
+            with open(abs_filename, "w", encoding="utf-8") as f:
+                f.write(code)
+            updated_files.append(abs_filename)
+        if updated_files:
+            self._update_ast_map_for_files(updated_files)
 
     def _split_edits_and_log(self, text: str) -> Tuple[str, List[Dict[str, str]]]:
         edits_lines: List[str] = []
@@ -417,7 +391,7 @@ class CodeEditor:
         in_log = False
         for raw in text.splitlines():
             line = raw.strip()
-            if line == "[EDITS]":
+            if line in ("[EDITS]", "[FILES]"):
                 in_log = False
                 continue
             if line == "[LOG]":
@@ -436,3 +410,14 @@ class CodeEditor:
             edits_lines.append(raw)
 
         return "\n".join(edits_lines).strip(), log_entries
+
+    def _parse_file_blocks(self, text: str) -> List[Tuple[str, str]]:
+        files: List[Tuple[str, str]] = []
+        if not text:
+            return files
+        for filename, code in FILE_BLOCK_REGEX.findall(text):
+            clean_name = (filename or "").strip()
+            if not clean_name:
+                continue
+            files.append((clean_name, code.rstrip("\n")))
+        return files

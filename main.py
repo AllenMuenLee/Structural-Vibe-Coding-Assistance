@@ -5,6 +5,7 @@ from PyQt6.QtWidgets import QApplication, QWidget, QVBoxLayout, QStackedWidget
 
 from app.pages.dashboard import DashboardWidget
 from app.pages.projectBuilder import ProjectBuilderWidget
+from app.pages.settings import SettingsWidget
 from app.pages.canva import CanvaWidget
 from app.pages.codeEditor import CodeEditorWidget
 from src.utils.CacheMng import load_cache, save_current_project_id
@@ -39,15 +40,15 @@ def main():
         return None
 
     def show_canvas():
-        if stacked.count() > 2:
-            old_canvas = stacked.widget(2)
+        if stacked.count() > 3:
+            old_canvas = stacked.widget(3)
             stacked.removeWidget(old_canvas)
             old_canvas.deleteLater()
 
         canvas = CanvaWidget(on_back=on_back_to_dashboard)
         canvas.on_code_generated = on_code_generated
-        stacked.insertWidget(2, canvas)
-        stacked.setCurrentIndex(2)
+        stacked.insertWidget(3, canvas)
+        stacked.setCurrentIndex(3)
 
     def on_project_created(success):
         if success:
@@ -61,14 +62,14 @@ def main():
             print("? Warning: Could not load flowchart data for editor")
             return
 
-        if stacked.count() > 3:
-            old_editor = stacked.widget(3)
+        if stacked.count() > 4:
+            old_editor = stacked.widget(4)
             stacked.removeWidget(old_editor)
             old_editor.deleteLater()
 
         editor = CodeEditorWidget(flowchart_data, on_back_to_canvas)
-        stacked.insertWidget(3, editor)
-        stacked.setCurrentIndex(3)
+        stacked.insertWidget(4, editor)
+        stacked.setCurrentIndex(4)
 
     def on_back_to_canvas():
         print("? Returning to Canvas...")
@@ -80,15 +81,24 @@ def main():
     def on_back_to_dashboard():
         stacked.setCurrentIndex(0)
 
+    def on_open_settings():
+        stacked.setCurrentIndex(2)
+
     def on_open_project(project_id):
         save_current_project_id(project_id)
         show_canvas()
 
-    dashboard = DashboardWidget(on_new_project=on_new_project, on_open_project=on_open_project)
+    dashboard = DashboardWidget(
+        on_new_project=on_new_project,
+        on_open_project=on_open_project,
+        on_open_settings=on_open_settings,
+    )
     builder = ProjectBuilderWidget(on_project_created=on_project_created, on_back=on_back_to_dashboard)
+    settings = SettingsWidget(on_back=on_back_to_dashboard)
 
     stacked.addWidget(dashboard)  # Index 0
     stacked.addWidget(builder)    # Index 1
+    stacked.addWidget(settings)   # Index 2
 
     layout.addWidget(stacked)
     stacked.setCurrentIndex(0)

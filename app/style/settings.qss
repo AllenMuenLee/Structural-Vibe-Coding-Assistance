@@ -1,0 +1,85 @@
+QWidget#SettingsPage {
+    background: #0f1115;
+    color: #e7e9ee;
+    font-family: "IBM Plex Sans";
+}
+
+QLabel#SettingsTitle {
+    font-size: 18px;
+    font-weight: 600;
+    color: #e7e9ee;
+}
+
+QLabel#SettingsSubtitle {
+    font-size: 12px;
+    color: #9aa3b2;
+}
+
+QFrame#SettingsCard {
+    background: #141820;
+    border: 1px solid #252b36;
+    border-radius: 12px;
+}
+
+QLabel#SettingsLabel {
+    font-size: 11px;
+    font-weight: 600;
+    color: #9aa3b2;
+}
+
+QLabel#SettingsHint {
+    font-size: 11px;
+    color: #f3a5a5;
+}
+
+QLabel#SettingsWarning {
+    font-size: 11px;
+    color: #f0b46b;
+}
+
+QLineEdit#SettingsInput {
+    background: #10141c;
+    color: #e7e9ee;
+    border: 1px solid #252b36;
+    border-radius: 10px;
+    padding: 8px 10px;
+    font-size: 12px;
+}
+
+QLineEdit#SettingsInput:focus {
+    border: 1px solid #3a7bff;
+    background: #0f131a;
+}
+
+QPushButton#PrimaryButton {
+    background: #2f6fed;
+    color: #ffffff;
+    border-radius: 8px;
+    padding: 4px 12px;
+    font-weight: 600;
+    font-size: 12px;
+    min-width: 120px;
+}
+
+QPushButton#PrimaryButton:hover {
+    background: #3a7bff;
+}
+
+QPushButton#BackButton {
+    background: #141820;
+    color: #c9d2de;
+    border: 1px solid #252b36;
+    border-radius: 8px;
+    padding: 4px 10px;
+    font-size: 12px;
+    min-width: 90px;
+}
+
+QPushButton#BackButton:hover {
+    background: #1a2029;
+    color: #e7e9ee;
+}
+
+QPushButton#BackButton:disabled {
+    color: #707a89;
+}

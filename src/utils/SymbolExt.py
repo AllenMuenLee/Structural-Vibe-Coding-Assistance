@@ -32,6 +32,18 @@ def _get_name(source_bytes, node):
     return None
 
 
+def _extract_params(source_bytes, node):
+    params_node = node.child_by_field_name("parameters")
+    if not params_node:
+        return []
+    params = []
+    for child in params_node.named_children:
+        text = _node_text(source_bytes, child).strip()
+        if text:
+            params.append(text)
+    return params
+
+
 def _add_var_tag(name, node, class_stack, tags):
     if not name:
         return
@@ -66,7 +78,8 @@ def _walk_python_symbols(source_bytes, node, class_stack, tags):
                 "name": name,
                 "kind": "function",
                 "line": node.start_point[0] + 1,
-                "parent": class_stack[-1] if class_stack else None
+                "parent": class_stack[-1] if class_stack else None,
+                "params": _extract_params(source_bytes, node),
             })
     if node_type == "assignment":
         for child in node.children:
@@ -113,7 +126,8 @@ def _walk_js_symbols(source_bytes, node, class_stack, tags):
                 "name": name,
                 "kind": "function",
                 "line": node.start_point[0] + 1,
-                "parent": None
+                "parent": None,
+                "params": _extract_params(source_bytes, node),
             })
     if node_type in ("method_definition",):
         name = _get_name(source_bytes, node)
@@ -122,7 +136,8 @@ def _walk_js_symbols(source_bytes, node, class_stack, tags):
                 "name": name,
                 "kind": "method",
                 "line": node.start_point[0] + 1,
-                "parent": class_stack[-1] if class_stack else None
+                "parent": class_stack[-1] if class_stack else None,
+                "params": _extract_params(source_bytes, node),
             })
     if node_type == "variable_declarator":
         name = _get_name(source_bytes, node)
@@ -400,9 +415,12 @@ def extract_symbol_tree(ast_map, file_set):
             return body
         return ""
 
-    def _format_tag(tag, lines, language):
+def _format_tag(tag, lines, language):
         kind = tag.get("kind", "symbol").capitalize()
         name = tag.get("name", "?")
+        params = tag.get("params") or []
+        if params:
+            name = f"{name}({', '.join(params)})"
         line = tag.get("line")
         parent = tag.get("parent")
         line_part = f" (line {line})" if line else ""

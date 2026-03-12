@@ -2,20 +2,21 @@ import json
 import os
 from openai import OpenAI
 from dotenv import load_dotenv
-import src.utils.FileEdit as FileEdit
 import re
+from pathlib import Path
 
 load_dotenv()
 
 client = OpenAI(
     api_key=os.getenv("NOVA_API_KEY"),
-    base_url="https://api.nova.amazon.com/v1"
+    base_url="https://api.nova.amazon.com/v1",
+    default_headers={"Accept-Encoding": "gzip, deflate"},  # Disable zstd
+    timeout=90.0
 )
 
 class debugger:
     def __init__(self, project_name):
         self.project_name = project_name
-        self.edits = {}
         self.error_files = {}
 
     def extract_error(self, user_input, ast_tag):
@@ -37,6 +38,8 @@ class debugger:
         AST tags (by file):
         {json.dumps(ast_tag, indent=2)}
 
+        Please list out all files that need to be inspect and make potential changes.
+
         Return in this exact format (one per line):
         filepath - #line number
         ...
@@ -52,8 +55,8 @@ class debugger:
                 {"role": "system", "content": SYSTEM_PROMPT},
                 {"role": "user", "content": prompt},
             ],
-            temperature=0.1,
-            max_tokens=5000,
+            temperature=0.2,
+            max_tokens=3000,
             stream=False
         )
 
@@ -94,7 +97,10 @@ class debugger:
         if not context_entries:
             return ""
 
-        SYSTEM_PROMPT = "You are a debug expert, and your job is to identify the error and provide the correct fix for the error."
+        SYSTEM_PROMPT = (
+            "You are a debug expert. Return full updated file contents for the files you change. "
+            "Do not return edit commands."
+        )
         responses = []
 
         for entry in context_entries:
@@ -109,29 +115,14 @@ class debugger:
             Code:
             {entry['code']}
 
-            Please generate the edit for this file based on the error message, don't provide conversation, and you must provide correct spacing
-            Please make sure the indent is correct.
+            Please return the full updated file contents for this file.
+            Use this format:
+            [filepath]
+            ```
+            full file content
+            ```
 
-            return in this format:
-            if you want to replace #line with your code: 
-                [Edit] filepath - #line number
-                ```
-                Code
-                ```
-            if you want to insert a code at #line:
-                [Insert] filepath - #line number
-                ```
-                Code
-                ```
-            if you want to delete #line: 
-                [Delete] filepath - #line number
-
-            Make sure the filepath is an absolute path
-            Example:
-            [Insert] c://users//documents//example.py - #12
-                ```
-                print(example_function(a, b))
-                ```
+            Make sure the filepath is an absolute path.
             """
 
             response = client.chat.completions.create(
@@ -169,51 +160,119 @@ class debugger:
             return {"file": abs_path, "code": "# (empty or missing file)"}
         return {"file": abs_path, "code": code}
 
-    def string_to_edit(self, edit_string):
-        self.edits = {}
-        lines = edit_string.splitlines()
+    def _parse_file_blocks(self, text):
+        pattern = r"\[([^\]]+)\]:?\s*```(?:[a-zA-Z0-9_+-]*)\n(.*?)\n```"
+        matches = re.findall(pattern, text or "", re.DOTALL)
+        out = []
+        for filename, code in matches:
+            clean_name = (filename or "").strip()
+            if clean_name:
+                out.append((clean_name, code.rstrip("\n")))
+        return out
 
-        print(lines)
+    def save_generated_files(self, generated_text):
+        files = self._parse_file_blocks(generated_text or "")
+        for filename, code in files:
+            abs_path = os.path.abspath(filename)
+            Path(abs_path).parent.mkdir(parents=True, exist_ok=True)
+            with open(abs_path, "w", encoding="utf-8") as fh:
+                fh.write(code)
 
-        if not lines:
-            return
+    def find_parent_nodes(self, flowchart_data, impacted_files):
+        steps = flowchart_data.get("steps", {}) if isinstance(flowchart_data, dict) else {}
+        if not isinstance(steps, dict):
+            return [], ""
 
-        if (lines[0] == "```"):
-            lines = lines[1:]
-
-        current = None
-        in_code = False
-
-        curr = []
-        file_path = None
-
-        for raw in lines:
-            line = raw
-            print("line:", line)
-            if not in_code:
-                exp = r"\[(Edit|Insert|Delete)\] (.+?) - #(\d+)"
-                match = re.match(exp, line)
-                if match:
-                    action = match.group(1)
-                    file_path = match.group(2)
-                    line_number = int(match.group(3))
-                    if file_path not in self.edits:
-                        self.edits[file_path] = []
-                    self.edits[file_path].append([
-                        action,
-                        line_number,
-                        ""
-                    ])
-                    continue
-
-            if line == "```":
-                in_code = not in_code
-                if not in_code and curr and file_path and file_path in self.edits:
-                    self.edits[file_path][-1][2] = "\n".join(curr)
-                    curr = []
+        impacted_set = {os.path.normpath(p) for p in (impacted_files or [])}
+        impacted_steps = []
+        for sid, step in steps.items():
+            if not isinstance(step, dict):
                 continue
-            elif in_code:
-                curr.append(line)
+            filenames = step.get("filenames", []) or []
+            resolved = [os.path.normpath(f) for f in filenames]
+            if any(p in impacted_set for p in resolved):
+                impacted_steps.append(sid)
 
-    def fix(self):
-        FileEdit.apply_edits(self.edits)
+        def _get_children(step_data):
+            if not isinstance(step_data, dict):
+                return []
+            if "chlidren" in step_data:
+                return step_data.get("chlidren", []) or []
+            return step_data.get("children", []) or []
+
+        parents = {sid: [] for sid in steps.keys()}
+        for sid, data in steps.items():
+            for cid in _get_children(data):
+                if cid in parents:
+                    parents[cid].append(sid)
+
+        parent_ids = []
+        seen = set()
+        for child_id in impacted_steps:
+            for pid in parents.get(child_id, []):
+                if pid not in seen:
+                    seen.add(pid)
+                    parent_ids.append(pid)
+
+        summary_lines = []
+        if impacted_steps:
+            summary_lines.append("Child nodes updated: " + ", ".join(impacted_steps))
+        if impacted_files:
+            summary_lines.append("Files updated: " + ", ".join(impacted_files))
+        summary = "\n".join(summary_lines) if summary_lines else "(no changes detected)"
+        return parent_ids, summary
+
+    def generate_parent_updates(self, flowchart_data, parent_ids, child_summary):
+        steps = flowchart_data.get("steps", {}) if isinstance(flowchart_data, dict) else {}
+        if not isinstance(steps, dict):
+            return ""
+
+        responses = []
+        SYSTEM_PROMPT = (
+            "You are a code editor. A child node changed. "
+            "Update the parent node files if needed. Return full file contents."
+        )
+
+        for parent_id in (parent_ids or []):
+            parent = steps.get(parent_id, {})
+            parent_files = parent.get("filenames", []) if isinstance(parent, dict) else []
+            if not parent_files:
+                continue
+
+            context_chunks = []
+            for f in parent_files:
+                info = self.get_full_code(f)
+                context_chunks.append(
+                    f"File: {info['file']}\n```\n{info['code']}\n```"
+                )
+            context_text = "\n\n".join(context_chunks) if context_chunks else "# (no related files)"
+
+            prompt = f"""
+            Parent Node ID: {parent_id}
+
+            Child Change Summary:
+            {child_summary}
+
+            Parent File Context:
+            {context_text}
+
+            Return output in this format:
+            [filepath]
+            ```
+            full file content
+            ```
+            """
+
+            response = client.chat.completions.create(
+                model="nova-pro-v1",
+                messages=[
+                    {"role": "system", "content": SYSTEM_PROMPT},
+                    {"role": "user", "content": prompt},
+                ],
+                temperature=0.1,
+                max_tokens=3000,
+            )
+
+            responses.append(response.choices[0].message.content)
+
+        return "\n\n".join(responses)

@@ -85,6 +85,9 @@ class CodingAgent:
                     continue
                 name = entry.get("name")
                 kind = entry.get("type") or entry.get("kind") or "symbol"
+                params = entry.get("params") or []
+                if name and params:
+                    name = f"{name}({', '.join(params)})"
                 doc = entry.get("docstring") or entry.get("comment") or ""
                 if name:
                     if doc:
