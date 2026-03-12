@@ -16,6 +16,7 @@ class DraggableBlock(QLabel):
         self.setFixedSize(self._base_width, self._base_height)
         self.setProperty("selected", False)
         self._drag_offset = None
+        self._drag_moved = False
         self._hovered = False
         self.setMouseTracking(True)
         self._drag_line_active = False
@@ -57,6 +58,7 @@ class DraggableBlock(QLabel):
         elif event.buttons() & Qt.MouseButton.LeftButton and self._drag_offset:
             new_pos = self.mapToParent(event.position().toPoint() - self._drag_offset)
             self.move(new_pos)
+            self._drag_moved = True
             
             # Update connection lines if parent has them
             if self.parent():
@@ -77,6 +79,9 @@ class DraggableBlock(QLabel):
             self._clear_drag_over_target()
             self._active_dot_index = None
         self._drag_offset = None
+        if self._drag_moved and self.root and hasattr(self.root, "on_block_moved"):
+            self.root.on_block_moved(self)
+        self._drag_moved = False
         super().mouseReleaseEvent(event)
 
     def contextMenuEvent(self, event):

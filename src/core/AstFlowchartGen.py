@@ -168,7 +168,6 @@ class AstFlowchartGenerator:
         - Return JSON only, no extra text.
         - One parent a node.
         - one to three children a node.
-        - Each node should only briefly describe each function or file, don't extract each variables.
         Return ONLY a valid JSON object with this structure:
         {{
             "framework": "Any framework that's applicable",
@@ -221,13 +220,13 @@ class AstFlowchartGenerator:
         """
 
         response = client.chat.completions.create(
-            model="nova-2-lite-v1",
+            model="nova-pro-v1",
             messages=[
                 {"role": "system", "content": SYSTEM_PROMPT},
                 {"role": "user", "content": prompt},
             ],
             temperature=0.1,
-            max_tokens=5000,
+            max_tokens=3000,
         )
 
         content = response.choices[0].message.content or ""

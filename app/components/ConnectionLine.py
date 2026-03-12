@@ -52,6 +52,9 @@ class ConnectionLine(QWidget):
         self.from_id = from_id
         self.to_id = to_id
         self._hovered = False
+        # Curve tuning (adjust these to change how "curvy" the line is).
+        self.curve_min_strength = 20.0
+        self.curve_strength_factor = 0.1
         self.setMouseTracking(True)
         self.setAttribute(Qt.WidgetAttribute.WA_Hover, True)
         self.update_position()
@@ -158,7 +161,10 @@ class ConnectionLine(QWidget):
 
         dx = abs(end.x() - start.x())
         dy = abs(end.y() - start.y())
-        strength = max(50.0, (dx + dy) / 4.0)
+        strength = max(
+            float(self.curve_min_strength),
+            (dx + dy) * float(self.curve_strength_factor),
+        )
 
         vectors = {
             "top": QPointF(0, -1),

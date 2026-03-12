@@ -8,7 +8,7 @@ from PyQt6.QtWidgets import (
     QPushButton, QLabel, QScrollArea, QMessageBox,
     QTextEdit, QListWidget, QInputDialog, QMenu
 )
-from PyQt6.QtCore import Qt, QThread, pyqtSignal
+from PyQt6.QtCore import Qt, QThread, pyqtSignal, QTimer
 from app.components.draggable_block import DraggableBlock
 from src.utils.CacheMng import load_cache
 from app.pages.loadingScreen import LoadingScreen
@@ -285,10 +285,12 @@ def build_canva(flowchart_data=None, on_back=None) -> QWidget:
     root.generate_btn = generate_btn
     root.open_editor_btn = open_editor_btn
     root.remove_connection = lambda from_id, to_id: remove_connection(root, from_id, to_id)
+    root.on_block_moved = lambda block: on_block_moved(root, block)
     root.zoom_factor = 1.0
     root._layout_positions = {}
     root._layout_size = (1400, 2500)
     root.canvas_scroll = scroll
+    root._canvas_origin = (0.0, 0.0)
 
     if flowchart_data:
         project_root = flowchart_data.get("project_root", "")
@@ -312,11 +314,113 @@ def build_canva(flowchart_data=None, on_back=None) -> QWidget:
     return root
 
 
+def _load_saved_positions(flowchart_data):
+    raw = flowchart_data.get("layout_positions", {}) if flowchart_data else {}
+    positions = {}
+    if not isinstance(raw, dict):
+        return positions
+    for sid, value in raw.items():
+        if isinstance(value, dict):
+            x = value.get("x")
+            y = value.get("y")
+        elif isinstance(value, (list, tuple)) and len(value) >= 2:
+            x, y = value[0], value[1]
+        else:
+            continue
+        if x is None or y is None:
+            continue
+        try:
+            positions[sid] = (float(x), float(y))
+        except (TypeError, ValueError):
+            continue
+    return positions
+
+
+def _persist_layout_positions(root):
+    if not root or not getattr(root, "flowchart_data", None):
+        return
+    layout = {}
+    for sid, pos in (getattr(root, "_layout_positions", {}) or {}).items():
+        if not pos or len(pos) < 2:
+            continue
+        layout[sid] = [float(pos[0]), float(pos[1])]
+    root.flowchart_data["layout_positions"] = layout
+    save_flowchart_to_file(root.flowchart_data)
+
+
+def _graph_bounds(root):
+    positions = getattr(root, "_layout_positions", {}) or {}
+    if positions:
+        xs = [pos[0] for pos in positions.values() if pos and len(pos) >= 2]
+        ys = [pos[1] for pos in positions.values() if pos and len(pos) >= 2]
+    else:
+        xs, ys = [], []
+
+    if xs and ys:
+        min_x, max_x = min(xs), max(xs)
+        min_y, max_y = min(ys), max(ys)
+    else:
+        # Default center if nothing exists yet.
+        min_x = max_x = 700
+        min_y = max_y = 80
+
+    # Expand by half block size to include edges.
+    block_w = 150
+    block_h = 80
+    for block in getattr(root, "blocks", {}).values():
+        scale = getattr(root, "zoom_factor", 1.0) or 1.0
+        if scale > 0:
+            block_w = block.width() / scale
+            block_h = block.height() / scale
+        break
+
+    half_w = block_w / 2.0
+    half_h = block_h / 2.0
+    return (min_x - half_w, min_y - half_h, max_x + half_w, max_y + half_h)
+
+
+def _ensure_canvas_fits_graph(root):
+    if not root or not getattr(root, "canvas", None):
+        return
+    min_x, min_y, max_x, max_y = _graph_bounds(root)
+    margin = 1200
+    span_w = max_x - min_x
+    span_h = max_y - min_y
+    base_w = max(10000, int(span_w + margin * 2))
+    base_h = max(10000, int(span_h + margin * 2))
+    origin_x = min_x - margin
+    origin_y = min_y - margin
+    root._canvas_origin = (origin_x, origin_y)
+    root._layout_size = (base_w, base_h)
+    _apply_zoom(root)
+
+
+def _center_view_on_graph(root):
+    scroll = getattr(root, "canvas_scroll", None)
+    if not scroll:
+        return
+    min_x, min_y, max_x, max_y = _graph_bounds(root)
+    scale = getattr(root, "zoom_factor", 1.0) or 1.0
+    origin_x, origin_y = getattr(root, "_canvas_origin", (0.0, 0.0))
+    center_x = (((min_x + max_x) / 2.0) - origin_x) * scale
+    center_y = (((min_y + max_y) / 2.0) - origin_y) * scale
+
+    viewport = scroll.viewport().size()
+    target_x = int(center_x - (viewport.width() / 2.0))
+    target_y = int(center_y - (viewport.height() / 2.0))
+
+    h = scroll.horizontalScrollBar()
+    v = scroll.verticalScrollBar()
+    h.setValue(max(0, min(target_x, h.maximum())))
+    v.setValue(max(0, min(target_y, v.maximum())))
+
+
 def load_flowchart(root, flowchart_data):
     """Load flowchart data and create visual blocks."""
     
     canvas = root.canvas
     steps = flowchart_data.get('steps', {})
+    saved_positions = _load_saved_positions(flowchart_data)
     
     # Clear existing
     for block in root.blocks.values():
@@ -422,13 +526,21 @@ def load_flowchart(root, flowchart_data):
             positions[sid] = (x_pos + left_pad, y_pos + top_pad)
             max_x = max(max_x, x_pos)
             max_y = max(max_y, y_pos)
+
+    if saved_positions:
+        for sid, pos in saved_positions.items():
+            if sid not in steps:
+                continue
+            positions[sid] = pos
+            try:
+                max_x = max(max_x, float(pos[0]) - left_pad)
+                max_y = max(max_y, float(pos[1]) - top_pad)
+            except (TypeError, ValueError):
+                continue
     
     # ✅ Resize canvas dynamically
-    min_w = max(1400, int(max_x + 300 + left_pad))
-    min_h = max(2500, int(max_y + 300 + top_pad))
     root._layout_positions = positions
-    root._layout_size = (min_w, min_h)
-    _apply_zoom(root)
+    _ensure_canvas_fits_graph(root)
     
     # Create blocks
     for step_id, step_data in steps.items():
@@ -491,18 +603,24 @@ def load_flowchart(root, flowchart_data):
                 root.connections.append(line)
 
     _refresh_connections(root)
+    QTimer.singleShot(0, lambda: _center_view_on_graph(root))
 
 
 def _place_block(root, block, step_id, default_x, default_y):
     scale = getattr(root, "zoom_factor", 1.0) or 1.0
     block.set_scale(scale)
     positions = getattr(root, "_layout_positions", {}) or {}
+    origin_x, origin_y = getattr(root, "_canvas_origin", (0.0, 0.0))
     if step_id in positions:
         x_pos, y_pos = positions[step_id]
     else:
         x_pos, y_pos = default_x, default_y
     w = block.width()
-    block.move(int(x_pos * scale - (w / 2)), int(y_pos * scale))
+    h = block.height()
+    block.move(
+        int((x_pos - origin_x) * scale - (w / 2)),
+        int((y_pos - origin_y) * scale - (h / 2)),
+    )
 
 
 def _apply_zoom(root):
@@ -565,6 +683,18 @@ def on_block_click(root, step_id, step_data, event):
         selected_block.style().unpolish(selected_block)
         selected_block.style().polish(selected_block)
         selected_block.update()
+
+
+def on_block_moved(root, block):
+    scale = getattr(root, "zoom_factor", 1.0) or 1.0
+    if scale <= 0:
+        return
+    origin_x, origin_y = getattr(root, "_canvas_origin", (0.0, 0.0))
+    center_x = (block.x() + (block.width() / 2.0)) / scale + origin_x
+    center_y = (block.y() + (block.height() / 2.0)) / scale + origin_y
+    root._layout_positions[block.step_id] = (center_x, center_y)
+    _persist_layout_positions(root)
+    _ensure_canvas_fits_graph(root)
 
 
 def on_save_changes(root):
@@ -770,6 +900,10 @@ def on_delete_step(root):
         return
     
     del root.flowchart_data['steps'][step_id]
+    if step_id in getattr(root, "_layout_positions", {}):
+        root._layout_positions.pop(step_id, None)
+    if "layout_positions" in root.flowchart_data:
+        root.flowchart_data["layout_positions"].pop(step_id, None)
     
     for step_data in root.flowchart_data['steps'].values():
         children = _get_children(step_data)

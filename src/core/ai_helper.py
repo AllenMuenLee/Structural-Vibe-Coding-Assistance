@@ -100,7 +100,7 @@ def generate_flowchart_from_description(task_description, project_name):
     
     # Call Nova AI
     response = client.chat.completions.create(
-        model="nova-2-lite-v1",
+        model="nova-pro-v1",
         messages=[
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": prompt}
