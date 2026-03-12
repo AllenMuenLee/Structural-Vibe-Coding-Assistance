@@ -7,7 +7,6 @@ def build_toolbar(
     flowchart_data,
     on_back_to_canvas,
     on_run_project,
-    on_toggle_chatbot,
     open_terminal_fn,
 ):
     toolbar = QWidget()
@@ -35,16 +34,9 @@ def build_toolbar(
     run_btn.setToolTip("Run project")
     run_btn.clicked.connect(on_run_project)
 
-    chatbot_btn = QPushButton("Chat")
-    chatbot_btn.setObjectName("ToolbarButton")
-    chatbot_btn.setToolTip("AI chat")
-    chatbot_btn.setCheckable(True)
-    chatbot_btn.clicked.connect(lambda checked: on_toggle_chatbot(checked))
 
     toolbar_layout.addWidget(refine_btn)
     toolbar_layout.addWidget(open_terminal_btn)
     toolbar_layout.addStretch()
     toolbar_layout.addWidget(run_btn)
-    toolbar_layout.addWidget(chatbot_btn)
-
-    return toolbar, chatbot_btn
+    return toolbar, None

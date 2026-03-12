@@ -415,7 +415,7 @@ def extract_symbol_tree(ast_map, file_set):
             return body
         return ""
 
-def _format_tag(tag, lines, language):
+    def _format_tag(tag, lines, language):
         kind = tag.get("kind", "symbol").capitalize()
         name = tag.get("name", "?")
         params = tag.get("params") or []

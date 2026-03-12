@@ -131,6 +131,34 @@ class AIChatWorker(QObject):
                 self.finished.emit(response)
                 return
 
+            if self.mode == "flowchart":
+                from src.core.ai_helper import generate_flowchart_edit_from_description
+                from src.utils.CacheMng import load_cache
+                import json as _json
+
+                updated = generate_flowchart_edit_from_description(
+                    self.user_message,
+                    self.flowchart_data,
+                )
+
+                cache = load_cache()
+                project_id = cache.get("current_project_id")
+                if project_id:
+                    appdata_root = os.path.join(os.getenv("APPDATA", ""), "SVCA")
+                    flowchart_path = os.path.join(appdata_root, f"{project_id}.flowchart.json")
+                    try:
+                        with open(flowchart_path, "w", encoding="utf-8") as fh:
+                            _json.dump(updated, fh, indent=2)
+                    except Exception:
+                        pass
+
+                response = (
+                    "Updated flowchart saved. Here's the new flowchart JSON:\n"
+                    f"{_json.dumps(updated, indent=2)}"
+                )
+                self.finished.emit(response)
+                return
+
             context_lines = []
             for file_path, symbols in ast_map.items():
                 rel_path = os.path.relpath(file_path, self.project_root)

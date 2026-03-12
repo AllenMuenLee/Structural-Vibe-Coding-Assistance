@@ -113,6 +113,21 @@ QPushButton#MiniButton:hover {
     color: #e7e9ee;
 }
 
+QPushButton#FloatingAIButton {
+    background: #2f6fed;
+    color: #ffffff;
+    border: none;
+    border-radius: 28px;
+    font-weight: 700;
+    font-size: 13px;
+}
+QPushButton#FloatingAIButton:hover {
+    background: #3a7bff;
+}
+QPushButton#FloatingAIButton:checked {
+    background: #1f56c9;
+}
+
 QLabel#DraggableBlock {
     background: #141820;
     color: #e7e9ee;

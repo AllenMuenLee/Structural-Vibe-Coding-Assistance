@@ -48,6 +48,11 @@ class ChatbotWidget(QWidget):
         self.mode_debug_btn.clicked.connect(lambda: self.set_mode("debug"))
         mode_menu_layout.addWidget(self.mode_debug_btn)
 
+        self.mode_flow_btn = QPushButton("Flowchart")
+        self.mode_flow_btn.setObjectName("ModeButton")
+        self.mode_flow_btn.clicked.connect(lambda: self.set_mode("flowchart"))
+        mode_menu_layout.addWidget(self.mode_flow_btn)
+
         self.mode_general_btn = QPushButton("General")
         self.mode_general_btn.setObjectName("ModeButton")
         self.mode_general_btn.clicked.connect(lambda: self.set_mode("general"))
@@ -93,6 +98,7 @@ class ChatbotWidget(QWidget):
                 "Hello! I'm your AI coding assistant. I can help you with:\n"
                 "- Understanding your code structure\n"
                 "- Debugging issues\n"
+                "- Updating flowcharts\n"
                 "- Suggesting improvements\n"
                 "- Answering questions about your project\n\n"
                 "How can I help you today?"
@@ -270,6 +276,7 @@ class ChatbotWidget(QWidget):
         self.mode = mode
         label = {
             "debug": "Debug",
+            "flowchart": "Flowchart",
             "general": "General",
         }.get(mode, mode.title())
         self.mode_tag.setText(f"Selected: {label}")

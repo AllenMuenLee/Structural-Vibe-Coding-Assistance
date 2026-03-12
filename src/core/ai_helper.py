@@ -131,3 +131,60 @@ def generate_flowchart_from_description(task_description, project_name):
     flowchart_data = json.loads(ai_response)
     
     return flowchart_data
+
+
+def generate_flowchart_edit_from_description(task_description, existing_flowchart):
+    """
+    Update an existing flowchart based on the user's description.
+    Returns a full updated flowchart JSON object.
+    """
+    api_key = os.getenv("NOVA_API_KEY")
+    if not api_key:
+        raise Exception("NOVA_API_KEY not found. Please set it first.")
+
+    client = OpenAI(
+        api_key=api_key,
+        base_url="https://api.nova.amazon.com/v1",
+        default_headers={"Accept-Encoding": "gzip, deflate"},
+        timeout=90.0
+    )
+
+    existing_json = json.dumps(existing_flowchart or {}, indent=2)
+    prompt = f"""
+    USER REQUEST:
+    {task_description}
+
+    EXISTING FLOWCHART JSON:
+    {existing_json}
+
+    Update the flowchart according to the user's request.
+    - Preserve existing node IDs when possible.
+    - Only modify what is necessary to satisfy the request.
+    - Return ONLY a valid JSON object (no extra text).
+    - Keep the same structure as the existing flowchart.
+    """
+
+    system_prompt = (
+        "You are a helpful assistant that edits software flowcharts. "
+        "Return valid JSON only."
+    )
+
+    response = client.chat.completions.create(
+        model="nova-pro-v1",
+        messages=[
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": prompt}
+        ],
+        temperature=0.4,
+        max_tokens=2000
+    )
+
+    ai_response = (response.choices[0].message.content or "").strip()
+    if not ai_response:
+        raise Exception("AI returned empty response")
+
+    if ai_response.startswith("```"):
+        ai_response = re.sub(r'^```(?:json)?\s*\n', '', ai_response)
+        ai_response = re.sub(r'\n```\s*$', '', ai_response)
+
+    return json.loads(ai_response)

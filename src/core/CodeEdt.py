@@ -15,6 +15,8 @@ load_dotenv()
 client = OpenAI(
     api_key=os.getenv("NOVA_API_KEY"),
     base_url="https://api.nova.amazon.com/v1",
+    default_headers={"Accept-Encoding": "gzip, deflate"},  # Disable zstd
+    timeout=90.0
 )
 
 
@@ -147,6 +149,8 @@ class CodeEditor:
         edit_outputs: List[str] = []
         self.edit_log = []
 
+        print(changes)
+
         for node_id, change in changes.items():
             if not change:
                 continue
@@ -233,6 +237,8 @@ class CodeEditor:
             [LOG]
             [LOG] filepath - previous_name -> current_name: functionality, output format
             ...
+
+            You need to return bracket with FIELS, filepath (like [C:\\Users\\project.py]), and LOG)
             """
 
             response = client.chat.completions.create(
@@ -248,14 +254,14 @@ class CodeEditor:
             text = response.choices[0].message.content or ""
             edits_text, log_lines = self._split_edits_and_log(text)
             edit_outputs.append(edits_text)
-            print(edit_outputs)
+            print(response.choices[0])
             self.edit_log.extend(log_lines)
 
         if flowchart_data:
             parent_edits = self._generate_parent_edits(flowchart_data, changes, progress)
             if parent_edits:
                 edit_outputs.append(parent_edits)
-
+        
         return "\n".join(edit_outputs).strip(), self.edit_log
 
     def _generate_parent_edits(
@@ -348,6 +354,8 @@ class CodeEditor:
                 full file content
                 ```
                 ...
+
+                You need to return the bracket with the FILES and filepath
                 """
 
                 response = client.chat.completions.create(

@@ -1,5 +1,5 @@
 import os
-from PyQt6.QtWidgets import QWidget, QVBoxLayout, QMessageBox, QInputDialog, QApplication
+from PyQt6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QMessageBox, QInputDialog, QApplication
 from PyQt6.QtGui import QKeySequence, QShortcut, QColor, QTextCursor
 from PyQt6.QtCore import Qt, QProcess
 from PyQt6.Qsci import (
@@ -12,7 +12,6 @@ from PyQt6.Qsci import (
     QsciLexerCPP,
 )
 import src.utils.Terminal as Terminal
-from app.components.code_editor.chatbot_widget import ChatbotWidget
 from app.components.code_editor.toolbar import build_toolbar
 from app.components.code_editor.content_splitter import build_content_splitter
 from app.components.code_editor.editor_panel import apply_editor_theme
@@ -40,7 +39,6 @@ def build_code_editor(flowchart_data=None, on_back_to_canvas=None) -> QWidget:
         flowchart_data=flowchart_data,
         on_back_to_canvas=on_back_to_canvas,
         on_run_project=lambda: on_run_project(root),
-        on_toggle_chatbot=lambda checked: toggle_chatbot(root, checked),
         open_terminal_fn=Terminal.open_system_terminal,
     )
     main_layout.addWidget(toolbar)
@@ -100,7 +98,7 @@ def build_code_editor(flowchart_data=None, on_back_to_canvas=None) -> QWidget:
     root.flowchart_data = flowchart_data
     root.current_file = None
     root.chatbot_widget = None
-    root.chatbot_btn = chatbot_btn
+    root.chatbot_btn = None
     # Shared terminal module runs commands to completion; no process tracking here.
 
     terminal_input.returnPressed.connect(lambda: execute_terminal_command(root))
@@ -417,24 +415,10 @@ def on_run_project(root):
         pass
 
 def toggle_chatbot(root, show):
-    """Toggle chatbot sidebar."""
-    
-    if show:
-        # Create and show chatbot
-        if not root.chatbot_widget:
-            root.chatbot_widget = ChatbotWidget(
-                root.flowchart_data.get('project_root', ''),
-                root.flowchart_data,
-                parent=root
-            )
-            root.content_splitter.addWidget(root.chatbot_widget)
-            # Update stretch factors (must be integers!)
-            root.content_splitter.setStretchFactor(2, 2)  # Chat
-        root.chatbot_widget.show()
-    else:
-        # Hide chatbot
-        if root.chatbot_widget:
-            root.chatbot_widget.hide()
+    """(Deprecated) Kept for compatibility."""
+    return
+
+
 
 
 def _run_in_terminal(root, command: str, cwd: str | None):

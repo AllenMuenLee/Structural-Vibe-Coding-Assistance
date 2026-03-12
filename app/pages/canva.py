@@ -334,7 +334,6 @@ def build_canva(flowchart_data=None, on_back=None) -> QWidget:
     if flowchart_data:
         load_flowchart(root, flowchart_data)
 
-    
     return root
 
 
@@ -1262,6 +1261,8 @@ def on_open_editor(root):
         QMessageBox.information(root, "Not Ready", "Generate code first.")
         return
     _call_on_code_generated(root)
+
+
 
 class CanvaWidget(QWidget):
     def __init__(self, on_back=None):

@@ -290,6 +290,40 @@ QPushButton#ToolbarButton:checked {
     color: #ffffff;
 }
 
+QPushButton#ChatDockButton {
+    background: #141820;
+    color: #c9d2de;
+    border: 1px solid #252b36;
+    border-radius: 16px;
+    padding: 6px 14px;
+    font-size: 12px;
+    min-width: 70px;
+}
+QPushButton#ChatDockButton:hover {
+    background: #1a2029;
+    color: #e7e9ee;
+}
+QPushButton#ChatDockButton:checked {
+    background: #2f6fed;
+    border-color: #2f6fed;
+    color: #ffffff;
+}
+
+QPushButton#FloatingAIButton {
+    background: #2f6fed;
+    color: #ffffff;
+    border: none;
+    border-radius: 28px;
+    font-weight: 700;
+    font-size: 13px;
+}
+QPushButton#FloatingAIButton:hover {
+    background: #3a7bff;
+}
+QPushButton#FloatingAIButton:checked {
+    background: #1f56c9;
+}
+
 QPushButton#PrimaryButton {
     background: #2f6fed;
     color: #ffffff;
