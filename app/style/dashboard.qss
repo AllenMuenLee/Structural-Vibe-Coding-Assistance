@@ -1,0 +1,63 @@
+﻿QWidget#DashboardPage {
+    background: #0f1115;
+    color: #e7e9ee;
+    font-family: "IBM Plex Sans";
+}
+
+QLabel#DashboardTitle {
+    font-size: 18px;
+    font-weight: 600;
+    color: #e7e9ee;
+}
+
+QLabel#DashboardSubtitle {
+    font-size: 12px;
+    color: #9aa3b2;
+}
+
+QListWidget#ProjectList {
+    background: #141820;
+    color: #e7e9ee;
+    border: 1px solid #252b36;
+    border-radius: 12px;
+    padding: 8px;
+    font-size: 12px;
+}
+QListWidget#ProjectList::item {
+    padding: 8px 10px;
+    border-radius: 8px;
+}
+QListWidget#ProjectList::item:hover {
+    background: #1a2029;
+}
+QListWidget#ProjectList::item:selected {
+    background: #2a3342;
+}
+
+QPushButton#DashboardButton {
+    background: #141820;
+    color: #c9d2de;
+    border: 1px solid #252b36;
+    border-radius: 8px;
+    padding: 6px 12px;
+    font-size: 12px;
+    min-width: 120px;
+}
+QPushButton#DashboardButton:hover {
+    background: #1a2029;
+    color: #e7e9ee;
+}
+
+QPushButton#DashboardPrimary {
+    background: #2f6fed;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 6px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    min-width: 140px;
+}
+QPushButton#DashboardPrimary:hover {
+    background: #3a7bff;
+}

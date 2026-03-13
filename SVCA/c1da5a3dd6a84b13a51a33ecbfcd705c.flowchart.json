@@ -1,0 +1,89 @@
+{
+  "name": "lil",
+  "start_id": "integrate project",
+  "steps": {
+    "initialize project": {
+      "id": "initialize project",
+      "description": "install dependencies",
+      "filenames": [],
+      "files_to_import": [],
+      "command": [
+        "pip install --yes"
+      ],
+      "chlidren": []
+    },
+    "input handling": {
+      "id": "input handling",
+      "description": "handle user input from terminal",
+      "filenames": [
+        "/Users/awdsyxfrhnzi/Downloads/lil/input_handling.py"
+      ],
+      "files_to_import": [],
+      "command": [],
+      "chlidren": []
+    },
+    "calculation logic": {
+      "id": "calculation logic",
+      "description": "perform arithmetic operations based on user input",
+      "filenames": [
+        "/Users/awdsyxfrhnzi/Downloads/lil/calculation_logic.py"
+      ],
+      "files_to_import": [],
+      "command": [],
+      "chlidren": []
+    },
+    "output handling": {
+      "id": "output handling",
+      "description": "display calculation results to the user",
+      "filenames": [
+        "/Users/awdsyxfrhnzi/Downloads/lil/output_handling.py"
+      ],
+      "files_to_import": [],
+      "command": [],
+      "chlidren": []
+    },
+    "integrate project": {
+      "id": "integrate project",
+      "description": "Integrate input handling, calculation logic, and output handling",
+      "filenames": [
+        "/Users/awdsyxfrhnzi/Downloads/lil/main.py"
+      ],
+      "files_to_import": [
+        "/Users/awdsyxfrhnzi/Downloads/lil/input_handling.py",
+        "/Users/awdsyxfrhnzi/Downloads/lil/calculation_logic.py",
+        "/Users/awdsyxfrhnzi/Downloads/lil/output_handling.py"
+      ],
+      "command": [],
+      "chlidren": [
+        "input handling",
+        "calculation logic",
+        "output handling"
+      ]
+    }
+  },
+  "framework": "Python",
+  "project_root": "/Users/awdsyxfrhnzi/Downloads/lil",
+  "flowchart_id": "c1da5a3dd6a84b13a51a33ecbfcd705c",
+  "layout_positions": {
+    "initialize project": [
+      820.0,
+      200.0
+    ],
+    "integrate project": [
+      1060.0,
+      200.0
+    ],
+    "calculation logic": [
+      701.0,
+      360.0
+    ],
+    "input handling": [
+      940.0,
+      360.0
+    ],
+    "output handling": [
+      1180.0,
+      360.0
+    ]
+  }
+}

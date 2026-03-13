@@ -1,0 +1,102 @@
+{
+  "/Users/awdsyxfrhnzi/Downloads/lil/index.html": [],
+  "/Users/awdsyxfrhnzi/Downloads/lil/styles.css": [],
+  "/Users/awdsyxfrhnzi/Downloads/lil/script.js": [
+    {
+      "name": "buttons",
+      "kind": "variable",
+      "line": 5,
+      "parent": null
+    },
+    {
+      "name": "display",
+      "kind": "variable",
+      "line": 6,
+      "parent": null
+    },
+    {
+      "name": "currentInput",
+      "kind": "variable",
+      "line": 7,
+      "parent": null
+    },
+    {
+      "name": "operator",
+      "kind": "variable",
+      "line": 8,
+      "parent": null
+    },
+    {
+      "name": "previousInput",
+      "kind": "variable",
+      "line": 9,
+      "parent": null
+    },
+    {
+      "name": "buttonValue",
+      "kind": "variable",
+      "line": 13,
+      "parent": null
+    },
+    {
+      "name": "currentInput",
+      "kind": "variable",
+      "line": 18,
+      "parent": null
+    },
+    {
+      "name": "operator",
+      "kind": "variable",
+      "line": 20,
+      "parent": null
+    },
+    {
+      "name": "previousInput",
+      "kind": "variable",
+      "line": 21,
+      "parent": null
+    },
+    {
+      "name": "currentInput",
+      "kind": "variable",
+      "line": 24,
+      "parent": null
+    },
+    {
+      "name": "operator",
+      "kind": "variable",
+      "line": 25,
+      "parent": null
+    },
+    {
+      "name": "previousInput",
+      "kind": "variable",
+      "line": 26,
+      "parent": null
+    },
+    {
+      "name": "previousInput",
+      "kind": "variable",
+      "line": 31,
+      "parent": null
+    },
+    {
+      "name": "previousInput",
+      "kind": "variable",
+      "line": 33,
+      "parent": null
+    },
+    {
+      "name": "operator",
+      "kind": "variable",
+      "line": 35,
+      "parent": null
+    },
+    {
+      "name": "currentInput",
+      "kind": "variable",
+      "line": 36,
+      "parent": null
+    }
+  ]
+}

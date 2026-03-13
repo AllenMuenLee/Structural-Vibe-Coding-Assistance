@@ -1,0 +1,117 @@
+{
+  "name": "lil",
+  "start_id": "integrate project",
+  "steps": {
+    "initialize project": {
+      "id": "initialize project",
+      "description": "Install dependencies and set up environment",
+      "filenames": [],
+      "files_to_import": [],
+      "command": [
+        "npm init -y"
+      ],
+      "chlidren": []
+    },
+    "create HTML structure": {
+      "id": "create HTML structure",
+      "description": "Create the basic HTML structure for the calculator",
+      "filenames": [
+        "/Users/awdsyxfrhnzi/Downloads/lil/index.html"
+      ],
+      "files_to_import": [],
+      "command": [],
+      "chlidren": []
+    },
+    "style calculator": {
+      "id": "style calculator",
+      "description": "Apply CSS styles to the calculator",
+      "filenames": [
+        "/Users/awdsyxfrhnzi/Downloads/lil/styles.css"
+      ],
+      "files_to_import": [],
+      "command": [],
+      "chlidren": []
+    },
+    "handle user input": {
+      "id": "handle user input",
+      "description": "Capture user input from the calculator buttons",
+      "filenames": [
+        "/Users/awdsyxfrhnzi/Downloads/lil/script.js"
+      ],
+      "files_to_import": [],
+      "command": [],
+      "chlidren": []
+    },
+    "perform calculations": {
+      "id": "perform calculations",
+      "description": "Execute the calculation based on user input",
+      "filenames": [
+        "/Users/awdsyxfrhnzi/Downloads/lil/script.js"
+      ],
+      "files_to_import": [],
+      "command": [],
+      "chlidren": []
+    },
+    "display result": {
+      "id": "display result",
+      "description": "Show the result of the calculation on the screen",
+      "filenames": [
+        "/Users/awdsyxfrhnzi/Downloads/lil/script.js"
+      ],
+      "files_to_import": [],
+      "command": [],
+      "chlidren": []
+    },
+    "integrate project": {
+      "id": "integrate project",
+      "description": "Integrate HTML structure, CSS styles, user input handling, calculation, and result display",
+      "filenames": [
+        "/Users/awdsyxfrhnzi/Downloads/lil/index.html",
+        "/Users/awdsyxfrhnzi/Downloads/lil/styles.css",
+        "/Users/awdsyxfrhnzi/Downloads/lil/script.js"
+      ],
+      "files_to_import": [],
+      "command": [],
+      "chlidren": [
+        "create HTML structure",
+        "style calculator",
+        "handle user input",
+        "perform calculations",
+        "display result"
+      ]
+    }
+  },
+  "framework": "HTML, CSS, JavaScript",
+  "project_root": "/Users/awdsyxfrhnzi/Downloads/lil",
+  "flowchart_id": "1de8dc4e8bc740c0bc3589d69770de70",
+  "layout_positions": {
+    "initialize project": [
+      820.0,
+      200.0
+    ],
+    "integrate project": [
+      1060.0,
+      200.0
+    ],
+    "create HTML structure": [
+      460.0,
+      360.0
+    ],
+    "display result": [
+      700.0,
+      360.0
+    ],
+    "handle user input": [
+      940.0,
+      360.0
+    ],
+    "perform calculations": [
+      1180.0,
+      360.0
+    ],
+    "style calculator": [
+      1420.0,
+      360.0
+    ]
+  }
+}

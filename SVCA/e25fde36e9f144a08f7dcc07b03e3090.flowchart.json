@@ -1,0 +1,17 @@
+{
+  "name": "j",
+  "start_id": "step1",
+  "steps": {
+    "step1": {
+      "id": "step1",
+      "description": "Describe this step",
+      "filenames": [],
+      "files_to_import": [],
+      "command": [],
+      "chlidren": []
+    }
+  },
+  "framework": "",
+  "project_root": "/Users/awdsyxfrhnzi/Downloads/j",
+  "flowchart_id": "e25fde36e9f144a08f7dcc07b03e3090"
+}

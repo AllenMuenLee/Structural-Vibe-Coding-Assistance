@@ -1,0 +1,341 @@
+QWidget#CodeEditorPage {
+    background: #0f1115;
+    color: #e7e9ee;
+    font-family: "IBM Plex Sans";
+}
+
+QWidget#Toolbar {
+    background: #141820;
+    border-bottom: 1px solid #252b36;
+}
+
+QWidget#FilePanel {
+    background: #141820;
+    border-right: 1px solid #252b36;
+}
+
+QLabel#SectionLabel {
+    font-size: 11px;
+    font-weight: 600;
+    color: #adacae;
+    letter-spacing: 0.3px;
+    padding-bottom: 6px;
+}
+
+QTreeView#FileTree {
+    background: #10141c;
+    color: #e7e9ee;
+    border: 1px solid #252b36;
+    border-radius: 10px;
+    padding: 6px;
+    font-size: 11px;
+}
+QTreeView#FileTree::item {
+    padding: 4px 6px;
+    border-radius: 6px;
+}
+QTreeView#FileTree::item:hover {
+    background: #1a2029;
+}
+QTreeView#FileTree::item:selected {
+    background: #1a2029;
+    color: #e7e9ee;
+}
+
+QLabel#CurrentFileLabel {
+    font-size: 11px;
+    color: #adacae;
+    padding-bottom: 6px;
+}
+
+QsciScintilla#CodeEditor {
+    background: #10141c;
+    color: #e7e9ee;
+    border: 1px solid #252b36;
+    border-radius: 10px;
+    padding: 12px;
+    font-family: "Cascadia Code";
+    font-size: 14px;
+}
+
+QWidget#FindBar {
+    background: #141820;
+    border: 1px solid #252b36;
+    border-radius: 8px;
+    padding: 6px;
+}
+QLabel#FindLabel {
+    color: #adacae;
+    font-size: 11px;
+}
+QLineEdit#FindInput {
+    background: #10141c;
+    color: #e7e9ee;
+    border: 1px solid #252b36;
+    border-radius: 6px;
+    padding: 4px 8px;
+    font-family: "Cascadia Code";
+    font-size: 12px;
+}
+QLineEdit#FindInput:focus {
+    border: 1px solid #3a7bff;
+}
+QPushButton#FindButton {
+    background: #141820;
+    color: #c9d2de;
+    border: 1px solid #252b36;
+    border-radius: 6px;
+    padding: 2px 8px;
+    font-size: 11px;
+}
+QPushButton#FindButton:hover {
+    background: #1a2029;
+    color: #e7e9ee;
+}
+QCheckBox#FindCase {
+    color: #adacae;
+    font-size: 11px;
+}
+
+QPushButton#SaveButton {
+    background: transparent;
+    color: #c9d2de;
+    border: 1px solid #252b36;
+    border-radius: 8px;
+    padding: 0;
+    min-width: 22px;
+    min-height: 22px;
+}
+QPushButton#SaveButton:hover {
+    background: #1a2029;
+    color: #e7e9ee;
+}
+
+QWidget#TerminalContainer {
+    background: #141820;
+    border-top: 1px solid #252b36;
+}
+
+QLabel#TerminalLabel {
+    font-size: 11px;
+    font-weight: 600;
+    color: #adacae;
+}
+
+QTextEdit#Terminal {
+    background: #10141c;
+    color: #e7e9ee;
+    border: 1px solid #252b36;
+    border-radius: 10px;
+    padding: 10px;
+    font-family: "Cascadia Code";
+    font-size: 12px;
+}
+
+QLabel#TerminalPrompt {
+    color: #a277ff;
+    font-family: "Cascadia Code";
+    font-size: 12px;
+    font-weight: 600;
+}
+
+QLineEdit#TerminalInput {
+    background: #10141c;
+    color: #e7e9ee;
+    border: 1px solid #252b36;
+    border-radius: 8px;
+    padding: 5px 10px;
+    font-family: "Cascadia Code";
+    font-size: 13px;
+}
+QLineEdit#TerminalInput:focus {
+    border: 1px solid #3a7bff;
+}
+
+QPushButton#TerminalClearButton,
+QPushButton#TerminalRunButton,
+QPushButton#TerminalStopButton,
+QPushButton#TerminalDebugButton {
+    background: #141820;
+    color: #c9d2de;
+    border: 1px solid #252b36;
+    border-radius: 8px;
+    padding: 2px 10px;
+    font-size: 11px;
+    min-width: 54px;
+}
+QPushButton#TerminalClearButton:hover,
+QPushButton#TerminalRunButton:hover,
+QPushButton#TerminalStopButton:hover,
+QPushButton#TerminalDebugButton:hover {
+    background: #1a2029;
+    color: #e7e9ee;
+}
+QPushButton#TerminalRunButton {
+    background: #61ffca;
+    color: #15141b;
+    border: none;
+}
+QPushButton#TerminalRunButton:hover {
+    background: #49c29a;
+}
+QPushButton#TerminalStopButton {
+    background: #ff6767;
+    color: #15141b;
+    border: none;
+}
+QPushButton#TerminalStopButton:hover {
+    background: #e05a5a;
+}
+QPushButton#TerminalDebugButton {
+    background: #a277ff;
+    color: #15141b;
+    border: none;
+}
+QPushButton#TerminalDebugButton:hover {
+    background: #8c5bff;
+}
+
+QWidget#ChatbotWidget {
+    background: transparent;
+}
+QLabel#ChatTitle {
+    font-size: 12px;
+    font-weight: 600;
+    color: #adacae;
+    letter-spacing: 0.3px;
+}
+QTextEdit#ChatHistory {
+    background: #15141b;
+    color: #edecee;
+    border: 1px solid #3b334b;
+    border-radius: 12px;
+    padding: 12px 12px 10px 12px;
+    font-size: 12px;
+    line-height: 1.5;
+}
+QTextEdit#ChatInput {
+    background: #15141b;
+    color: #edecee;
+    border: 1px solid #3b334b;
+    border-radius: 10px;
+    padding: 8px 10px;
+    font-size: 12px;
+}
+QPushButton#ChatPlusButton {
+    background: #141820;
+    color: #c9d2de;
+    border: 1px solid #252b36;
+    border-radius: 10px;
+    min-width: 28px;
+    min-height: 28px;
+    font-weight: 700;
+}
+QPushButton#ChatPlusButton:hover {
+    background: #1a2029;
+    color: #e7e9ee;
+}
+QWidget#ModeMenu {
+    background: transparent;
+}
+QPushButton#ModeButton {
+    background: #141820;
+    color: #c9d2de;
+    border: 1px solid #252b36;
+    border-radius: 8px;
+    padding: 4px 8px;
+    font-size: 11px;
+}
+QPushButton#ModeButton:hover {
+    background: #1a2029;
+    color: #e7e9ee;
+}
+QLabel#ModeTag {
+    color: #adacae;
+    font-size: 11px;
+}
+QPushButton#ChatSendButton {
+    background: #a277ff;
+    color: #15141b;
+    border: none;
+    border-radius: 16px;
+    font-weight: 600;
+    min-width: 64px;
+    min-height: 32px;
+}
+QPushButton#ChatSendButton:hover {
+    background: #8c5bff;
+}
+QPushButton#ChatSendButton:disabled {
+    background: #3b334b;
+}
+
+QPushButton#ToolbarButton {
+    background: #141820;
+    color: #c9d2de;
+    border: 1px solid #252b36;
+    border-radius: 8px;
+    padding: 4px 10px;
+    font-size: 12px;
+    min-width: 90px;
+    min-height: 24px;
+}
+QPushButton#ToolbarButton:hover {
+    background: #1a2029;
+    color: #e7e9ee;
+}
+QPushButton#ToolbarButton:checked {
+    background: #2f6fed;
+    border-color: #2f6fed;
+    color: #ffffff;
+}
+
+QPushButton#ChatDockButton {
+    background: #141820;
+    color: #c9d2de;
+    border: 1px solid #252b36;
+    border-radius: 16px;
+    padding: 6px 14px;
+    font-size: 12px;
+    min-width: 70px;
+}
+QPushButton#ChatDockButton:hover {
+    background: #1a2029;
+    color: #e7e9ee;
+}
+QPushButton#ChatDockButton:checked {
+    background: #2f6fed;
+    border-color: #2f6fed;
+    color: #ffffff;
+}
+
+QPushButton#FloatingAIButton {
+    background: #2f6fed;
+    color: #ffffff;
+    border: none;
+    border-radius: 28px;
+    font-weight: 700;
+    font-size: 13px;
+}
+QPushButton#FloatingAIButton:hover {
+    background: #3a7bff;
+}
+QPushButton#FloatingAIButton:checked {
+    background: #1f56c9;
+}
+
+QPushButton#PrimaryButton {
+    background: #2f6fed;
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    padding: 4px 12px;
+    font-weight: 600;
+    font-size: 12px;
+    min-height: 24px;
+    min-width: 110px;
+}
+QPushButton#PrimaryButton:hover {
+    background: #3a7bff;
+}
+

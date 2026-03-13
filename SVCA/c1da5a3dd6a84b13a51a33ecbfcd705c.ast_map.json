@@ -1,0 +1,80 @@
+{
+  "/Users/awdsyxfrhnzi/Downloads/lil/input_handling.py": [
+    {
+      "name": "get_user_input",
+      "kind": "function",
+      "line": 1,
+      "parent": null,
+      "params": []
+    },
+    {
+      "name": "user_input",
+      "kind": "variable",
+      "line": 8,
+      "parent": null
+    },
+    {
+      "name": "validate_input",
+      "kind": "function",
+      "line": 11,
+      "parent": null,
+      "params": [
+        "user_input"
+      ]
+    },
+    {
+      "name": "process_input",
+      "kind": "function",
+      "line": 26,
+      "parent": null,
+      "params": [
+        "user_input"
+      ]
+    }
+  ],
+  "/Users/awdsyxfrhnzi/Downloads/lil/calculation_logic.py": [
+    {
+      "name": "perform_arithmetic_operation",
+      "kind": "function",
+      "line": 1,
+      "parent": null,
+      "params": [
+        "operation",
+        "num1",
+        "num2"
+      ]
+    }
+  ],
+  "/Users/awdsyxfrhnzi/Downloads/lil/output_handling.py": [
+    {
+      "name": "display_results",
+      "kind": "function",
+      "line": 1,
+      "parent": null,
+      "params": [
+        "result"
+      ]
+    }
+  ],
+  "/Users/awdsyxfrhnzi/Downloads/lil/main.py": [
+    {
+      "name": "main",
+      "kind": "function",
+      "line": 5,
+      "parent": null,
+      "params": []
+    },
+    {
+      "name": "user_input",
+      "kind": "variable",
+      "line": 9,
+      "parent": null
+    },
+    {
+      "name": "result",
+      "kind": "variable",
+      "line": 17,
+      "parent": null
+    }
+  ]
+}
