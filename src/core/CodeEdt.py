@@ -1,5 +1,7 @@
 import os
+import os
 import re
+import time
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
@@ -38,6 +40,28 @@ def _truncate_text(text: str, max_chars: int = 12000) -> str:
     if len(text) <= max_chars:
         return text
     return text[:max_chars] + "\n# (truncated)"
+
+
+def _is_rate_limit_error(exc: Exception) -> bool:
+    msg = str(exc).lower()
+    return "429" in msg or "rate limit" in msg
+
+
+def _extract_retry_seconds(exc: Exception, default: int = 10) -> int:
+    text = str(exc)
+    match = re.search(r"retry[- ]after[: ]+(\d+)", text, re.IGNORECASE)
+    if match:
+        try:
+            return int(match.group(1))
+        except Exception:
+            return default
+    match = re.search(r"retry in (\d+)\s*seconds", text, re.IGNORECASE)
+    if match:
+        try:
+            return int(match.group(1))
+        except Exception:
+            return default
+    return default
 
 
 def _read_file_text(path_value: str) -> str:
@@ -86,14 +110,43 @@ class CodeEditor:
             curr_files = curr.get("filenames", []) if isinstance(curr, dict) else []
             prev_children = _get_children(prev)
             curr_children = _get_children(curr)
+            prev_cmds = prev.get("command", []) if isinstance(prev, dict) else []
+            curr_cmds = curr.get("command", []) if isinstance(curr, dict) else []
+            prev_imports = prev.get("files_to_import", []) if isinstance(prev, dict) else []
+            curr_imports = curr.get("files_to_import", []) if isinstance(curr, dict) else []
 
-            if prev_desc == curr_desc and prev_files == curr_files and prev_children == curr_children:
+            def _normalize_list(value):
+                if value is None:
+                    return []
+                if isinstance(value, list):
+                    return [str(v) for v in value]
+                return [str(value)]
+
+            prev_cmds = _normalize_list(prev_cmds)
+            curr_cmds = _normalize_list(curr_cmds)
+            prev_imports = _normalize_list(prev_imports)
+            curr_imports = _normalize_list(curr_imports)
+
+            prev_desc_full = (
+                f"{prev_desc}\n\nCOMMANDS:\n" + "\n".join(prev_cmds) +
+                "\n\nFILES_TO_IMPORT:\n" + "\n".join(prev_imports)
+            )
+            curr_desc_full = (
+                f"{curr_desc}\n\nCOMMANDS:\n" + "\n".join(curr_cmds) +
+                "\n\nFILES_TO_IMPORT:\n" + "\n".join(curr_imports)
+            )
+
+            if (
+                prev_desc_full == curr_desc_full
+                and prev_files == curr_files
+                and prev_children == curr_children
+            ):
                 if node_id in self.changes:
                     self.changes.pop(node_id, None)
                 continue
 
             self.changes.setdefault(node_id, {})
-            self.changes[node_id]["description"] = {"prev": prev_desc, "curr": curr_desc}
+            self.changes[node_id]["description"] = {"prev": prev_desc_full, "curr": curr_desc_full}
             self.changes[node_id]["files"] = {"prev": prev_files or [], "curr": curr_files or []}
             self.changes[node_id]["children"] = {"prev": prev_children or [], "curr": curr_children or []}
 
@@ -224,10 +277,12 @@ class CodeEditor:
         changes = changes or self.changes
         edit_outputs: List[str] = []
         self.edit_log = []
+        modified_files: set[str] = set()
 
         print(changes)
 
-        for node_id, change in changes.items():
+        ordered_changes = self._order_changes_children_first(changes, flowchart_data)
+        for node_id, change in ordered_changes:
             if not change:
                 continue
             if progress:
@@ -239,24 +294,6 @@ class CodeEditor:
             curr_files = change.get("files", {}).get("curr", []) or []
             prev_children = change.get("children", {}).get("prev", []) or []
             curr_children = change.get("children", {}).get("curr", []) or []
-
-            # If a node was added, generate code via CodeGen for that node.
-            if not prev_desc and curr_desc and flowchart_data:
-                steps = flowchart_data.get("steps", {}) if isinstance(flowchart_data, dict) else {}
-                step_data = steps.get(node_id, {}) if isinstance(steps, dict) else {}
-                if isinstance(step_data, dict):
-                    try:
-                        if progress:
-                            progress(f"Generating code for new node: {node_id}")
-                        from src.core.CodeGen import CodingAgent
-                        agent = CodingAgent(self.project_root)
-                        topic = flowchart_data.get("name", "") if isinstance(flowchart_data, dict) else ""
-                        raw_code = agent.call_nova(step_data, topic)
-                        if raw_code:
-                            agent.save_and_update(raw_code)
-                        continue
-                    except Exception:
-                        pass
 
             related_files = list({*prev_files, *curr_files})
             context_chunks = []
@@ -296,6 +333,7 @@ class CodeEditor:
             FILE CONTEXT (FULL CONTENT):
             {context_text}
 
+            if the file is currently empty or missing, please return your generated code from scratch.
             Please return the full updated file contents for every affected file.
             Use this exact format:
 
@@ -317,38 +355,104 @@ class CodeEditor:
             You need to return bracket with FIELS, filepath (like [C:\\Users\\project.py]), and LOG)
             """
 
-            response = client.chat.completions.create(
-                model="nova-pro-v1",
-                messages=[
-                    {"role": "system", "content": SYSTEM_PROMPT},
-                    {"role": "user", "content": prompt},
-                ],
-                temperature=0.1,
-                max_tokens=2000,
-                stream=False,
-            )
+            response = None
+            for attempt in range(2):
+                try:
+                    response = client.chat.completions.create(
+                        model="nova-pro-v1",
+                        messages=[
+                            {"role": "system", "content": SYSTEM_PROMPT},
+                            {"role": "user", "content": prompt},
+                        ],
+                        temperature=0.1,
+                        max_tokens=2000,
+                        stream=False,
+                    )
+                    break
+                except Exception as exc:
+                    if _is_rate_limit_error(exc) and attempt < 1:
+                        retry_seconds = _extract_retry_seconds(exc)
+                        if progress:
+                            progress(
+                                f"Request per minute exceeded. Retrying in {retry_seconds} seconds..."
+                            )
+                        time.sleep(retry_seconds)
+                        continue
+                    raise
             text = response.choices[0].message.content or ""
             edits_text, log_lines = self._split_edits_and_log(text)
             edit_outputs.append(edits_text)
             print(response.choices[0])
             self.edit_log.extend(log_lines)
+            for filename, _code in self._parse_file_blocks(edits_text or ""):
+                abs_filename = _normalize_path(self.project_root, filename)
+                if abs_filename:
+                    modified_files.add(abs_filename)
 
         if flowchart_data:
-            parent_edits = self._generate_parent_edits(flowchart_data, changes, progress)
+            parent_edits = self._generate_parent_edits(
+                flowchart_data,
+                changes,
+                modified_files,
+                progress,
+            )
             if parent_edits:
                 edit_outputs.append(parent_edits)
         
         return "\n".join(edit_outputs).strip(), self.edit_log
 
+    def _order_changes_children_first(
+        self,
+        changes: Dict[str, Dict[str, Dict[str, object]]],
+        flowchart_data: Optional[Dict[str, object]] = None,
+    ) -> List[tuple]:
+        if not changes:
+            return []
+        steps = (
+            flowchart_data.get("steps", {})
+            if isinstance(flowchart_data, dict)
+            else {}
+        )
+        if not isinstance(steps, dict) or not steps:
+            return list(changes.items())
+
+        def _get_children(step_data):
+            if not isinstance(step_data, dict):
+                return []
+            if "chlidren" in step_data:
+                return step_data.get("chlidren", []) or []
+            return step_data.get("children", []) or []
+
+        visited = set()
+        ordered = []
+
+        def visit(node_id):
+            if node_id in visited:
+                return
+            visited.add(node_id)
+            step = steps.get(node_id, {})
+            for child_id in _get_children(step):
+                if child_id in changes:
+                    visit(child_id)
+            if node_id in changes:
+                ordered.append((node_id, changes[node_id]))
+
+        for node_id in changes.keys():
+            visit(node_id)
+
+        return ordered
+
     def _generate_parent_edits(
         self,
         flowchart_data: Dict[str, object],
         changes: Dict[str, Dict[str, Dict[str, object]]],
+        modified_files: Optional[set] = None,
         progress: Optional[callable] = None,
     ) -> str:
         steps = flowchart_data.get("steps", {}) if isinstance(flowchart_data, dict) else {}
         if not isinstance(steps, dict) or not steps:
             return ""
+        modified_files = modified_files or set()
 
         def _get_children(step_data):
             if not isinstance(step_data, dict):
@@ -377,6 +481,7 @@ class CodeEditor:
             return out
 
         edits_out: List[str] = []
+        seen_parents: set[str] = set()
         for node_id, change in changes.items():
             if not change:
                 continue
@@ -389,9 +494,19 @@ class CodeEditor:
             curr_desc = change.get("description", {}).get("curr", "")
 
             for parent_id in collect_parents(node_id):
+                if parent_id in seen_parents:
+                    continue
                 parent = steps.get(parent_id, {})
                 parent_files = parent.get("filenames", []) if isinstance(parent, dict) else []
                 if not parent_files:
+                    continue
+                skip_parent = False
+                for f in parent_files:
+                    abs_parent = _normalize_path(self.project_root, f)
+                    if abs_parent and abs_parent in modified_files:
+                        skip_parent = True
+                        break
+                if skip_parent:
                     continue
 
                 context_chunks = []
@@ -434,20 +549,39 @@ class CodeEditor:
                 You need to return the bracket with the FILES and filepath
                 """
 
-                response = client.chat.completions.create(
-                    model="nova-pro-v1",
-                    messages=[
-                        {"role": "system", "content": SYSTEM_PROMPT},
-                        {"role": "user", "content": prompt},
-                    ],
-                    temperature=0.1,
-                    max_tokens=2000,
-                    stream=False,
-                )
+                response = None
+                for attempt in range(2):
+                    try:
+                        response = client.chat.completions.create(
+                            model="nova-pro-v1",
+                            messages=[
+                                {"role": "system", "content": SYSTEM_PROMPT},
+                                {"role": "user", "content": prompt},
+                            ],
+                            temperature=0.1,
+                            max_tokens=2000,
+                            stream=False,
+                        )
+                        break
+                    except Exception as exc:
+                        if _is_rate_limit_error(exc) and attempt < 1:
+                            retry_seconds = _extract_retry_seconds(exc)
+                            if progress:
+                                progress(
+                                    f"Request per minute exceeded. Retrying in {retry_seconds} seconds..."
+                                )
+                            time.sleep(retry_seconds)
+                            continue
+                        raise
                 text = response.choices[0].message.content or ""
                 edits_text, _log_lines = self._split_edits_and_log(text)
                 if edits_text:
                     edits_out.append(edits_text)
+                    seen_parents.add(parent_id)
+                    for filename, _code in self._parse_file_blocks(edits_text or ""):
+                        abs_filename = _normalize_path(self.project_root, filename)
+                        if abs_filename:
+                            modified_files.add(abs_filename)
 
         return "\n".join(edits_out).strip()
 

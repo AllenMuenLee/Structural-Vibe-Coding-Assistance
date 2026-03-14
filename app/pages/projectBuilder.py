@@ -19,8 +19,6 @@ from PyQt6.QtWidgets import (
 )
 
 from src.utils import FileMng
-from src.core.ai_helper import generate_flowchart_from_description
-from src.core.Flowchart import Flowchart
 from src.utils.CacheMng import save_current_project_id
 from app.pages.loadingScreen import LoadingScreen
 
@@ -47,6 +45,7 @@ class ProjectBuildWorker(QThread):
             max_retries = 3
             for attempt in range(1, max_retries + 1):
                 try:
+                    from src.core.ai_helper import generate_flowchart_from_description
                     ai_data = generate_flowchart_from_description(self.description, self.project_path)
                     break
                 except Exception as exc:
@@ -61,6 +60,7 @@ class ProjectBuildWorker(QThread):
             framework = ai_data.get("framework", "")
             project_root = os.path.abspath(self.project_path)
 
+            from src.core.Flowchart import Flowchart
             flowchart = Flowchart(
                 name=os.path.basename(project_root),
                 framework=framework,

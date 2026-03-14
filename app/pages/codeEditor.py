@@ -22,7 +22,6 @@ from app.components.code_editor.terminal_panel import (
     set_debug_visible,
 )
 from app.components.code_editor.page_theme import apply_code_editor_theme
-from src.core.CodeEdt import CodeEditor as CodeEditorEngine
 
 
 def build_code_editor(flowchart_data=None, on_back_to_canvas=None) -> QWidget:
@@ -123,6 +122,7 @@ def build_code_editor(flowchart_data=None, on_back_to_canvas=None) -> QWidget:
         project_root = flowchart_data.get('project_root', '')
         file_panel_actions.set_project_root(root.file_tree, root.file_model, project_root)
         if project_root:
+            from src.core.CodeEdt import CodeEditor as CodeEditorEngine
             root.code_editor_engine = CodeEditorEngine(project_root)
         else:
             root.code_editor_engine = None

@@ -12,12 +12,11 @@ from PyQt6.QtCore import Qt, QThread, pyqtSignal, QTimer
 from app.components.draggable_block import DraggableBlock
 from src.utils.CacheMng import load_cache
 from app.pages.loadingScreen import LoadingScreen
-from src.core.CodeEdt import CodeEditor
 from app.components.ConnectionLine import ConnectionLine
 
 
-CHILDREN_KEY = "chlidren"
-LEGACY_CHILDREN_KEY = "children"
+CHILDREN_KEY = "children"
+LEGACY_CHILDREN_KEY = "chlidren"
 
 
 def _get_children(step_data):
@@ -181,10 +180,18 @@ def build_canva(flowchart_data=None, on_back=None) -> QWidget:
     details_layout = QVBoxLayout(details_panel)
     details_layout.setContentsMargins(20, 20, 20, 20)
     
-    # Details panel title
+    # Details panel title + close
+    details_header = QHBoxLayout()
     details_title = QLabel("Step Details")
     details_title.setObjectName("DetailsPanelTitle")
-    details_layout.addWidget(details_title)
+    details_close_btn = QPushButton("X")
+    details_close_btn.setObjectName("DetailsCloseButton")
+    details_close_btn.setToolTip("Hide step details")
+    details_close_btn.setFixedSize(24, 24)
+    details_header.addWidget(details_title)
+    details_header.addStretch()
+    details_header.addWidget(details_close_btn)
+    details_layout.addLayout(details_header)
     
     # Step ID (read-only)
     step_id_label = QLabel("Step ID:")
@@ -291,6 +298,11 @@ def build_canva(flowchart_data=None, on_back=None) -> QWidget:
     main_layout.addWidget(left_container, stretch=1)
     main_layout.addWidget(details_panel)
     
+    def _set_details_visible(visible: bool):
+        details_panel.setVisible(bool(visible))
+
+    details_close_btn.clicked.connect(lambda: _set_details_visible(False))
+
     # Store references
     root.canvas = canvas
     root.details_panel = {
@@ -299,8 +311,10 @@ def build_canva(flowchart_data=None, on_back=None) -> QWidget:
         'files': files_list,
         'imports': imports_list,
         'children': children_list,
-        'commands': commands_value
+        'commands': commands_value,
+        'save_btn': save_btn
     }
+    root.details_panel_widget = details_panel
     root.blocks = {}
     root.connections = []
     root.selected_step_id = None
@@ -319,6 +333,7 @@ def build_canva(flowchart_data=None, on_back=None) -> QWidget:
     if flowchart_data:
         project_root = flowchart_data.get("project_root", "")
         if project_root:
+            from src.core.CodeEdt import CodeEditor
             root.code_editor_engine = CodeEditor(project_root)
         else:
             root.code_editor_engine = None
@@ -682,6 +697,8 @@ def on_block_click(root, step_id, step_data, event):
     if root and getattr(root, "flowchart_data", None):
         step_data = root.flowchart_data.get("steps", {}).get(step_id, step_data or {})
     root.selected_step_id = step_id
+    if getattr(root, "details_panel_widget", None):
+        root.details_panel_widget.setVisible(True)
     root.details_panel['step_id'].setText(step_id)
     root.details_panel['description'].setPlainText(step_data.get('description', ''))
     
@@ -751,7 +768,7 @@ def on_save_changes(root):
                 root.details_panel['files'].item(i).text() 
                 for i in range(root.details_panel['files'].count())
             ],
-            'chlidren': updated_children,
+            'children': updated_children,
             'command': root.details_panel['commands'].toPlainText().split('\n'),
             'files_to_import': [
                 root.details_panel['imports'].item(i).text()
@@ -762,13 +779,13 @@ def on_save_changes(root):
         
         print(root.code_editor_engine)
 
-        if root.code_editor_engine:
-            root.code_editor_engine.add_changes(prev_flowchart, root.flowchart_data)
-            update_generate_button(root)
-        
         root.flowchart_data['steps'][root.selected_step_id] = updated_data
         save_flowchart_to_file(root.flowchart_data)
         load_flowchart(root, root.flowchart_data)
+
+        if root.code_editor_engine:
+            root.code_editor_engine.add_changes(prev_flowchart, root.flowchart_data)
+            update_generate_button(root)
         
         QMessageBox.information(root, "Success", "Changes saved! Connections updated.")
     except Exception as e:
@@ -917,7 +934,7 @@ def on_add_step(root):
         'filenames': [],
         'files_to_import': [],
         'command': [],
-        'chlidren': []
+        'children': []
     }
     
     prev_flowchart = json.loads(json.dumps(root.flowchart_data)) if root.flowchart_data else {}
@@ -1150,7 +1167,12 @@ def on_generate_code(root):
                     return
                 try:
                     root.code_editor_engine.apply_edits(edits_text)
-                    root.code_editor_engine.changes = {}
+                    project_root = ""
+                    if root.flowchart_data:
+                        project_root = root.flowchart_data.get("project_root", "")
+                    if project_root:
+                        from src.core.CodeEdt import CodeEditor
+                        root.code_editor_engine = CodeEditor(project_root)
                     update_generate_button(root)
                     QMessageBox.information(None, "Edits Applied", "Edits have been applied successfully.")
                 except Exception as e:

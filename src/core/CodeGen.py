@@ -24,6 +24,34 @@ class CodingAgent:
         self.project_root = str(project_path)  # ✅ Use project_path parameter
         self.project_name = Path(project_path).name  # ✅ Use project_path parameter
         self.stack = []
+        self._progress = None
+
+    def _notify_rate_limit(self):
+        msg = "Request per minute exceeded. Retrying in 10 seconds..."
+        if callable(self._progress):
+            try:
+                self._progress("rate-limit", msg)
+            except Exception:
+                pass
+        else:
+            print(msg)
+
+    def _extract_retry_seconds(self, text: str, default: int = 10) -> int:
+        if not text:
+            return default
+        match = re.search(r"retry[- ]after[: ]+(\d+)", text, re.IGNORECASE)
+        if match:
+            try:
+                return int(match.group(1))
+            except Exception:
+                return default
+        match = re.search(r"retry in (\d+)\s*seconds", text, re.IGNORECASE)
+        if match:
+            try:
+                return int(match.group(1))
+            except Exception:
+                return default
+        return default
 
     def _to_abs_path(self, path_value):
         if not path_value:
@@ -190,36 +218,49 @@ class CodingAgent:
         or ask questions if the code is repeated or not clear context, please don't skip asking question even if the code is short.
         """
         
-        try:
-            response = client.chat.completions.create(
-                model="nova-pro-v1",
-                messages=[
-                    {
-                        "role": "system",
-                        "content": SYSTEM_PROMPT
-                    },
-                    {
-                        "role": "user",
-                        "content": prompt
-                    },
-                ],
-                temperature=0.2,
-                max_tokens=3000,
-            )
+        for attempt in range(2):
+            try:
+                response = client.chat.completions.create(
+                    model="nova-pro-v1",
+                    messages=[
+                        {
+                            "role": "system",
+                            "content": SYSTEM_PROMPT
+                        },
+                        {
+                            "role": "user",
+                            "content": prompt
+                        },
+                    ],
+                    temperature=0.2,
+                    max_tokens=3000,
+                )
+                
+                if response.choices[0].message.content is None:
+                    print("nothing generated")
+                    return self.call_nova(step, topic)
+                
+                return response.choices[0].message.content
             
-            if response.choices[0].message.content is None:
-                print("nothing generated")
-                return self.call_nova(step, topic)
-            
-            return response.choices[0].message.content
-        
-        except Exception as e:
-            print("error generating")
-            if "Error code: 429" in str(e):
-                print(e)
-                time.sleep(10)
-                return self.call_nova(step, topic)
-            else:
+            except Exception as e:
+                print("error generating")
+                msg = str(e).lower()
+                if ("429" in msg or "rate limit" in msg) and attempt < 1:
+                    retry_seconds = self._extract_retry_seconds(str(e), 10)
+                    if callable(self._progress):
+                        try:
+                            self._progress(
+                                "rate-limit",
+                                f"Request per minute exceeded. Retrying in {retry_seconds} seconds..."
+                            )
+                        except Exception:
+                            pass
+                    else:
+                        print(
+                            f"Request per minute exceeded. Retrying in {retry_seconds} seconds..."
+                        )
+                    time.sleep(retry_seconds)
+                    continue
                 raise  # Re-raise other exceptions
 
     def _get_children(self, step):
@@ -246,6 +287,7 @@ class CodingAgent:
         return
 
     def generate_project(self, procedure, progress=None):
+        self._progress = progress
         steps = procedure.get("steps", {})
         if not steps:
             return

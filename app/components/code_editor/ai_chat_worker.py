@@ -1,7 +1,6 @@
 import os
 
 from PyQt6.QtCore import QObject, pyqtSignal, pyqtSlot
-from src.core.ai_helper import generate_flowchart_edit_from_description
 from src.utils.CacheMng import load_cache, save_cache
 from app.pages.canva import update_generate_button
 import json as _json
@@ -27,6 +26,8 @@ class AIChatWorker(QObject):
     @pyqtSlot()
     def run(self):
         try:
+            rate_limit_notice = False
+            rate_limit_seconds = 10
             if self._stop_requested:
                 self.finished.emit("Request cancelled.")
                 return
@@ -141,10 +142,25 @@ class AIChatWorker(QObject):
                     self.finished.emit("Request cancelled.")
                     return
             
-                updated = generate_flowchart_edit_from_description(
-                    self.user_message,
-                    self.flowchart_data,
-                )
+                from src.core.ai_helper import generate_flowchart_edit_from_description
+                updated = None
+                for attempt in range(2):
+                    try:
+                        updated = generate_flowchart_edit_from_description(
+                            self.user_message,
+                            self.flowchart_data,
+                        )
+                        break
+                    except Exception as exc:
+                        if "429" in str(exc).lower() or "rate limit" in str(exc).lower():
+                            if attempt < 1:
+                                rate_limit_notice = True
+                                retry_seconds = _retry_seconds_from_error(str(exc), 10)
+                                rate_limit_seconds = retry_seconds
+                                import time
+                                time.sleep(retry_seconds)
+                                continue
+                        raise
                 if self._stop_requested:
                     self.finished.emit("Request cancelled.")
                     return
@@ -179,6 +195,11 @@ class AIChatWorker(QObject):
                     "Updated flowchart saved and applied. Here's the new flowchart JSON:\n"
                     f"{_json.dumps(updated, indent=2)}"
                 )
+                if rate_limit_notice:
+                    response = (
+                        f"Request per minute exceeded. Retried in {rate_limit_seconds} seconds.\n\n"
+                        + response
+                    )
                 self.finished.emit(response)
                 return
 
@@ -237,10 +258,24 @@ class AIChatWorker(QObject):
                     if self._stop_requested:
                         self.finished.emit("Request cancelled.")
                         return
+                    if rate_limit_notice:
+                        ai_response = (
+                            f"Request per minute exceeded. Retried in {rate_limit_seconds} seconds.\n\n"
+                            + ai_response
+                        )
                     self.finished.emit(ai_response)
                     return
 
                 except Exception as api_error:
+                    lower_err = str(api_error).lower()
+                    if "429" in lower_err or "rate limit" in lower_err:
+                        rate_limit_notice = True
+                        if attempt < max_retries - 1:
+                            retry_seconds = _retry_seconds_from_error(str(api_error), 10)
+                            rate_limit_seconds = retry_seconds
+                            import time
+                            time.sleep(retry_seconds)
+                            continue
                     if attempt < max_retries - 1:
                         import time
                         time.sleep(1)
@@ -272,6 +307,10 @@ class AIChatWorker(QObject):
                         return 0
                 return 0
 
+            def _retry_seconds_from_error(text: str, default: int = 10) -> int:
+                retry_after = _extract_retry_after(text)
+                return retry_after or default
+
             if "DecodingError" in error_msg or "decompressobj" in error_msg:
                 self.finished.emit(
                     "Connection issue with AI service. This is usually temporary.\n\n"
@@ -287,8 +326,10 @@ class AIChatWorker(QObject):
                     "Please update the key in Settings."
                 )
             elif "429" in lower_msg or "rate limit" in lower_msg:
-                retry_seconds = _extract_retry_after(error_msg) or 10
-                self.finished.emit(f"Rate limit exceeded. Retry in {retry_seconds} seconds.")
+                retry_seconds = _retry_seconds_from_error(error_msg, 10)
+                self.finished.emit(
+                    f"Request per minute exceeded. Need to retry in {retry_seconds} seconds."
+                )
             elif "timeout" in error_msg.lower():
                 self.finished.emit(
                     "Request timed out. The AI service is taking too long to respond.\n\n"

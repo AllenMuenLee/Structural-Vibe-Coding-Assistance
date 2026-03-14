@@ -10,12 +10,13 @@ from app.components.code_editor.ai_chat_worker import AIChatWorker
 class ChatbotWidget(QWidget):
     """Chatbot sidebar widget with AI integration."""
 
-    def __init__(self, project_root, flowchart_data, parent=None, on_user_message=None, on_response=None):
+    def __init__(self, project_root, flowchart_data, parent=None, on_user_message=None, on_response=None, on_close=None):
         super().__init__(parent)
         self.project_root = project_root
         self.flowchart_data = flowchart_data
         self.on_user_message = on_user_message
         self.on_response = on_response
+        self.on_close = on_close
         self.conversation_history = []
         self.current_worker = None
         self.worker_thread = None
@@ -23,6 +24,8 @@ class ChatbotWidget(QWidget):
         self.setObjectName("ChatbotWidget")
         from PyQt6.QtWidgets import QSizePolicy
         self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+        self.setMinimumWidth(260)
+        self.setMaximumWidth(520)
 
         layout = QVBoxLayout(self)
         layout.setContentsMargins(12, 12, 12, 12)
@@ -32,6 +35,10 @@ class ChatbotWidget(QWidget):
         title.setObjectName("ChatTitle")
         header.addWidget(title)
         header.addStretch()
+        close_btn = QPushButton("X")
+        close_btn.setObjectName("ChatCloseButton")
+        close_btn.clicked.connect(self._handle_close)
+        header.addWidget(close_btn)
         layout.addLayout(header)
 
         self.chat_history = QTextEdit()
@@ -64,7 +71,11 @@ class ChatbotWidget(QWidget):
         self.mode_menu.setVisible(False)
         layout.addWidget(self.mode_menu)
 
-        input_layout = QHBoxLayout()
+        input_container = QWidget()
+        input_container.setObjectName("ChatInputBar")
+        input_layout = QHBoxLayout(input_container)
+        input_layout.setContentsMargins(10, 8, 10, 8)
+        input_layout.setSpacing(8)
 
         self.plus_btn = QPushButton("+")
         self.plus_btn.setObjectName("ChatPlusButton")
@@ -76,6 +87,8 @@ class ChatbotWidget(QWidget):
         self.input_field.setObjectName("ChatInput")
         self.input_field.setMaximumHeight(70)
         self.input_field.setPlaceholderText("Ask about your code...")
+        from PyQt6.QtWidgets import QSizePolicy
+        self.input_field.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
         input_layout.addWidget(self.input_field)
 
         self.send_btn = QPushButton("Send")
@@ -83,7 +96,7 @@ class ChatbotWidget(QWidget):
         self.send_btn.clicked.connect(self.send_message)
         input_layout.addWidget(self.send_btn)
 
-        layout.addLayout(input_layout)
+        layout.addWidget(input_container)
 
         self.mode_tag = QLabel("Selected: General")
         self.mode_tag.setObjectName("ModeTag")
@@ -296,6 +309,10 @@ class ChatbotWidget(QWidget):
         }.get(mode, mode.title())
         self.mode_tag.setText(f"Selected: {label}")
         self.mode_menu.setVisible(False)
+
+    def _handle_close(self):
+        if self.on_close:
+            self.on_close()
 
     def set_input_text(self, text: str):
         self.input_field.setPlainText(text)

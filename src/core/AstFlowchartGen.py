@@ -1,19 +1,9 @@
 import json
 import os
 import re
-from openai import OpenAI
-from dotenv import load_dotenv
+import time
 import src.utils.SymbolExt as SymbolExt
 import src.utils.FileMng as FileMng
-
-load_dotenv()
-
-client = OpenAI(
-    api_key=os.getenv("NOVA_API_KEY"),
-    base_url="https://api.nova.amazon.com/v1",
-    default_headers={"Accept-Encoding": "gzip, deflate"},
-    timeout=90.0
-)
 
 
 class AstFlowchartGenerator:
@@ -22,6 +12,51 @@ class AstFlowchartGenerator:
     def __init__(self, project_root):
         self.project_root = os.path.abspath(project_root)
         self.ast_map = {}
+        self._client = None
+
+    def _get_client(self):
+        if self._client is not None:
+            return self._client
+
+        from dotenv import load_dotenv
+        load_dotenv()
+
+        api_key = os.getenv("NOVA_API_KEY", "").strip()
+        if not api_key:
+            raise RuntimeError("NOVA_API_KEY not found. Please add it in Settings.")
+
+        try:
+            from openai import OpenAI
+        except Exception as exc:
+            raise RuntimeError(f"Failed to load OpenAI client: {exc}") from exc
+
+        self._client = OpenAI(
+            api_key=api_key,
+            base_url="https://api.nova.amazon.com/v1",
+            default_headers={"Accept-Encoding": "gzip, deflate"},
+            timeout=90.0
+        )
+        return self._client
+
+    def _is_rate_limit_error(self, exc: Exception) -> bool:
+        msg = str(exc).lower()
+        return "429" in msg or "rate limit" in msg
+
+    def _extract_retry_seconds(self, exc: Exception, default: int = 10) -> int:
+        text = str(exc)
+        match = re.search(r"retry[- ]after[: ]+(\d+)", text, re.IGNORECASE)
+        if match:
+            try:
+                return int(match.group(1))
+            except Exception:
+                return default
+        match = re.search(r"retry in (\d+)\s*seconds", text, re.IGNORECASE)
+        if match:
+            try:
+                return int(match.group(1))
+            except Exception:
+                return default
+        return default
 
     def generate_all(self):
         """Generate AST map (with docstrings) and flowchart.json."""
@@ -126,16 +161,30 @@ class AstFlowchartGenerator:
         - Do not include any extra keys or commentary.
         """
 
-        response = client.chat.completions.create(
-            model="nova-pro-v1",
-            messages=[
-                {"role": "system", "content": SYSTEM_PROMPT},
-                {"role": "user", "content": prompt},
-            ],
-            temperature=0.2,
-            max_tokens=3000,
-            stream=False
-        )
+        client = self._get_client()
+        response = None
+        for attempt in range(2):
+            try:
+                response = client.chat.completions.create(
+                    model="nova-pro-v1",
+                    messages=[
+                        {"role": "system", "content": SYSTEM_PROMPT},
+                        {"role": "user", "content": prompt},
+                    ],
+                    temperature=0.2,
+                    max_tokens=3000,
+                    stream=False
+                )
+                break
+            except Exception as exc:
+                if self._is_rate_limit_error(exc) and attempt < 1:
+                    retry_seconds = self._extract_retry_seconds(exc)
+                    print(
+                        f"Request per minute exceeded. Retrying in {retry_seconds} seconds..."
+                    )
+                    time.sleep(retry_seconds)
+                    continue
+                raise
 
         content = response.choices[0].message.content or ""
         data = self._safe_json_loads(content)
@@ -209,15 +258,29 @@ class AstFlowchartGenerator:
         }}
         """
 
-        response = client.chat.completions.create(
-            model="nova-pro-v1",
-            messages=[
-                {"role": "system", "content": SYSTEM_PROMPT},
-                {"role": "user", "content": prompt},
-            ],
-            temperature=0.1,
-            max_tokens=3000,
-        )
+        client = self._get_client()
+        response = None
+        for attempt in range(2):
+            try:
+                response = client.chat.completions.create(
+                    model="nova-pro-v1",
+                    messages=[
+                        {"role": "system", "content": SYSTEM_PROMPT},
+                        {"role": "user", "content": prompt},
+                    ],
+                    temperature=0.1,
+                    max_tokens=3000,
+                )
+                break
+            except Exception as exc:
+                if self._is_rate_limit_error(exc) and attempt < 1:
+                    retry_seconds = self._extract_retry_seconds(exc)
+                    print(
+                        f"Request per minute exceeded. Retrying in {retry_seconds} seconds..."
+                    )
+                    time.sleep(retry_seconds)
+                    continue
+                raise
 
         content = response.choices[0].message.content or ""
         data = self._safe_json_loads(content)

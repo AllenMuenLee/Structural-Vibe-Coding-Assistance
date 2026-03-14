@@ -16,8 +16,6 @@ from PyQt6.QtWidgets import (
 )
 
 import src.utils.FileMng as FileMng
-from src.core.AstFlowchartGen import AstFlowchartGenerator
-from src.core.Flowchart import Flowchart
 from src.utils.CacheMng import save_current_project_id
 from app.pages.loadingScreen import LoadingScreen
 
@@ -44,6 +42,7 @@ class ProjectImportWorker(QThread):
             max_retries = 3
             for attempt in range(1, max_retries + 1):
                 try:
+                    from src.core.AstFlowchartGen import AstFlowchartGenerator
                     generator = AstFlowchartGenerator(self.project_root)
                     flowchart_data = generator.generate_all()
                     break
@@ -60,6 +59,7 @@ class ProjectImportWorker(QThread):
                 self.finished.emit(False, "Failed to generate flowchart.", "")
                 return
 
+            from src.core.Flowchart import Flowchart
             framework = flowchart_data.get("framework", "")
             flowchart = Flowchart(
                 name=os.path.basename(self.project_root),
@@ -77,7 +77,11 @@ class ProjectImportWorker(QThread):
         except Exception as exc:
             import traceback
             traceback.print_exc()
-            self.finished.emit(False, f"Failed to import project: {exc}", "")
+            message = f"Failed to import project: {exc}"
+            msg_lower = str(exc).lower()
+            if "api key" in msg_lower or "nova_api_key" in msg_lower or "openai client" in msg_lower:
+                message = f"{message}\nHint: Add your API key in Settings."
+            self.finished.emit(False, message, "")
 
 
 class DashboardWidget(QWidget):
