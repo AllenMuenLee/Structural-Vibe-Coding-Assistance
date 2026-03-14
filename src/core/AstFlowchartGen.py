@@ -4,6 +4,7 @@ import re
 import time
 import src.utils.SymbolExt as SymbolExt
 import src.utils.FileMng as FileMng
+from src.utils.NetUtils import extract_retry_seconds, is_rate_limit_error
 
 
 class AstFlowchartGenerator:
@@ -38,25 +39,6 @@ class AstFlowchartGenerator:
         )
         return self._client
 
-    def _is_rate_limit_error(self, exc: Exception) -> bool:
-        msg = str(exc).lower()
-        return "429" in msg or "rate limit" in msg
-
-    def _extract_retry_seconds(self, exc: Exception, default: int = 10) -> int:
-        text = str(exc)
-        match = re.search(r"retry[- ]after[: ]+(\d+)", text, re.IGNORECASE)
-        if match:
-            try:
-                return int(match.group(1))
-            except Exception:
-                return default
-        match = re.search(r"retry in (\d+)\s*seconds", text, re.IGNORECASE)
-        if match:
-            try:
-                return int(match.group(1))
-            except Exception:
-                return default
-        return default
 
     def generate_all(self):
         """Generate AST map (with docstrings) and flowchart.json."""
@@ -177,8 +159,8 @@ class AstFlowchartGenerator:
                 )
                 break
             except Exception as exc:
-                if self._is_rate_limit_error(exc) and attempt < 1:
-                    retry_seconds = self._extract_retry_seconds(exc)
+                if is_rate_limit_error(exc) and attempt < 1:
+                    retry_seconds = extract_retry_seconds(str(exc))
                     print(
                         f"Request per minute exceeded. Retrying in {retry_seconds} seconds..."
                     )
@@ -273,8 +255,8 @@ class AstFlowchartGenerator:
                 )
                 break
             except Exception as exc:
-                if self._is_rate_limit_error(exc) and attempt < 1:
-                    retry_seconds = self._extract_retry_seconds(exc)
+                if is_rate_limit_error(exc) and attempt < 1:
+                    retry_seconds = extract_retry_seconds(str(exc))
                     print(
                         f"Request per minute exceeded. Retrying in {retry_seconds} seconds..."
                     )

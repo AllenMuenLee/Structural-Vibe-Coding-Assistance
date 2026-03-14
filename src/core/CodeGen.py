@@ -7,6 +7,7 @@ import time
 import src.utils.Terminal as Terminal
 import src.utils.FileMng as FileMng
 import src.utils.SymbolExt as SymbolExt
+from src.utils.NetUtils import extract_retry_seconds, is_rate_limit_error
 
 load_dotenv()
 
@@ -36,22 +37,6 @@ class CodingAgent:
         else:
             print(msg)
 
-    def _extract_retry_seconds(self, text: str, default: int = 10) -> int:
-        if not text:
-            return default
-        match = re.search(r"retry[- ]after[: ]+(\d+)", text, re.IGNORECASE)
-        if match:
-            try:
-                return int(match.group(1))
-            except Exception:
-                return default
-        match = re.search(r"retry in (\d+)\s*seconds", text, re.IGNORECASE)
-        if match:
-            try:
-                return int(match.group(1))
-            except Exception:
-                return default
-        return default
 
     def _to_abs_path(self, path_value):
         if not path_value:
@@ -244,9 +229,8 @@ class CodingAgent:
             
             except Exception as e:
                 print("error generating")
-                msg = str(e).lower()
-                if ("429" in msg or "rate limit" in msg) and attempt < 1:
-                    retry_seconds = self._extract_retry_seconds(str(e), 10)
+                if is_rate_limit_error(e) and attempt < 1:
+                    retry_seconds = extract_retry_seconds(str(e), 10)
                     if callable(self._progress):
                         try:
                             self._progress(

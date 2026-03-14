@@ -3,6 +3,7 @@ import os
 import json
 from functools import partial
 from pathlib import Path
+from typing import Optional
 from PyQt6.QtWidgets import (
     QApplication, QWidget, QVBoxLayout, QHBoxLayout,
     QPushButton, QLabel, QScrollArea, QMessageBox,
@@ -11,6 +12,7 @@ from PyQt6.QtWidgets import (
 from PyQt6.QtCore import Qt, QThread, pyqtSignal, QTimer
 from app.components.draggable_block import DraggableBlock
 from src.utils.CacheMng import load_cache
+from src.utils.NetUtils import is_connection_error
 from app.pages.loadingScreen import LoadingScreen
 from app.components.ConnectionLine import ConnectionLine
 
@@ -33,6 +35,138 @@ def _set_children(step_data, children):
     step_data[CHILDREN_KEY] = children
     if LEGACY_CHILDREN_KEY in step_data:
         step_data.pop(LEGACY_CHILDREN_KEY, None)
+
+
+def _set_details_visible(root, visible: bool) -> None:
+    panel = getattr(root, "details_panel_widget", None)
+    if panel is not None:
+        panel.setVisible(bool(visible))
+
+
+def _build_parents_map(steps: dict) -> dict:
+    parents = {sid: [] for sid in steps.keys()}
+    for sid, data in steps.items():
+        for cid in _get_children(data):
+            if cid in parents:
+                parents[cid].append(sid)
+    return parents
+
+
+def _find_root_ids(parents: dict, steps: dict, start_id: Optional[str]) -> list:
+    roots = [sid for sid, ps in parents.items() if not ps]
+    if start_id and start_id in steps:
+        if start_id in roots:
+            roots.remove(start_id)
+        roots.insert(0, start_id)
+    return roots or list(steps.keys())
+
+
+def _assign_levels(parents: dict, steps: dict, start_id: Optional[str]) -> dict:
+    level = {}
+    queue = _find_root_ids(parents, steps, start_id)
+    for rid in queue:
+        level[rid] = 0
+    idx = 0
+    while idx < len(queue):
+        current = queue[idx]
+        idx += 1
+        curr_level = level.get(current, 0)
+        for child in _get_children(steps.get(current, {})):
+            if child not in steps:
+                continue
+            next_level = max(level.get(child, -1), curr_level + 1)
+            if level.get(child) != next_level:
+                level[child] = next_level
+            if child not in queue:
+                queue.append(child)
+    for sid in steps.keys():
+        if sid not in level:
+            level[sid] = 0
+    return level
+
+
+def _barycenter(node_id: str, parents: dict, index: dict) -> float:
+    ps = parents.get(node_id, [])
+    if not ps:
+        return float(index.get(node_id, 0))
+    vals = [index.get(p, 0) for p in ps if p in index]
+    return sum(vals) / len(vals) if vals else 0.0
+
+
+def _order_levels(levels: dict, parents: dict) -> dict:
+    max_level = max(levels.values()) if levels else 0
+    level_nodes = {i: [] for i in range(max_level + 1)}
+    for sid, lvl in levels.items():
+        level_nodes.setdefault(lvl, [])
+        level_nodes[lvl].append(sid)
+
+    for lvl in level_nodes:
+        level_nodes[lvl].sort()
+
+    for _ in range(4):
+        for lvl in range(1, max_level + 1):
+            prev = level_nodes.get(lvl - 1, [])
+            if not prev:
+                continue
+            index = {sid: i for i, sid in enumerate(prev)}
+            level_nodes[lvl].sort(key=lambda node_id: _barycenter(node_id, parents, index))
+    return level_nodes
+
+
+def _handle_block_click(root, step_id, step_data, event):
+    on_block_click(root, step_id, step_data, event)
+
+
+def _handle_block_context_menu(root, step_id, step_data, block, event):
+    on_block_click(root, step_id, step_data, event)
+    menu = QMenu(block)
+    delete_action = menu.addAction("Delete Node")
+    action = menu.exec(event.globalPos())
+    if action == delete_action:
+        root.selected_step_id = step_id
+        on_delete_step(root)
+
+
+def _handle_connect_blocks(root, from_id, to_id, from_dot_index, drop_pos):
+    connect_blocks(root, from_id, to_id, from_dot_index, drop_pos)
+
+
+def _handle_edit_generation_finished(root, loading, success, message, edits_text, edit_log):
+    loading.close()
+    if success:
+        root.last_edits_text = edits_text
+        root.last_edit_log = edit_log
+        if not root.code_editor_engine:
+            QMessageBox.critical(None, "Error", "Code editor engine not initialized.")
+            return
+        if not (edits_text or "").strip():
+            QMessageBox.information(None, "No Edits", "No edits were generated.")
+            return
+        try:
+            root.code_editor_engine.apply_edits(edits_text)
+            project_root = ""
+            if root.flowchart_data:
+                project_root = root.flowchart_data.get("project_root", "")
+            if project_root:
+                from src.core.CodeEdt import CodeEditor
+                root.code_editor_engine = CodeEditor(project_root)
+            update_generate_button(root)
+            QMessageBox.information(None, "Edits Applied", "Edits have been applied successfully.")
+        except Exception as e:
+            QMessageBox.critical(None, "Error", f"Failed to apply edits: {e}")
+    else:
+        QMessageBox.critical(None, "Error", f"Failed to generate edits: {message}")
+
+
+def _handle_code_generation_finished(root, loading, success, message):
+    loading.close()
+    if success:
+        QMessageBox.information(None, "Success", message)
+        root.code_generated = True
+        update_generate_button(root)
+        _call_on_code_generated(root)
+    else:
+        QMessageBox.critical(None, "Error", message)
 
 
 class CanvasArea(QWidget):
@@ -298,10 +432,7 @@ def build_canva(flowchart_data=None, on_back=None) -> QWidget:
     main_layout.addWidget(left_container, stretch=1)
     main_layout.addWidget(details_panel)
     
-    def _set_details_visible(visible: bool):
-        details_panel.setVisible(bool(visible))
-
-    details_close_btn.clicked.connect(lambda: _set_details_visible(False))
+    details_close_btn.clicked.connect(partial(_set_details_visible, root, False))
 
     # Store references
     root.canvas = canvas
@@ -482,75 +613,8 @@ def load_flowchart(root, flowchart_data):
     max_y = y_offset
     max_x = x_center
 
-    def _build_parents_map():
-        parents = {sid: [] for sid in steps.keys()}
-        for sid, data in steps.items():
-            for cid in _get_children(data):
-                if cid in parents:
-                    parents[cid].append(sid)
-        return parents
-
-    def _find_root_ids(parents):
-        roots = [sid for sid, ps in parents.items() if not ps]
-        if start_id and start_id in steps:
-            if start_id in roots:
-                roots.remove(start_id)
-            roots.insert(0, start_id)
-        return roots or list(steps.keys())
-
-    def _assign_levels(parents):
-        level = {}
-        queue = _find_root_ids(parents)
-        for rid in queue:
-            level[rid] = 0
-        idx = 0
-        while idx < len(queue):
-            current = queue[idx]
-            idx += 1
-            curr_level = level.get(current, 0)
-            for child in _get_children(steps.get(current, {})):
-                if child not in steps:
-                    continue
-                next_level = max(level.get(child, -1), curr_level + 1)
-                if level.get(child) != next_level:
-                    level[child] = next_level
-                if child not in queue:
-                    queue.append(child)
-        # Any remaining nodes (cycles or disconnected)
-        for sid in steps.keys():
-            if sid not in level:
-                level[sid] = 0
-        return level
-
-    def _order_levels(levels, parents):
-        max_level = max(levels.values()) if levels else 0
-        level_nodes = {i: [] for i in range(max_level + 1)}
-        for sid, lvl in levels.items():
-            level_nodes.setdefault(lvl, [])
-            level_nodes[lvl].append(sid)
-
-        # Initial stable order
-        for lvl in level_nodes:
-            level_nodes[lvl].sort()
-
-        # Barycenter ordering to reduce crossings
-        for _ in range(4):
-            for lvl in range(1, max_level + 1):
-                prev = level_nodes.get(lvl - 1, [])
-                if not prev:
-                    continue
-                index = {sid: i for i, sid in enumerate(prev)}
-                def barycenter(node_id):
-                    ps = parents.get(node_id, [])
-                    if not ps:
-                        return index.get(node_id, 0)
-                    vals = [index.get(p, 0) for p in ps if p in index]
-                    return sum(vals) / len(vals) if vals else 0
-                level_nodes[lvl].sort(key=barycenter)
-        return level_nodes
-
-    parents = _build_parents_map()
-    levels = _assign_levels(parents)
+    parents = _build_parents_map(steps)
+    levels = _assign_levels(parents, steps, start_id)
     ordered = _order_levels(levels, parents)
 
     for lvl, nodes_at_level in ordered.items():
@@ -586,26 +650,11 @@ def load_flowchart(root, flowchart_data):
         _place_block(root, block, step_id, x_center, y_offset)
         block.show()
         
-        def make_click_handler(sid, sd):
-            def handler(event):
-                on_block_click(root, sid, sd, event)
-            return handler
-
-        block.on_block_click = make_click_handler(step_id, step_data)
-        def make_context_handler(sid, sd):
-            def handler(event):
-                on_block_click(root, sid, sd, event)
-                menu = QMenu(block)
-                delete_action = menu.addAction("Delete Node")
-                action = menu.exec(event.globalPos())
-                if action == delete_action:
-                    root.selected_step_id = sid
-                    on_delete_step(root)
-            return handler
-        block.on_context_menu = make_context_handler(step_id, step_data)
-        block.on_connect_blocks = lambda from_id, to_id, from_dot_index, drop_pos: connect_blocks(
-            root, from_id, to_id, from_dot_index, drop_pos
+        block.on_block_click = partial(_handle_block_click, root, step_id, step_data)
+        block.on_context_menu = partial(
+            _handle_block_context_menu, root, step_id, step_data, block
         )
+        block.on_connect_blocks = partial(_handle_connect_blocks, root)
         block.root = root
         root.blocks[step_id] = block
     
@@ -1026,15 +1075,6 @@ class CodeGenerationWorker(QThread):
     
     def run(self):
         """Run code generation in background thread."""
-        def is_connection_error(exc: Exception) -> bool:
-            msg = str(exc).lower()
-            return (
-                "apiconnectionerror" in msg
-                or "connection error" in msg
-                or "decodingerror" in msg
-                or "decompressobj" in msg
-            )
-
         try:
             from src.core.Flowchart import Flowchart
             from src.core.CodeGen import CodingAgent
@@ -1043,8 +1083,6 @@ class CodeGenerationWorker(QThread):
             flowchart = flowchart.dictionary_to_flowchart(self.flowchart_dict)
 
             agent = CodingAgent(flowchart.project_root)
-            start_step = flowchart.get_start()
-            start_step_dict = start_step.step_to_dictionary()
 
             max_retries = 3
             for attempt in range(1, max_retries + 1):
@@ -1145,42 +1183,13 @@ def _stop_worker(worker, timeout_ms: int = 2000) -> None:
 
 def on_generate_code(root):
     """Generate code from flowchart."""
-    from PyQt6.QtWidgets import QApplication
-
     if root.code_generated and root.code_editor_engine and root.code_editor_engine.has_changes():
         loading = LoadingScreen(root, "Generating edits...")
         loading.show()
         QApplication.processEvents()
         worker = EditGenerationWorker(root.code_editor_engine, root.flowchart_data)
-        worker.progress.connect(lambda msg: loading.set_message(msg))
-
-        def on_finished(success, message, edits_text, edit_log):
-            loading.close()
-            if success:
-                root.last_edits_text = edits_text
-                root.last_edit_log = edit_log
-                if not root.code_editor_engine:
-                    QMessageBox.critical(None, "Error", "Code editor engine not initialized.")
-                    return
-                if not (edits_text or "").strip():
-                    QMessageBox.information(None, "No Edits", "No edits were generated.")
-                    return
-                try:
-                    root.code_editor_engine.apply_edits(edits_text)
-                    project_root = ""
-                    if root.flowchart_data:
-                        project_root = root.flowchart_data.get("project_root", "")
-                    if project_root:
-                        from src.core.CodeEdt import CodeEditor
-                        root.code_editor_engine = CodeEditor(project_root)
-                    update_generate_button(root)
-                    QMessageBox.information(None, "Edits Applied", "Edits have been applied successfully.")
-                except Exception as e:
-                    QMessageBox.critical(None, "Error", f"Failed to apply edits: {e}")
-            else:
-                QMessageBox.critical(None, "Error", f"Failed to generate edits: {message}")
-
-        worker.finished.connect(on_finished)
+        worker.progress.connect(partial(_update_loading_message, loading))
+        worker.finished.connect(partial(_handle_edit_generation_finished, root, loading))
         worker.start()
         root.edit_worker = worker
         return
@@ -1221,18 +1230,7 @@ def on_generate_code(root):
     worker.progress.connect(partial(_update_loading_message, loading))
     
     # ✅ Connect completion signal
-    def on_finished(success, message):
-        loading.close()
-        if success:
-            QMessageBox.information(None, "Success", message)
-            root.code_generated = True
-            update_generate_button(root)
-            
-            _call_on_code_generated(root)
-        else:
-            QMessageBox.critical(None, "Error", message)
-    
-    worker.finished.connect(on_finished)
+    worker.finished.connect(partial(_handle_code_generation_finished, root, loading))
     
     # ✅ Start generation in background
     worker.start()

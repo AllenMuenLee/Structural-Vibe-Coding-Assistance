@@ -1,4 +1,6 @@
 import os
+import time
+from functools import partial
 from pathlib import Path
 
 from PyQt6.QtCore import Qt, QThread, pyqtSignal, QTimer
@@ -16,8 +18,14 @@ from PyQt6.QtWidgets import (
 )
 
 import src.utils.FileMng as FileMng
+from src.utils.NetUtils import is_connection_error
 from src.utils.CacheMng import save_current_project_id
 from app.pages.loadingScreen import LoadingScreen
+
+
+def _set_loading_message(loading: LoadingScreen, message: str) -> None:
+    if loading:
+        loading.set_message(message)
 
 
 class ProjectImportWorker(QThread):
@@ -29,15 +37,6 @@ class ProjectImportWorker(QThread):
         self.project_root = project_root
 
     def run(self):
-        def is_connection_error(exc: Exception) -> bool:
-            msg = str(exc).lower()
-            return (
-                "apiconnectionerror" in msg
-                or "connection error" in msg
-                or "decodingerror" in msg
-                or "decompressobj" in msg
-            )
-
         try:
             max_retries = 3
             for attempt in range(1, max_retries + 1):
@@ -52,7 +51,6 @@ class ProjectImportWorker(QThread):
                     self.progress.emit(
                         f"Connection issue. Retrying in 3 seconds... ({attempt}/{max_retries})"
                     )
-                    import time
                     time.sleep(3)
 
             if not flowchart_data:
@@ -224,22 +222,24 @@ class DashboardWidget(QWidget):
         loading.show()
         QApplication.processEvents()
         self.repaint()
+        self._import_loading = loading
 
         worker = ProjectImportWorker(project_root)
-        worker.progress.connect(lambda msg: loading.set_message(msg))
-
-        def on_finished(success, message, flowchart_id):
-            loading.close()
-            if not success:
-                QMessageBox.warning(self, "Error", message or "Failed to import project.")
-                return
-            self.refresh_projects()
-            if self._on_open_project:
-                self._on_open_project(flowchart_id)
-
-        worker.finished.connect(on_finished)
+        worker.progress.connect(partial(_set_loading_message, loading))
+        worker.finished.connect(self._handle_import_finished)
         worker.start()
         self._import_worker = worker
+
+    def _handle_import_finished(self, success, message, flowchart_id):
+        loading = getattr(self, "_import_loading", None)
+        if loading:
+            loading.close()
+        if not success:
+            QMessageBox.warning(self, "Error", message or "Failed to import project.")
+            return
+        self.refresh_projects()
+        if self._on_open_project:
+            self._on_open_project(flowchart_id)
 
     def _env_path(self) -> Path:
         return Path(__file__).resolve().parents[2] / ".env"

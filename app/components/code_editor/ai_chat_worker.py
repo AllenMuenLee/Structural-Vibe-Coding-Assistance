@@ -1,9 +1,10 @@
 import os
+import json as _json
 
 from PyQt6.QtCore import QObject, pyqtSignal, pyqtSlot
 from src.utils.CacheMng import load_cache, save_cache
+from src.utils.NetUtils import extract_retry_seconds
 from app.pages.canva import update_generate_button
-import json as _json
 
 
 class AIChatWorker(QObject):
@@ -155,7 +156,7 @@ class AIChatWorker(QObject):
                         if "429" in str(exc).lower() or "rate limit" in str(exc).lower():
                             if attempt < 1:
                                 rate_limit_notice = True
-                                retry_seconds = _retry_seconds_from_error(str(exc), 10)
+                                retry_seconds = extract_retry_seconds(str(exc), 10)
                                 rate_limit_seconds = retry_seconds
                                 import time
                                 time.sleep(retry_seconds)
@@ -271,7 +272,7 @@ class AIChatWorker(QObject):
                     if "429" in lower_err or "rate limit" in lower_err:
                         rate_limit_notice = True
                         if attempt < max_retries - 1:
-                            retry_seconds = _retry_seconds_from_error(str(api_error), 10)
+                            retry_seconds = extract_retry_seconds(str(api_error), 10)
                             rate_limit_seconds = retry_seconds
                             import time
                             time.sleep(retry_seconds)
@@ -284,32 +285,10 @@ class AIChatWorker(QObject):
 
         except Exception as e:
             import traceback
-            import re
 
             traceback.print_exc()
             error_msg = str(e)
             lower_msg = error_msg.lower()
-
-            def _extract_retry_after(text: str) -> int:
-                if not text:
-                    return 0
-                match = re.search(r"retry[- ]after[: ]+(\d+)", text, re.IGNORECASE)
-                if match:
-                    try:
-                        return int(match.group(1))
-                    except Exception:
-                        return 0
-                match = re.search(r"retry in (\d+) seconds", text, re.IGNORECASE)
-                if match:
-                    try:
-                        return int(match.group(1))
-                    except Exception:
-                        return 0
-                return 0
-
-            def _retry_seconds_from_error(text: str, default: int = 10) -> int:
-                retry_after = _extract_retry_after(text)
-                return retry_after or default
 
             if "DecodingError" in error_msg or "decompressobj" in error_msg:
                 self.finished.emit(
@@ -326,7 +305,7 @@ class AIChatWorker(QObject):
                     "Please update the key in Settings."
                 )
             elif "429" in lower_msg or "rate limit" in lower_msg:
-                retry_seconds = _retry_seconds_from_error(error_msg, 10)
+                retry_seconds = extract_retry_seconds(error_msg, 10)
                 self.finished.emit(
                     f"Request per minute exceeded. Need to retry in {retry_seconds} seconds."
                 )

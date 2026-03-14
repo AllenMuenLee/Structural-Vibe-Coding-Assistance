@@ -2,8 +2,7 @@ import sys
 import os
 import json
 from PyQt6.QtWidgets import QApplication, QWidget, QVBoxLayout, QStackedWidget, QSplitter, QPushButton
-from PyQt6.QtCore import Qt, QTimer
-
+from PyQt6.QtCore import Qt, QTimer, QEvent, QPoint, QObject
 
 from app.pages.dashboard import DashboardWidget
 from app.pages.projectBuilder import ProjectBuilderWidget
@@ -11,21 +10,44 @@ from app.pages.settings import SettingsWidget
 from app.pages.canva import CanvaWidget, update_generate_button
 from app.pages.codeEditor import CodeEditorWidget, record_editor_diff
 from app.components.code_editor.chatbot_widget import ChatbotWidget
-from src.utils.CacheMng import load_cache, save_current_project_id
+from src.utils.CacheMng import load_cache, save_cache, save_current_project_id
 
 
-def main():
-    app = QApplication(sys.argv)
-    window = QWidget()
-    window.setWindowTitle("Vibe Coding App")
-    window.resize(1200, 800)
+class AppController(QObject):
+    def __init__(self):
+        super().__init__()
+        self.app = QApplication(sys.argv)
+        self.window = QWidget()
+        self.window.setWindowTitle("Vibe Coding App")
+        self.window.resize(1200, 800)
 
-    layout = QVBoxLayout(window)
-    layout.setContentsMargins(0, 0, 0, 0)
+        self.layout = QVBoxLayout(self.window)
+        self.layout.setContentsMargins(0, 0, 0, 0)
 
-    stacked = QStackedWidget()
+        self.stacked = QStackedWidget()
+        self.splitter = QSplitter()
+        self.splitter.setOrientation(Qt.Orientation.Horizontal)
 
-    def load_flowchart_data():
+        self.chat_widget = None
+        self.chat_visible = False
+        self.ai_btn = None
+        self._ai_dragging = False
+        self._ai_drag_offset = QPoint(0, 0)
+        self._orig_resize = None
+
+        self._build_pages()
+        self._build_splitter()
+        self._build_ai_button()
+        self._connect_signals()
+
+        self.layout.addWidget(self.splitter)
+        self.stacked.setCurrentIndex(0)
+
+    def run(self):
+        self.window.show()
+        sys.exit(self.app.exec())
+
+    def load_flowchart_data(self):
         cache = load_cache()
         project_id = cache.get("current_project_id")
         if not project_id:
@@ -42,81 +64,105 @@ def main():
                 print(f"Error loading flowchart: {e}")
         return None
 
-    def show_canvas():
-        if stacked.count() > 3:
-            old_canvas = stacked.widget(3)
-            stacked.removeWidget(old_canvas)
+    def show_canvas(self):
+        if self.stacked.count() > 3:
+            old_canvas = self.stacked.widget(3)
+            self.stacked.removeWidget(old_canvas)
             old_canvas.deleteLater()
 
-        canvas = CanvaWidget(on_back=on_back_to_dashboard)
-        canvas.on_code_generated = on_code_generated
-        stacked.insertWidget(3, canvas)
-        stacked.setCurrentIndex(3)
+        canvas = CanvaWidget(on_back=self.on_back_to_dashboard)
+        canvas.on_code_generated = self.on_code_generated
+        self.stacked.insertWidget(3, canvas)
+        self.stacked.setCurrentIndex(3)
 
-    def on_project_created(success):
+    def on_project_created(self, success):
         if success:
             print("? Project created, navigating to Canvas...")
-            show_canvas()
+            self.show_canvas()
 
-    def on_code_generated():
+    def on_code_generated(self):
         print("? Code generated, navigating to Editor...")
-        flowchart_data = load_flowchart_data()
+        flowchart_data = self.load_flowchart_data()
         if not flowchart_data:
             print("? Warning: Could not load flowchart data for editor")
             return
 
-        if stacked.count() > 4:
-            old_editor = stacked.widget(4)
-            stacked.removeWidget(old_editor)
+        if self.stacked.count() > 4:
+            old_editor = self.stacked.widget(4)
+            self.stacked.removeWidget(old_editor)
             old_editor.deleteLater()
 
-        editor = CodeEditorWidget(flowchart_data, on_back_to_canvas)
-        stacked.insertWidget(4, editor)
-        stacked.setCurrentIndex(4)
+        editor = CodeEditorWidget(flowchart_data, self.on_back_to_canvas)
+        self.stacked.insertWidget(4, editor)
+        self.stacked.setCurrentIndex(4)
 
-    def on_back_to_canvas():
+    def on_back_to_canvas(self):
         print("? Returning to Canvas...")
-        show_canvas()
+        self.show_canvas()
 
-    def on_new_project():
-        stacked.setCurrentIndex(1)
+    def on_new_project(self):
+        self.stacked.setCurrentIndex(1)
 
-    def on_back_to_dashboard():
-        stacked.setCurrentIndex(0)
+    def on_back_to_dashboard(self):
+        self.stacked.setCurrentIndex(0)
 
-    def on_open_settings():
-        stacked.setCurrentIndex(2)
+    def on_open_settings(self):
+        self.stacked.setCurrentIndex(2)
 
-    def on_open_project(project_id):
+    def on_open_project(self, project_id):
         save_current_project_id(project_id)
-        show_canvas()
+        self.show_canvas()
 
-    dashboard = DashboardWidget(
-        on_new_project=on_new_project,
-        on_open_project=on_open_project,
-        on_open_settings=on_open_settings,
-    )
-    builder = ProjectBuilderWidget(on_project_created=on_project_created, on_back=on_back_to_dashboard)
-    settings = SettingsWidget(on_back=on_back_to_dashboard)
+    def _build_pages(self):
+        dashboard = DashboardWidget(
+            on_new_project=self.on_new_project,
+            on_open_project=self.on_open_project,
+            on_open_settings=self.on_open_settings,
+        )
+        builder = ProjectBuilderWidget(
+            on_project_created=self.on_project_created,
+            on_back=self.on_back_to_dashboard,
+        )
+        settings = SettingsWidget(on_back=self.on_back_to_dashboard)
 
-    stacked.addWidget(dashboard)  # Index 0
-    stacked.addWidget(builder)    # Index 1
-    stacked.addWidget(settings)   # Index 2
+        self.stacked.addWidget(dashboard)  # Index 0
+        self.stacked.addWidget(builder)    # Index 1
+        self.stacked.addWidget(settings)   # Index 2
 
-    splitter = QSplitter()
-    splitter.setOrientation(Qt.Orientation.Horizontal)
+    def _build_splitter(self):
+        self.splitter.addWidget(self.stacked)
+        self._sync_splitter_state()
 
-    chat_widget = {"instance": None}
-    chat_visible = {"value": False}
+    def _build_ai_button(self):
+        self.ai_btn = QPushButton("AI", self.window)
+        self.ai_btn.setObjectName("GlobalFloatingAIButton")
+        self.ai_btn.setCheckable(True)
+        self.ai_btn.setToolTip("AI chat")
+        self.ai_btn.setFixedSize(56, 56)
+        self.ai_btn.setStyleSheet(
+            "QPushButton { background: #2f6fed; color: #ffffff; border: none; border-radius: 28px; "
+            "font-weight: 700; font-size: 13px; }"
+            "QPushButton:hover { background: #3a7bff; }"
+            "QPushButton:checked { background: #1f56c9; }"
+        )
+        self.ai_btn.clicked.connect(self._on_ai_clicked)
+        self.ai_btn.installEventFilter(self)
+        self.ai_btn.hide()
 
-    def _reload_canvas_if_any():
-        if stacked.count() > 3:
-            canvas_widget = stacked.widget(3)
+        self._orig_resize = self.window.resizeEvent
+        self.window.resizeEvent = self._on_resize
+        QTimer.singleShot(0, self._reposition_ai_btn)
+
+    def _connect_signals(self):
+        self.stacked.currentChanged.connect(self._toggle_chat_for_page)
+
+    def _reload_canvas_if_any(self):
+        if self.stacked.count() > 3:
+            canvas_widget = self.stacked.widget(3)
             if isinstance(canvas_widget, CanvaWidget):
                 canvas_widget.reload_flowchart()
                 if getattr(canvas_widget, "canvas_widget", None):
                     try:
-                        from src.utils.CacheMng import load_cache, save_cache
                         cache = load_cache()
                         if cache.get("flowchart_last_updated"):
                             prev_text = cache.get("flowchart_last_prev")
@@ -124,9 +170,8 @@ def main():
                             engine = getattr(canvas_widget.canvas_widget, "code_editor_engine", None)
                             if engine and prev_text is not None and curr_text is not None:
                                 try:
-                                    import json as _json
-                                    prev_flowchart = _json.loads(prev_text) if prev_text else {}
-                                    curr_flowchart = _json.loads(curr_text) if curr_text else {}
+                                    prev_flowchart = json.loads(prev_text) if prev_text else {}
+                                    curr_flowchart = json.loads(curr_text) if curr_text else {}
                                     engine.add_changes(prev_flowchart, curr_flowchart)
                                 except Exception:
                                     pass
@@ -136,106 +181,105 @@ def main():
                         pass
                     update_generate_button(canvas_widget.canvas_widget)
 
-    def _on_chat_message():
-        current = stacked.currentWidget()
+    def _on_chat_message(self):
+        current = self.stacked.currentWidget()
         if isinstance(current, CodeEditorWidget):
             record_editor_diff(current.editor_widget)
 
-    def _build_chat_widget():
-        if splitter.count() > 1:
+    def _build_chat_widget(self):
+        if self.splitter.count() > 1:
             try:
-                old = splitter.widget(0)
+                old = self.splitter.widget(0)
                 old.setParent(None)
                 old.deleteLater()
             except Exception:
                 pass
-        chat_widget["instance"] = None
-        flowchart_data = load_flowchart_data() or {}
+        self.chat_widget = None
+        flowchart_data = self.load_flowchart_data() or {}
         project_root = flowchart_data.get("project_root", "") if isinstance(flowchart_data, dict) else ""
         widget = ChatbotWidget(
             project_root,
             flowchart_data,
-            parent=splitter,
-            on_user_message=_on_chat_message,
-            on_response=_reload_canvas_if_any,
-            on_close=lambda: _set_chat_visible(False),
+            parent=self.splitter,
+            on_user_message=self._on_chat_message,
+            on_response=self._reload_canvas_if_any,
+            on_close=self._handle_chat_close,
         )
-        chat_widget["instance"] = widget
-        splitter.insertWidget(0, widget)
+        self.chat_widget = widget
+        self.splitter.insertWidget(0, widget)
 
-    def _set_chat_visible(visible: bool):
-        chat_visible["value"] = bool(visible)
-        if not chat_visible["value"]:
-            if splitter.count() > 1:
-                w = splitter.widget(0)
-                splitter.widget(0).setParent(None)
+    def _set_chat_visible(self, visible: bool):
+        self.chat_visible = bool(visible)
+        if not self.chat_visible:
+            if self.splitter.count() > 1:
+                w = self.splitter.widget(0)
+                self.splitter.widget(0).setParent(None)
                 w.deleteLater()
-            chat_widget["instance"] = None
+            self.chat_widget = None
         else:
-            _build_chat_widget()
-        ai_btn.setVisible(not chat_visible["value"])
-        _sync_splitter_state()
+            self._build_chat_widget()
+        self.ai_btn.setVisible(not self.chat_visible)
+        self._sync_splitter_state()
         try:
-            ai_btn.setChecked(chat_visible["value"])
+            self.ai_btn.setChecked(self.chat_visible)
         except Exception:
             pass
 
-    def _sync_splitter_state():
-        if not chat_visible["value"]:
-            splitter.setSizes([0, 1])
+    def _sync_splitter_state(self):
+        if not self.chat_visible:
+            self.splitter.setSizes([0, 1])
         else:
-            splitter.setSizes([320, 880])
+            self.splitter.setSizes([320, 880])
 
-    splitter.addWidget(stacked)
-    _sync_splitter_state()
+    def _handle_chat_close(self):
+        self._set_chat_visible(False)
 
-    layout.addWidget(splitter)
-    stacked.setCurrentIndex(0)
+    def _on_ai_clicked(self, checked):
+        self._set_chat_visible(checked)
 
-    ai_btn = QPushButton("AI", window)
-    ai_btn.setObjectName("GlobalFloatingAIButton")
-    ai_btn.setCheckable(True)
-    ai_btn.setToolTip("AI chat")
-    ai_btn.setFixedSize(56, 56)
-    ai_btn.setStyleSheet(
-        "QPushButton { background: #2f6fed; color: #ffffff; border: none; border-radius: 28px; "
-        "font-weight: 700; font-size: 13px; }"
-        "QPushButton:hover { background: #3a7bff; }"
-        "QPushButton:checked { background: #1f56c9; }"
-    )
-    ai_btn.clicked.connect(lambda checked: _set_chat_visible(checked))
-    ai_btn.hide()
-
-    def _reposition_ai_btn():
+    def _reposition_ai_btn(self):
         margin = 20
-        ai_btn.move(margin, max(margin, window.height() - ai_btn.height() - margin))
-        if ai_btn.isVisible():
-            ai_btn.raise_()
+        self.ai_btn.move(margin, max(margin, self.window.height() - self.ai_btn.height() - margin))
+        if self.ai_btn.isVisible():
+            self.ai_btn.raise_()
 
-    orig_resize = window.resizeEvent
+    def _on_resize(self, event):
+        if callable(self._orig_resize):
+            self._orig_resize(event)
+        self._reposition_ai_btn()
 
-    def _on_resize(event):
-        if callable(orig_resize):
-            orig_resize(event)
-        _reposition_ai_btn()
-
-    window.resizeEvent = _on_resize
-    QTimer.singleShot(0, _reposition_ai_btn)
-
-    def _toggle_chat_for_page(index):
-        # Hide on dashboard (index 0)
+    def _toggle_chat_for_page(self, index):
         if index == 0:
-            _set_chat_visible(False)
-            ai_btn.setVisible(False)
+            self._set_chat_visible(False)
+            self.ai_btn.setVisible(False)
         else:
-            ai_btn.setVisible(not chat_visible["value"])
-            ai_btn.raise_()
-            ai_btn.setChecked(chat_visible["value"])
+            self.ai_btn.setVisible(not self.chat_visible)
+            self.ai_btn.raise_()
+            self.ai_btn.setChecked(self.chat_visible)
 
-    stacked.currentChanged.connect(_toggle_chat_for_page)
+    def eventFilter(self, obj, event):
+        if obj is self.ai_btn:
+            if event.type() == QEvent.Type.MouseButtonPress and event.button() == Qt.MouseButton.LeftButton:
+                self._ai_dragging = True
+                self._ai_drag_offset = event.position().toPoint()
+                return True
+            if event.type() == QEvent.Type.MouseMove and self._ai_dragging:
+                pos = event.globalPosition().toPoint() - self.window.pos() - self._ai_drag_offset
+                max_x = max(0, self.window.width() - self.ai_btn.width())
+                max_y = max(0, self.window.height() - self.ai_btn.height())
+                new_x = max(0, min(pos.x(), max_x))
+                new_y = max(0, min(pos.y(), max_y))
+                self.ai_btn.move(new_x, new_y)
+                return True
+            if event.type() == QEvent.Type.MouseButtonRelease and self._ai_dragging:
+                self._ai_dragging = False
+                return True
+        return super().eventFilter(obj, event)
 
-    window.show()
-    sys.exit(app.exec())
+
+def main():
+    controller = AppController()
+    controller.run()
 
 
 if __name__ == "__main__":

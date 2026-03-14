@@ -10,6 +10,7 @@ from dotenv import load_dotenv
 
 import src.utils.FileMng as FileMng
 import src.utils.SymbolExt as SymbolExt
+from src.utils.NetUtils import extract_retry_seconds, is_rate_limit_error
 
 
 load_dotenv()
@@ -42,26 +43,6 @@ def _truncate_text(text: str, max_chars: int = 12000) -> str:
     return text[:max_chars] + "\n# (truncated)"
 
 
-def _is_rate_limit_error(exc: Exception) -> bool:
-    msg = str(exc).lower()
-    return "429" in msg or "rate limit" in msg
-
-
-def _extract_retry_seconds(exc: Exception, default: int = 10) -> int:
-    text = str(exc)
-    match = re.search(r"retry[- ]after[: ]+(\d+)", text, re.IGNORECASE)
-    if match:
-        try:
-            return int(match.group(1))
-        except Exception:
-            return default
-    match = re.search(r"retry in (\d+)\s*seconds", text, re.IGNORECASE)
-    if match:
-        try:
-            return int(match.group(1))
-        except Exception:
-            return default
-    return default
 
 
 def _read_file_text(path_value: str) -> str:
@@ -370,8 +351,8 @@ class CodeEditor:
                     )
                     break
                 except Exception as exc:
-                    if _is_rate_limit_error(exc) and attempt < 1:
-                        retry_seconds = _extract_retry_seconds(exc)
+                    if is_rate_limit_error(exc) and attempt < 1:
+                        retry_seconds = extract_retry_seconds(str(exc))
                         if progress:
                             progress(
                                 f"Request per minute exceeded. Retrying in {retry_seconds} seconds..."
@@ -564,8 +545,8 @@ class CodeEditor:
                         )
                         break
                     except Exception as exc:
-                        if _is_rate_limit_error(exc) and attempt < 1:
-                            retry_seconds = _extract_retry_seconds(exc)
+                        if is_rate_limit_error(exc) and attempt < 1:
+                            retry_seconds = extract_retry_seconds(str(exc))
                             if progress:
                                 progress(
                                     f"Request per minute exceeded. Retrying in {retry_seconds} seconds..."
