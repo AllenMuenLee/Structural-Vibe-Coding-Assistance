@@ -3,6 +3,7 @@ import os
 from PyQt6.QtCore import QObject, pyqtSignal, pyqtSlot
 from src.core.ai_helper import generate_flowchart_edit_from_description
 from src.utils.CacheMng import load_cache, save_cache
+from app.pages.canva import update_generate_button
 import json as _json
 
 
@@ -27,6 +28,7 @@ class AIChatWorker(QObject):
     def run(self):
         try:
             if self._stop_requested:
+                self.finished.emit("Request cancelled.")
                 return
             from openai import OpenAI
             from dotenv import load_dotenv
@@ -53,6 +55,7 @@ class AIChatWorker(QObject):
                     FileMng.save_ast_map(project_id, ast_map)
 
             if self._stop_requested:
+                self.finished.emit("Request cancelled.")
                 return
 
             if self.mode == "debug":
@@ -134,10 +137,17 @@ class AIChatWorker(QObject):
                 return
 
             if self.mode == "flowchart":
+                if self._stop_requested:
+                    self.finished.emit("Request cancelled.")
+                    return
+            
                 updated = generate_flowchart_edit_from_description(
                     self.user_message,
                     self.flowchart_data,
                 )
+                if self._stop_requested:
+                    self.finished.emit("Request cancelled.")
+                    return
                 self.flowchart_data = updated
 
                 cache = load_cache()
@@ -145,12 +155,25 @@ class AIChatWorker(QObject):
                 if project_id:
                     appdata_root = os.path.join(os.getenv("APPDATA", ""), "SVCA")
                     flowchart_path = os.path.join(appdata_root, f"{project_id}.flowchart.json")
+                    prev_text = ""
+                    try:
+                        with open(flowchart_path, "r", encoding="utf-8") as fh:
+                            prev_text = fh.read()
+                    except Exception:
+                        prev_text = ""
                     try:
                         with open(flowchart_path, "w", encoding="utf-8") as fh:
                             _json.dump(updated, fh, indent=4)
                     except Exception:
                         print("failed to update")
                         pass
+                    
+                    curr_text = _json.dumps(updated, indent=4)
+                    cache["flowchart_last_prev"] = prev_text
+                    cache["flowchart_last_curr"] = curr_text
+                    cache["flowchart_last_path"] = flowchart_path
+                    cache["flowchart_last_updated"] = True
+                    save_cache(cache)
 
                 response = (
                     "Updated flowchart saved and applied. Here's the new flowchart JSON:\n"
@@ -200,6 +223,7 @@ class AIChatWorker(QObject):
             max_retries = 2
             for attempt in range(max_retries):
                 if self._stop_requested:
+                    self.finished.emit("Request cancelled.")
                     return
                 try:
                     response = client.chat.completions.create(
@@ -210,6 +234,9 @@ class AIChatWorker(QObject):
                     )
 
                     ai_response = response.choices[0].message.content
+                    if self._stop_requested:
+                        self.finished.emit("Request cancelled.")
+                        return
                     self.finished.emit(ai_response)
                     return
 

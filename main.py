@@ -55,7 +55,7 @@ class DraggableAIButton(QPushButton):
 from app.pages.dashboard import DashboardWidget
 from app.pages.projectBuilder import ProjectBuilderWidget
 from app.pages.settings import SettingsWidget
-from app.pages.canva import CanvaWidget
+from app.pages.canva import CanvaWidget, update_generate_button
 from app.pages.codeEditor import CodeEditorWidget, record_editor_diff
 from app.components.code_editor.chatbot_widget import ChatbotWidget
 from src.utils.CacheMng import load_cache, save_current_project_id
@@ -271,6 +271,22 @@ def main():
             canvas_widget = stacked.widget(3)
             if isinstance(canvas_widget, CanvaWidget):
                 canvas_widget.reload_flowchart()
+                if getattr(canvas_widget, "canvas_widget", None):
+                    try:
+                        from src.utils.CacheMng import load_cache, save_cache
+                        cache = load_cache()
+                        if cache.get("flowchart_last_updated"):
+                            path = cache.get("flowchart_last_path")
+                            prev_text = cache.get("flowchart_last_prev")
+                            curr_text = cache.get("flowchart_last_curr")
+                            engine = getattr(canvas_widget.canvas_widget, "code_editor_engine", None)
+                            if engine and path and prev_text is not None and curr_text is not None:
+                                engine.add_changes(path, prev_text, curr_text)
+                            cache["flowchart_last_updated"] = False
+                            save_cache(cache)
+                    except Exception:
+                        pass
+                    update_generate_button(canvas_widget.canvas_widget)
 
     def _on_chat_message():
         current = stacked.currentWidget()

@@ -2,6 +2,7 @@ import os
 import re
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
+import difflib
 
 from openai import OpenAI
 from dotenv import load_dotenv
@@ -55,7 +56,6 @@ class CodeEditor:
         self.project_root = os.path.normpath(project_root)
         self.edits: Dict[str, List[List[object]]] = {}
         self.changes: Dict[str, Dict[str, Dict[str, object]]] = {}
-        self.file_changes: Dict[str, Dict[str, object]] = {}
         self.file_snapshots: Dict[str, str] = {}
         self.edit_log: List[Dict[str, str]] = []
 
@@ -70,10 +70,9 @@ class CodeEditor:
         prev_content = prev_content or ""
         curr_content = curr_content or ""
         if prev_content == curr_content:
-            if file_path in self.file_changes:
-                self.file_changes.pop(file_path, None)
+            if file_path in self.changes:
+                self.changes.pop(file_path, None)
             return
-        import difflib
         diff = "\n".join(
             difflib.unified_diff(
                 prev_content.splitlines(),
@@ -83,11 +82,13 @@ class CodeEditor:
                 lineterm="",
             )
         )
-        self.file_changes[file_path] = {
-            "prev": prev_content,
-            "curr": curr_content,
-            "diff": diff,
-        }
+        print(diff)
+
+        node_id = file_path
+        self.changes.setdefault(node_id, {})
+        self.changes[node_id]["description"] = {"prev": diff, "curr": diff}
+        self.changes[node_id]["files"] = {"prev": [file_path], "curr": [file_path]}
+        self.changes[node_id]["children"] = {"prev": [], "curr": []}
 
     def track_file_snapshot(self, file_path: str, content: str) -> None:
         if not file_path:
@@ -121,7 +122,7 @@ class CodeEditor:
         self.changes[node_id]["children"] = {"prev": prev_children or [], "curr": curr_children or []}
 
     def has_changes(self) -> bool:
-        return bool(self.changes) or bool(self.file_changes)
+        return bool(self.changes)
 
     def save_and_update(self, text: str) -> None:
         """Save code blocks to files and update ast_map.json."""
