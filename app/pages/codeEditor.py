@@ -352,8 +352,6 @@ def load_file(root, filename):
         _set_editor_lexer(root, filename)
         root.current_file_label.setText(f"Editing: {filename}")
         root.current_file = file_path
-        if root.code_editor_engine:
-            root.code_editor_engine.track_file_snapshot(file_path, content)
     except Exception as e:
         QMessageBox.critical(root, "Error", f"Failed to load file: {e}")
 
@@ -378,9 +376,6 @@ def save_file(root):
         with open(root.current_file, 'w', encoding='utf-8') as f:
             f.write(content)
 
-        if root.code_editor_engine:
-            root.code_editor_engine.add_changes(root.current_file, prev_content, content)
-            root.code_editor_engine.track_file_snapshot(root.current_file, content)
         
         filename = os.path.basename(root.current_file)
         QMessageBox.information(root, "Success", f"File saved: {filename}")
@@ -523,7 +518,6 @@ def record_editor_diff(root):
     if not root.current_file:
         return
     curr_content = root.code_editor.text() if root.code_editor else ""
-    root.code_editor_engine.record_file_change(root.current_file, curr_content)
 
 
 class CodeEditorWidget(QWidget):

@@ -276,12 +276,17 @@ def main():
                         from src.utils.CacheMng import load_cache, save_cache
                         cache = load_cache()
                         if cache.get("flowchart_last_updated"):
-                            path = cache.get("flowchart_last_path")
                             prev_text = cache.get("flowchart_last_prev")
                             curr_text = cache.get("flowchart_last_curr")
                             engine = getattr(canvas_widget.canvas_widget, "code_editor_engine", None)
-                            if engine and path and prev_text is not None and curr_text is not None:
-                                engine.add_changes(path, prev_text, curr_text)
+                            if engine and prev_text is not None and curr_text is not None:
+                                try:
+                                    import json as _json
+                                    prev_flowchart = _json.loads(prev_text) if prev_text else {}
+                                    curr_flowchart = _json.loads(curr_text) if curr_text else {}
+                                    engine.add_changes(prev_flowchart, curr_flowchart)
+                                except Exception:
+                                    pass
                             cache["flowchart_last_updated"] = False
                             save_cache(cache)
                     except Exception:

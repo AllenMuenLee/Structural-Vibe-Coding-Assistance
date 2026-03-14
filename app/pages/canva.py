@@ -732,6 +732,7 @@ def on_save_changes(root):
         return
     
     try:
+        prev_flowchart = json.loads(json.dumps(root.flowchart_data)) if root.flowchart_data else {}
         prev_data = root.flowchart_data['steps'].get(root.selected_step_id, {})
         connection_meta = prev_data.get("connection_meta", {})
         updated_children = [
@@ -762,15 +763,7 @@ def on_save_changes(root):
         print(root.code_editor_engine)
 
         if root.code_editor_engine:
-            root.code_editor_engine.add_node_changes(
-                root.selected_step_id,
-                prev_data.get("description", ""),
-                updated_data.get("description", ""),
-                prev_data.get("filenames", []),
-                updated_data.get("filenames", []),
-                _get_children(prev_data),
-                _get_children(updated_data),
-            )
+            root.code_editor_engine.add_changes(prev_flowchart, root.flowchart_data)
             update_generate_button(root)
         
         root.flowchart_data['steps'][root.selected_step_id] = updated_data
@@ -927,21 +920,15 @@ def on_add_step(root):
         'chlidren': []
     }
     
-    if root.code_editor_engine:
-        root.code_editor_engine.add_node_changes(
-            step_id,
-            "",
-            new_step.get("description", ""),
-            [],
-            [],
-            [],
-            [],
-        )
-        update_generate_button(root)
+    prev_flowchart = json.loads(json.dumps(root.flowchart_data)) if root.flowchart_data else {}
 
     root.flowchart_data['steps'][step_id] = new_step
     save_flowchart_to_file(root.flowchart_data)
     load_flowchart(root, root.flowchart_data)
+
+    if root.code_editor_engine:
+        root.code_editor_engine.add_changes(prev_flowchart, root.flowchart_data)
+        update_generate_button(root)
     
     QMessageBox.information(root, "Success", f"Step '{step_id}' added!")
 
@@ -962,17 +949,7 @@ def on_delete_step(root):
         return
     
     step_data = root.flowchart_data['steps'].get(step_id, {})
-    if root.code_editor_engine:
-        root.code_editor_engine.add_node_changes(
-            step_id,
-            step_data.get("description", ""),
-            "",
-            step_data.get("filenames", []) or [],
-            [],
-            _get_children(step_data),
-            [],
-        )
-        update_generate_button(root)
+    prev_flowchart = json.loads(json.dumps(root.flowchart_data)) if root.flowchart_data else {}
 
     del root.flowchart_data['steps'][step_id]
     if step_id in getattr(root, "_layout_positions", {}):
@@ -990,6 +967,10 @@ def on_delete_step(root):
     
     save_flowchart_to_file(root.flowchart_data)
     load_flowchart(root, root.flowchart_data)
+
+    if root.code_editor_engine:
+        root.code_editor_engine.add_changes(prev_flowchart, root.flowchart_data)
+        update_generate_button(root)
     
     root.selected_step_id = None
     root.details_panel['step_id'].setText("No step selected")

@@ -2,7 +2,6 @@ import os
 import re
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
-import difflib
 
 from openai import OpenAI
 from dotenv import load_dotenv
@@ -56,51 +55,47 @@ class CodeEditor:
         self.project_root = os.path.normpath(project_root)
         self.edits: Dict[str, List[List[object]]] = {}
         self.changes: Dict[str, Dict[str, Dict[str, object]]] = {}
-        self.file_snapshots: Dict[str, str] = {}
         self.edit_log: List[Dict[str, str]] = []
 
     def add_changes(
         self,
-        file_path: str,
-        prev_content: str,
-        curr_content: str,
+        prev_flowchart: Dict[str, object],
+        curr_flowchart: Dict[str, object],
     ) -> None:
-        if not file_path:
-            return
-        prev_content = prev_content or ""
-        curr_content = curr_content or ""
-        if prev_content == curr_content:
-            if file_path in self.changes:
-                self.changes.pop(file_path, None)
-            return
-        diff = "\n".join(
-            difflib.unified_diff(
-                prev_content.splitlines(),
-                curr_content.splitlines(),
-                fromfile="previous",
-                tofile="current",
-                lineterm="",
-            )
-        )
-        print(diff)
+        prev_steps = prev_flowchart.get("steps", {}) if isinstance(prev_flowchart, dict) else {}
+        curr_steps = curr_flowchart.get("steps", {}) if isinstance(curr_flowchart, dict) else {}
+        if not isinstance(prev_steps, dict):
+            prev_steps = {}
+        if not isinstance(curr_steps, dict):
+            curr_steps = {}
 
-        node_id = file_path
-        self.changes.setdefault(node_id, {})
-        self.changes[node_id]["description"] = {"prev": diff, "curr": diff}
-        self.changes[node_id]["files"] = {"prev": [file_path], "curr": [file_path]}
-        self.changes[node_id]["children"] = {"prev": [], "curr": []}
+        def _get_children(step_data):
+            if not isinstance(step_data, dict):
+                return []
+            if "chlidren" in step_data:
+                return step_data.get("chlidren", []) or []
+            return step_data.get("children", []) or []
 
-    def track_file_snapshot(self, file_path: str, content: str) -> None:
-        if not file_path:
-            return
-        self.file_snapshots[file_path] = content or ""
+        all_ids = set(prev_steps.keys()) | set(curr_steps.keys())
+        for node_id in all_ids:
+            prev = prev_steps.get(node_id, {}) if isinstance(prev_steps.get(node_id, {}), dict) else {}
+            curr = curr_steps.get(node_id, {}) if isinstance(curr_steps.get(node_id, {}), dict) else {}
+            prev_desc = prev.get("description", "") if isinstance(prev, dict) else ""
+            curr_desc = curr.get("description", "") if isinstance(curr, dict) else ""
+            prev_files = prev.get("filenames", []) if isinstance(prev, dict) else []
+            curr_files = curr.get("filenames", []) if isinstance(curr, dict) else []
+            prev_children = _get_children(prev)
+            curr_children = _get_children(curr)
 
-    def record_file_change(self, file_path: str, curr_content: str) -> None:
-        if not file_path:
-            return
-        prev_content = self.file_snapshots.get(file_path, "")
-        self.add_changes(file_path, prev_content, curr_content or "")
-        self.file_snapshots[file_path] = curr_content or ""
+            if prev_desc == curr_desc and prev_files == curr_files and prev_children == curr_children:
+                if node_id in self.changes:
+                    self.changes.pop(node_id, None)
+                continue
+
+            self.changes.setdefault(node_id, {})
+            self.changes[node_id]["description"] = {"prev": prev_desc, "curr": curr_desc}
+            self.changes[node_id]["files"] = {"prev": prev_files or [], "curr": curr_files or []}
+            self.changes[node_id]["children"] = {"prev": prev_children or [], "curr": curr_children or []}
 
     def add_node_changes(
         self,
@@ -120,6 +115,42 @@ class CodeEditor:
         self.changes[node_id]["description"] = {"prev": prev_des, "curr": curr_des}
         self.changes[node_id]["files"] = {"prev": prev_files or [], "curr": curr_files or []}
         self.changes[node_id]["children"] = {"prev": prev_children or [], "curr": curr_children or []}
+
+    def update_changes_from_flowchart(self, prev_flowchart: Dict[str, object], curr_flowchart: Dict[str, object]) -> None:
+        prev_steps = prev_flowchart.get("steps", {}) if isinstance(prev_flowchart, dict) else {}
+        curr_steps = curr_flowchart.get("steps", {}) if isinstance(curr_flowchart, dict) else {}
+        if not isinstance(prev_steps, dict):
+            prev_steps = {}
+        if not isinstance(curr_steps, dict):
+            curr_steps = {}
+
+        def _get_children(step_data):
+            if not isinstance(step_data, dict):
+                return []
+            if "chlidren" in step_data:
+                return step_data.get("chlidren", []) or []
+            return step_data.get("children", []) or []
+
+        all_ids = set(prev_steps.keys()) | set(curr_steps.keys())
+        for sid in all_ids:
+            prev = prev_steps.get(sid, {}) if isinstance(prev_steps.get(sid, {}), dict) else {}
+            curr = curr_steps.get(sid, {}) if isinstance(curr_steps.get(sid, {}), dict) else {}
+            prev_desc = prev.get("description", "") if isinstance(prev, dict) else ""
+            curr_desc = curr.get("description", "") if isinstance(curr, dict) else ""
+            prev_files = prev.get("filenames", []) if isinstance(prev, dict) else []
+            curr_files = curr.get("filenames", []) if isinstance(curr, dict) else []
+            prev_children = _get_children(prev)
+            curr_children = _get_children(curr)
+
+            if prev_desc == curr_desc and prev_files == curr_files and prev_children == curr_children:
+                if sid in self.changes:
+                    self.changes.pop(sid, None)
+                continue
+
+            self.changes.setdefault(sid, {})
+            self.changes[sid]["description"] = {"prev": prev_desc, "curr": curr_desc}
+            self.changes[sid]["files"] = {"prev": prev_files or [], "curr": curr_files or []}
+            self.changes[sid]["children"] = {"prev": prev_children or [], "curr": curr_children or []}
 
     def has_changes(self) -> bool:
         return bool(self.changes)
