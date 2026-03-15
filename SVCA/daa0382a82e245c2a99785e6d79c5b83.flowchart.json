@@ -1,0 +1,276 @@
+{
+  "name": "j",
+  "start_id": "friend_system",
+  "steps": {
+    "initialize project": {
+      "id": "initialize project",
+      "description": "Install dependencies and set up environment",
+      "filenames": [],
+      "files_to_import": [],
+      "command": [
+        "pip install pdfminer.six pylatex numpy tensorflow torch",
+        "npm install express react react-dom axios @tensorflow/tfjs"
+      ],
+      "chlidren": [
+        "pdf_uploader",
+        "exercise_extractor",
+        "interactive_interface",
+        "ai_analysis",
+        "competitive_arena",
+        "friend_system"
+      ]
+    },
+    "pdf_uploader": {
+      "id": "pdf_uploader",
+      "description": "Handle PDF uploads from the manager",
+      "filenames": [
+        "/Users/awdsyxfrhnzi/Downloads/j/upload.py"
+      ],
+      "files_to_import": [],
+      "command": [],
+      "chlidren": []
+    },
+    "exercise_extractor": {
+      "id": "exercise_extractor",
+      "description": "Extract exercises from PDF and store them in .txt files",
+      "filenames": [
+        "/Users/awdsyxfrhnzi/Downloads/j/extractor.py"
+      ],
+      "files_to_import": [
+        "/Users/awdsyxfrhnzi/Downloads/j/upload.py"
+      ],
+      "command": [],
+      "chlidren": [
+        "latex_formatter"
+      ]
+    },
+    "latex_formatter": {
+      "id": "latex_formatter",
+      "description": "Format extracted exercises in LaTeX",
+      "filenames": [
+        "/Users/awdsyxfrhnzi/Downloads/j/latex_formatter.py"
+      ],
+      "files_to_import": [
+        "/Users/awdsyxfrhnzi/Downloads/j/extractor.py"
+      ],
+      "command": [],
+      "chlidren": []
+    },
+    "interactive_interface": {
+      "id": "interactive_interface",
+      "description": "Create interactive proof writing interface",
+      "filenames": [
+        "/Users/awdsyxfrhnzi/Downloads/j/interface.jsx"
+      ],
+      "files_to_import": [],
+      "command": [],
+      "chlidren": [
+        "math_keyboard",
+        "latex_renderer",
+        "drawing_canvas"
+      ]
+    },
+    "math_keyboard": {
+      "id": "math_keyboard",
+      "description": "Implement special mathematical keyboard for symbols",
+      "filenames": [
+        "/Users/awdsyxfrhnzi/Downloads/j/MathKeyboard.jsx"
+      ],
+      "files_to_import": [
+        "/Users/awdsyxfrhnzi/Downloads/j/interface.jsx"
+      ],
+      "command": [],
+      "chlidren": []
+    },
+    "latex_renderer": {
+      "id": "latex_renderer",
+      "description": "Implement real-time LaTeX rendering",
+      "filenames": [
+        "/Users/awdsyxfrhnzi/Downloads/j/LatexRenderer.jsx"
+      ],
+      "files_to_import": [
+        "/Users/awdsyxfrhnzi/Downloads/j/interface.jsx"
+      ],
+      "command": [],
+      "chlidren": []
+    },
+    "drawing_canvas": {
+      "id": "drawing_canvas",
+      "description": "Implement small canvas for drawing images",
+      "filenames": [
+        "/Users/awdsyxfrhnzi/Downloads/j/DrawingCanvas.jsx"
+      ],
+      "files_to_import": [
+        "/Users/awdsyxfrhnzi/Downloads/j/interface.jsx"
+      ],
+      "command": [],
+      "chlidren": []
+    },
+    "ai_analysis": {
+      "id": "ai_analysis",
+      "description": "AI-powered proof analysis and feedback",
+      "filenames": [
+        "/Users/awdsyxfrhnzi/Downloads/j/ai_analysis.py"
+      ],
+      "files_to_import": [],
+      "command": [],
+      "chlidren": [
+        "rubric_loader",
+        "proof_grader"
+      ]
+    },
+    "rubric_loader": {
+      "id": "rubric_loader",
+      "description": "Load grading rubric for AI analysis",
+      "filenames": [
+        "/Users/awdsyxfrhnzi/Downloads/j/rubric_loader.py"
+      ],
+      "files_to_import": [
+        "/Users/awdsyxfrhnzi/Downloads/j/ai_analysis.py"
+      ],
+      "command": [],
+      "chlidren": []
+    },
+    "proof_grader": {
+      "id": "proof_grader",
+      "description": "Grade user's proof based on the rubric",
+      "filenames": [
+        "/Users/awdsyxfrhnzi/Downloads/j/proof_grader.py"
+      ],
+      "files_to_import": [
+        "/Users/awdsyxfrhnzi/Downloads/j/ai_analysis.py"
+      ],
+      "command": [],
+      "chlidren": []
+    },
+    "competitive_arena": {
+      "id": "competitive_arena",
+      "description": "Implement real-time competitive proof-solving arena",
+      "filenames": [
+        "/Users/awdsyxfrhnzi/Downloads/j/arena.jsx"
+      ],
+      "files_to_import": [],
+      "command": [],
+      "chlidren": [
+        "domain_selector",
+        "timer",
+        "submission_handler"
+      ]
+    },
+    "domain_selector": {
+      "id": "domain_selector",
+      "description": "Allow users to select a mathematical domain for competition",
+      "filenames": [
+        "/Users/awdsyxfrhnzi/Downloads/j/DomainSelector.jsx"
+      ],
+      "files_to_import": [
+        "/Users/awdsyxfrhnzi/Downloads/j/arena.jsx"
+      ],
+      "command": [],
+      "chlidren": []
+    },
+    "timer": {
+      "id": "timer",
+      "description": "Implement time limit for competitive solving",
+      "filenames": [
+        "/Users/awdsyxfrhnzi/Downloads/j/Timer.jsx"
+      ],
+      "files_to_import": [
+        "/Users/awdsyxfrhnzi/Downloads/j/arena.jsx"
+      ],
+      "command": [],
+      "chlidren": []
+    },
+    "submission_handler": {
+      "id": "submission_handler",
+      "description": "Handle user submissions and trigger AI grading",
+      "filenames": [
+        "/Users/awdsyxfrhnzi/Downloads/j/SubmissionHandler.jsx"
+      ],
+      "files_to_import": [
+        "/Users/awdsyxfrhnzi/Downloads/j/arena.jsx"
+      ],
+      "command": [],
+      "chlidren": []
+    },
+    "friend_system": {
+      "id": "friend_system",
+      "description": "Implement friend system for users",
+      "filenames": [
+        "/Users/awdsyxfrhnzi/Downloads/j/friend_system.jsx"
+      ],
+      "files_to_import": [],
+      "command": [],
+      "chlidren": []
+    }
+  },
+  "framework": "Python, JavaScript, Node.js, Express, React, TensorFlow, PyTorch",
+  "project_root": "/Users/awdsyxfrhnzi/Downloads/j",
+  "flowchart_id": "daa0382a82e245c2a99785e6d79c5b83",
+  "layout_positions": {
+    "initialize project": [
+      942.0,
+      200.0
+    ],
+    "ai_analysis": [
+      340.0,
+      360.0
+    ],
+    "competitive_arena": [
+      580.0,
+      360.0
+    ],
+    "exercise_extractor": [
+      820.0,
+      360.0
+    ],
+    "friend_system": [
+      1060.0,
+      360.0
+    ],
+    "interactive_interface": [
+      1300.0,
+      360.0
+    ],
+    "pdf_uploader": [
+      1541.0,
+      360.0
+    ],
+    "proof_grader": [
+      -20.0,
+      520.0
+    ],
+    "rubric_loader": [
+      220.0,
+      520.0
+    ],
+    "domain_selector": [
+      460.0,
+      520.0
+    ],
+    "submission_handler": [
+      700.0,
+      520.0
+    ],
+    "timer": [
+      940.0,
+      520.0
+    ],
+    "latex_formatter": [
+      1181.0,
+      520.0
+    ],
+    "drawing_canvas": [
+      1420.0,
+      520.0
+    ],
+    "latex_renderer": [
+      1660.0,
+      520.0
+    ],
+    "math_keyboard": [
+      1900.0,
+      520.0
+    ]
+  }
+}

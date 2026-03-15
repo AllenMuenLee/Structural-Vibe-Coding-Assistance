@@ -1,0 +1,125 @@
+{
+  "/Users/awdsyxfrhnzi/Downloads/lil/get_user_input.py": [
+    {
+      "name": "get_user_input",
+      "kind": "function",
+      "line": 1,
+      "parent": null,
+      "params": []
+    },
+    {
+      "name": "num1",
+      "kind": "variable",
+      "line": 8,
+      "parent": null
+    },
+    {
+      "name": "operator",
+      "kind": "variable",
+      "line": 9,
+      "parent": null
+    },
+    {
+      "name": "num2",
+      "kind": "variable",
+      "line": 10,
+      "parent": null
+    }
+  ],
+  "/Users/awdsyxfrhnzi/Downloads/lil/perform_addition.py": [
+    {
+      "name": "perform_addition",
+      "kind": "function",
+      "line": 1,
+      "parent": null,
+      "params": [
+        "num1",
+        "num2"
+      ]
+    }
+  ],
+  "/Users/awdsyxfrhnzi/Downloads/lil/perform_subtraction.py": [
+    {
+      "name": "perform_subtraction",
+      "kind": "function",
+      "line": 1,
+      "parent": null,
+      "params": [
+        "num1",
+        "num2"
+      ]
+    }
+  ],
+  "/Users/awdsyxfrhnzi/Downloads/lil/perform_multiplication.py": [
+    {
+      "name": "perform_multiplication",
+      "kind": "function",
+      "line": 1,
+      "parent": null,
+      "params": [
+        "num1",
+        "num2"
+      ]
+    }
+  ],
+  "/Users/awdsyxfrhnzi/Downloads/lil/perform_division.py": [
+    {
+      "name": "perform_division",
+      "kind": "function",
+      "line": 1,
+      "parent": null,
+      "params": [
+        "num1",
+        "num2"
+      ]
+    }
+  ],
+  "/Users/awdsyxfrhnzi/Downloads/lil/calculator.py": [
+    {
+      "name": "calculate",
+      "kind": "function",
+      "line": 7,
+      "parent": null,
+      "params": []
+    },
+    {
+      "name": "result",
+      "kind": "variable",
+      "line": 17,
+      "parent": null
+    },
+    {
+      "name": "result",
+      "kind": "variable",
+      "line": 19,
+      "parent": null
+    },
+    {
+      "name": "result",
+      "kind": "variable",
+      "line": 21,
+      "parent": null
+    },
+    {
+      "name": "result",
+      "kind": "variable",
+      "line": 24,
+      "parent": null
+    }
+  ],
+  "/Users/awdsyxfrhnzi/Downloads/lil/main.py": [
+    {
+      "name": "main",
+      "kind": "function",
+      "line": 3,
+      "parent": null,
+      "params": []
+    },
+    {
+      "name": "result",
+      "kind": "variable",
+      "line": 7,
+      "parent": null
+    }
+  ]
+}

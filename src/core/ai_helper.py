@@ -33,6 +33,11 @@ def generate_flowchart_from_description(task_description, project_name):
     The software structure should be tree like.
     One parent a node, there can be multiple root nodes.
     Don't run application in any node.
+    Please create files only when necessary. Slightly larger file is fine, but still separate the functionality if needed.
+    Tree Structure can have multiple layers and multiple nodes under each node.
+    Tree Structure should be as detail as possible pls idiot (create as many nodes as possible that describe all functionalities pls)
+    You must create a main file with a valid main method otherwise cannot run the program (main, index.html, or other commonly seen file name for the running file), pls check this always, even if the description doesnt explicitly says to do so
+    
     Return ONLY a valid JSON object with this exact structure (no extra text), like this example (this is just an example):
     {{
         "framework": "Any framework that's applicable",
@@ -91,12 +96,12 @@ def generate_flowchart_from_description(task_description, project_name):
     1. list a list of commands to for installing library or set up enviroment.
     2. You must perform all project initialization directly within the root directry. Initialization commands should use parameters like --yes to skip all of the buliding process.
     3. NO cd, mkdir, rmdir commands (avoid all commands that create, delete, or modify a filepath or name)
-    4. 1 function or logic per node.
+    4. 1 function per node, but different node can work on the same files, so that a single files can contain multiple functions, but not necessary, and remember each file serve with purposes. If two files have similar functionalities, they can be in the same file, otherwise dont.
     5. Each node describe the function to implement in detail.
     6. Review the structure, make sure it efficiently use each file's existing functions if created previously.
     9. The strucutre should be tree like, usually the file that integrates each functions is the parent node, with each functions as its child node.
     10. Don't run the application in any node.
-    11. You must create a main file (main, index.html, or other commonly seen file name for the running file)
+    11. You must create a main file with a valid main method otherwise cannot run the program (main, index.html, or other commonly seen file name for the running file), pls check this always, even if the description doesnt explicitly says to do so
     12. in each descriptions, be clear about what the file's role is in the project, and how is it gonna work with other files, functions, or classes.
     """
     

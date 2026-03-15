@@ -1,0 +1,122 @@
+{
+  "/Users/awdsyxfrhnzi/Downloads/j/input_handler.py": [
+    {
+      "name": "get_user_input",
+      "kind": "function",
+      "line": 1,
+      "parent": null,
+      "params": []
+    },
+    {
+      "name": "user_input",
+      "kind": "variable",
+      "line": 8,
+      "parent": null
+    },
+    {
+      "name": "validate_input",
+      "kind": "function",
+      "line": 11,
+      "parent": null,
+      "params": [
+        "user_input"
+      ]
+    },
+    {
+      "name": "handle_input",
+      "kind": "function",
+      "line": 26,
+      "parent": null,
+      "params": []
+    },
+    {
+      "name": "user_input",
+      "kind": "variable",
+      "line": 33,
+      "parent": null
+    }
+  ],
+  "/Users/awdsyxfrhnzi/Downloads/j/operations.py": [
+    {
+      "name": "integrate",
+      "kind": "function",
+      "line": 3,
+      "parent": null,
+      "params": [
+        "f",
+        "a",
+        "b",
+        "n=1000"
+      ]
+    },
+    {
+      "name": "dx",
+      "kind": "variable",
+      "line": 16,
+      "parent": null
+    },
+    {
+      "name": "total",
+      "kind": "variable",
+      "line": 17,
+      "parent": null
+    },
+    {
+      "name": "i",
+      "kind": "variable",
+      "line": 18,
+      "parent": null
+    },
+    {
+      "name": "x",
+      "kind": "variable",
+      "line": 19,
+      "parent": null
+    },
+    {
+      "name": "power",
+      "kind": "function",
+      "line": 23,
+      "parent": null,
+      "params": [
+        "base",
+        "exponent"
+      ]
+    },
+    {
+      "name": "e",
+      "kind": "function",
+      "line": 36,
+      "parent": null,
+      "params": []
+    },
+    {
+      "name": "pi",
+      "kind": "function",
+      "line": 45,
+      "parent": null,
+      "params": []
+    }
+  ],
+  "/Users/awdsyxfrhnzi/Downloads/j/main.py": [
+    {
+      "name": "main",
+      "kind": "function",
+      "line": 4,
+      "parent": null,
+      "params": []
+    },
+    {
+      "name": "user_input",
+      "kind": "variable",
+      "line": 8,
+      "parent": null
+    },
+    {
+      "name": "result",
+      "kind": "variable",
+      "line": 12,
+      "parent": null
+    }
+  ]
+}

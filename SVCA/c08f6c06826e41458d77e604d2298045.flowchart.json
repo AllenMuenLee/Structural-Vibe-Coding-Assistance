@@ -1,0 +1,139 @@
+{
+  "name": "lil",
+  "start_id": "main",
+  "steps": {
+    "initialize project": {
+      "id": "initialize project",
+      "description": "install dependencies",
+      "filenames": [],
+      "files_to_import": [],
+      "command": [
+        "pip install --yes"
+      ],
+      "chlidren": []
+    },
+    "get_user_input": {
+      "id": "get_user_input",
+      "description": "Function to get user input for the calculator",
+      "filenames": [
+        "/Users/awdsyxfrhnzi/Downloads/lil/get_user_input.py"
+      ],
+      "files_to_import": [],
+      "command": [],
+      "chlidren": []
+    },
+    "perform_addition": {
+      "id": "perform_addition",
+      "description": "Function to perform addition operation",
+      "filenames": [
+        "/Users/awdsyxfrhnzi/Downloads/lil/perform_addition.py"
+      ],
+      "files_to_import": [],
+      "command": [],
+      "chlidren": []
+    },
+    "perform_subtraction": {
+      "id": "perform_subtraction",
+      "description": "Function to perform subtraction operation",
+      "filenames": [
+        "/Users/awdsyxfrhnzi/Downloads/lil/perform_subtraction.py"
+      ],
+      "files_to_import": [],
+      "command": [],
+      "chlidren": []
+    },
+    "perform_multiplication": {
+      "id": "perform_multiplication",
+      "description": "Function to perform multiplication operation",
+      "filenames": [
+        "/Users/awdsyxfrhnzi/Downloads/lil/perform_multiplication.py"
+      ],
+      "files_to_import": [],
+      "command": [],
+      "chlidren": []
+    },
+    "perform_division": {
+      "id": "perform_division",
+      "description": "Function to perform division operation",
+      "filenames": [
+        "/Users/awdsyxfrhnzi/Downloads/lil/perform_division.py"
+      ],
+      "files_to_import": [],
+      "command": [],
+      "chlidren": []
+    },
+    "integrate_calculator": {
+      "id": "integrate_calculator",
+      "description": "Integrate all calculator functions",
+      "filenames": [
+        "/Users/awdsyxfrhnzi/Downloads/lil/calculator.py"
+      ],
+      "files_to_import": [
+        "/Users/awdsyxfrhnzi/Downloads/lil/get_user_input.py",
+        "/Users/awdsyxfrhnzi/Downloads/lil/perform_addition.py",
+        "/Users/awdsyxfrhnzi/Downloads/lil/perform_subtraction.py",
+        "/Users/awdsyxfrhnzi/Downloads/lil/perform_multiplication.py",
+        "/Users/awdsyxfrhnzi/Downloads/lil/perform_division.py"
+      ],
+      "command": [],
+      "chlidren": [
+        "get_user_input",
+        "perform_addition",
+        "perform_subtraction",
+        "perform_multiplication",
+        "perform_division"
+      ]
+    },
+    "main": {
+      "id": "main",
+      "description": "Main file to run the calculator",
+      "filenames": [
+        "/Users/awdsyxfrhnzi/Downloads/lil/main.py"
+      ],
+      "files_to_import": [
+        "/Users/awdsyxfrhnzi/Downloads/lil/calculator.py"
+      ],
+      "command": [],
+      "chlidren": [
+        "integrate_calculator"
+      ]
+    }
+  },
+  "framework": "Python",
+  "project_root": "/Users/awdsyxfrhnzi/Downloads/lil",
+  "flowchart_id": "c08f6c06826e41458d77e604d2298045",
+  "layout_positions": {
+    "initialize project": [
+      820.0,
+      200.0
+    ],
+    "main": [
+      1060.0,
+      200.0
+    ],
+    "integrate_calculator": [
+      940.0,
+      360.0
+    ],
+    "get_user_input": [
+      460.0,
+      520.0
+    ],
+    "perform_addition": [
+      700.0,
+      520.0
+    ],
+    "perform_division": [
+      940.0,
+      520.0
+    ],
+    "perform_multiplication": [
+      1180.0,
+      520.0
+    ],
+    "perform_subtraction": [
+      1420.0,
+      520.0
+    ]
+  }
+}

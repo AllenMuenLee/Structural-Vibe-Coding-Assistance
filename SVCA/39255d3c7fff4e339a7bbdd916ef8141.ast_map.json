@@ -1,0 +1,388 @@
+{
+  "/Users/awdsyxfrhnzi/Downloads/j/app.py": [
+    {
+      "name": "app",
+      "kind": "variable",
+      "line": 9,
+      "parent": null
+    },
+    {
+      "name": "UPLOAD_FOLDER",
+      "kind": "variable",
+      "line": 10,
+      "parent": null
+    },
+    {
+      "name": "ALLOWED_EXTENSIONS",
+      "kind": "variable",
+      "line": 11,
+      "parent": null
+    },
+    {
+      "name": "UPLOAD_FOLDER",
+      "kind": "variable",
+      "line": 13,
+      "parent": null
+    },
+    {
+      "name": "allowed_file",
+      "kind": "function",
+      "line": 15,
+      "parent": null,
+      "params": [
+        "filename"
+      ]
+    },
+    {
+      "name": "extract_exercises",
+      "kind": "function",
+      "line": 27,
+      "parent": null,
+      "params": [
+        "pdf_path"
+      ]
+    },
+    {
+      "name": "exercises",
+      "kind": "variable",
+      "line": 37,
+      "parent": null
+    },
+    {
+      "name": "reader",
+      "kind": "variable",
+      "line": 39,
+      "parent": null
+    },
+    {
+      "name": "page_num",
+      "kind": "variable",
+      "line": 40,
+      "parent": null
+    },
+    {
+      "name": "page",
+      "kind": "variable",
+      "line": 41,
+      "parent": null
+    },
+    {
+      "name": "text",
+      "kind": "variable",
+      "line": 42,
+      "parent": null
+    },
+    {
+      "name": "exercise_matches",
+      "kind": "variable",
+      "line": 43,
+      "parent": null
+    },
+    {
+      "name": "analyze_proof",
+      "kind": "function",
+      "line": 47,
+      "parent": null,
+      "params": [
+        "proof_text"
+      ]
+    },
+    {
+      "name": "nlp",
+      "kind": "variable",
+      "line": 57,
+      "parent": null
+    },
+    {
+      "name": "doc",
+      "kind": "variable",
+      "line": 58,
+      "parent": null
+    },
+    {
+      "name": "feedback",
+      "kind": "variable",
+      "line": 60,
+      "parent": null
+    },
+    {
+      "name": "sent",
+      "kind": "variable",
+      "line": 66,
+      "parent": null
+    },
+    {
+      "name": "EloRatingSystem",
+      "kind": "class",
+      "line": 80,
+      "parent": null
+    },
+    {
+      "name": "__init__",
+      "kind": "function",
+      "line": 81,
+      "parent": "EloRatingSystem",
+      "params": [
+        "self"
+      ]
+    },
+    {
+      "name": "expected_score",
+      "kind": "function",
+      "line": 88,
+      "parent": "EloRatingSystem",
+      "params": [
+        "self",
+        "rating_a",
+        "rating_b"
+      ]
+    },
+    {
+      "name": "update_ratings",
+      "kind": "function",
+      "line": 101,
+      "parent": "EloRatingSystem",
+      "params": [
+        "self",
+        "rating_a",
+        "rating_b",
+        "score_a",
+        "score_b"
+      ]
+    },
+    {
+      "name": "expected_a",
+      "kind": "variable",
+      "line": 111,
+      "parent": "EloRatingSystem"
+    },
+    {
+      "name": "expected_b",
+      "kind": "variable",
+      "line": 112,
+      "parent": "EloRatingSystem"
+    },
+    {
+      "name": "new_rating_a",
+      "kind": "variable",
+      "line": 114,
+      "parent": "EloRatingSystem"
+    },
+    {
+      "name": "new_rating_b",
+      "kind": "variable",
+      "line": 115,
+      "parent": "EloRatingSystem"
+    },
+    {
+      "name": "new_rating_a",
+      "kind": "variable",
+      "line": 117,
+      "parent": "EloRatingSystem"
+    },
+    {
+      "name": "new_rating_b",
+      "kind": "variable",
+      "line": 118,
+      "parent": "EloRatingSystem"
+    },
+    {
+      "name": "upload_pdf",
+      "kind": "function",
+      "line": 121,
+      "parent": null,
+      "params": []
+    },
+    {
+      "name": "file",
+      "kind": "variable",
+      "line": 130,
+      "parent": null
+    },
+    {
+      "name": "pdf_path",
+      "kind": "variable",
+      "line": 134,
+      "parent": null
+    },
+    {
+      "name": "exercises",
+      "kind": "variable",
+      "line": 136,
+      "parent": null
+    },
+    {
+      "name": "analysis_results",
+      "kind": "variable",
+      "line": 137,
+      "parent": null
+    },
+    {
+      "name": "analysis",
+      "kind": "variable",
+      "line": 139,
+      "parent": null
+    },
+    {
+      "name": "users",
+      "kind": "variable",
+      "line": 152,
+      "parent": null
+    },
+    {
+      "name": "add_friend",
+      "kind": "function",
+      "line": 155,
+      "parent": null,
+      "params": []
+    },
+    {
+      "name": "data",
+      "kind": "variable",
+      "line": 162,
+      "parent": null
+    },
+    {
+      "name": "user_id",
+      "kind": "variable",
+      "line": 163,
+      "parent": null
+    },
+    {
+      "name": "friend_id",
+      "kind": "variable",
+      "line": 164,
+      "parent": null
+    },
+    {
+      "name": "get_friends",
+      "kind": "function",
+      "line": 173,
+      "parent": null,
+      "params": []
+    },
+    {
+      "name": "user_id",
+      "kind": "variable",
+      "line": 180,
+      "parent": null
+    },
+    {
+      "name": "friends",
+      "kind": "variable",
+      "line": 185,
+      "parent": null
+    }
+  ],
+  "/Users/awdsyxfrhnzi/Downloads/j/App.js": [
+    {
+      "name": "App",
+      "kind": "function",
+      "line": 9,
+      "parent": null,
+      "params": []
+    },
+    {
+      "name": "[latexInput, setLatexInput]",
+      "kind": "variable",
+      "line": 10,
+      "parent": null
+    },
+    {
+      "name": "[renderedLatex, setRenderedLatex]",
+      "kind": "variable",
+      "line": 11,
+      "parent": null
+    },
+    {
+      "name": "[drawing, setDrawing]",
+      "kind": "variable",
+      "line": 12,
+      "parent": null
+    },
+    {
+      "name": "[ctx, setCtx]",
+      "kind": "variable",
+      "line": 13,
+      "parent": null
+    },
+    {
+      "name": "[image, setImage]",
+      "kind": "variable",
+      "line": 14,
+      "parent": null
+    },
+    {
+      "name": "handleLatexChange",
+      "kind": "variable",
+      "line": 20,
+      "parent": null
+    },
+    {
+      "name": "renderLatex",
+      "kind": "variable",
+      "line": 27,
+      "parent": null
+    },
+    {
+      "name": "html",
+      "kind": "variable",
+      "line": 29,
+      "parent": null
+    },
+    {
+      "name": "startDrawing",
+      "kind": "variable",
+      "line": 40,
+      "parent": null
+    },
+    {
+      "name": "canvas",
+      "kind": "variable",
+      "line": 42,
+      "parent": null
+    },
+    {
+      "name": "context",
+      "kind": "variable",
+      "line": 43,
+      "parent": null
+    },
+    {
+      "name": "draw",
+      "kind": "variable",
+      "line": 53,
+      "parent": null
+    },
+    {
+      "name": "canvas",
+      "kind": "variable",
+      "line": 55,
+      "parent": null
+    },
+    {
+      "name": "context",
+      "kind": "variable",
+      "line": 56,
+      "parent": null
+    },
+    {
+      "name": "endDrawing",
+      "kind": "variable",
+      "line": 64,
+      "parent": null
+    },
+    {
+      "name": "handleImageSubmit",
+      "kind": "variable",
+      "line": 71,
+      "parent": null
+    },
+    {
+      "name": "canvas",
+      "kind": "variable",
+      "line": 72,
+      "parent": null
+    }
+  ]
+}

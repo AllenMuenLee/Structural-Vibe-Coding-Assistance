@@ -160,9 +160,10 @@ class CodingAgent:
         1. Provide the code you want to implement. No conversational filler or explanations.
         2. You will be provided a context with the full content of relevant files plus a project-wide tag index. Use both to understand the current codebase.
         3. After you draft the code, review every requirement. If the requirement is not fulfilled, modify the code until it does.
-        4. NO ASSUMING UNDER ANY CIRCUMSTANCE
         5. NEVER REPEAT IMPORT AND CODE
-
+        6. Pls always think deeply whether ur code works or not. 
+        7. Your code doesnt have to be short, can be long if needed, pls idiot u always generate useless code.
+        8. If initializing a react or next project, pls initialize in the root folder, dont create another folder.
         CODING RULES:
         1. Read the provided file contents and the tag index; use existing code and imports from those files.
         2. If there is no existing code, generate code according to the description.
@@ -180,6 +181,8 @@ class CodingAgent:
         5. When indicating the filename, don't use # filename.py, use [filename.py]
         6. All files in FILES TO GENERATE must be generated.
         7. Add docstring for each function and class.
+        8. Please generate the actual runnable code instead of some shit like (placeholder, actual analysis logic should be implemented), this is fucking bullshit idiot
+        9. 
         READ THE CONTEXT AND AVOID GENERATING EXISITNG FUNCTIONS OR METHOD
         """
         
@@ -198,7 +201,7 @@ class CodingAgent:
         NO ASSUMING UNDER ANY CIRCUMSTANCE
         NEVER REPEAT GENERATING THE SAME FUNCTION, CLASS, LOGIC
         IF THIS FILE ISN'T A MAIN FILE, IT SHOULD ONLY BULID FUNCTIONS, CLASSES, VARIABLES, AND NOT RUN ANYTHING
-        
+        If initializing a react or next project, pls initialize in the root folder, dont create another folder.
         Please give the raw code and docstring right below the function or class definition, don't put it above
         or ask questions if the code is repeated or not clear context, please don't skip asking question even if the code is short.
         """

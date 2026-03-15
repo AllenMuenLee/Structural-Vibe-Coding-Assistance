@@ -1,0 +1,673 @@
+{
+  "/Users/awdsyxfrhnzi/Downloads/j/upload.py": [
+    {
+      "name": "app",
+      "kind": "variable",
+      "line": 6,
+      "parent": null
+    },
+    {
+      "name": "allowed_file",
+      "kind": "function",
+      "line": 10,
+      "parent": null,
+      "params": [
+        "filename"
+      ]
+    },
+    {
+      "name": "upload_file",
+      "kind": "function",
+      "line": 16,
+      "parent": null,
+      "params": []
+    },
+    {
+      "name": "file",
+      "kind": "variable",
+      "line": 20,
+      "parent": null
+    },
+    {
+      "name": "filename",
+      "kind": "variable",
+      "line": 24,
+      "parent": null
+    },
+    {
+      "name": "file_path",
+      "kind": "variable",
+      "line": 25,
+      "parent": null
+    },
+    {
+      "name": "pdf_text",
+      "kind": "variable",
+      "line": 29,
+      "parent": null
+    },
+    {
+      "name": "extract_text_from_pdf",
+      "kind": "function",
+      "line": 35,
+      "parent": null,
+      "params": [
+        "file_path"
+      ]
+    },
+    {
+      "name": "reader",
+      "kind": "variable",
+      "line": 38,
+      "parent": null
+    },
+    {
+      "name": "text",
+      "kind": "variable",
+      "line": 39,
+      "parent": null
+    },
+    {
+      "name": "page_num",
+      "kind": "variable",
+      "line": 40,
+      "parent": null
+    },
+    {
+      "name": "page",
+      "kind": "variable",
+      "line": 41,
+      "parent": null
+    }
+  ],
+  "/Users/awdsyxfrhnzi/Downloads/j/extract_text.py": [
+    {
+      "name": "extract_text_from_pdf",
+      "kind": "function",
+      "line": 7,
+      "parent": null,
+      "params": [
+        "file_path"
+      ]
+    },
+    {
+      "name": "resource_manager",
+      "kind": "variable",
+      "line": 17,
+      "parent": null
+    },
+    {
+      "name": "fake_file_handle",
+      "kind": "variable",
+      "line": 18,
+      "parent": null
+    },
+    {
+      "name": "converter",
+      "kind": "variable",
+      "line": 19,
+      "parent": null
+    },
+    {
+      "name": "page_interpreter",
+      "kind": "variable",
+      "line": 20,
+      "parent": null
+    },
+    {
+      "name": "page",
+      "kind": "variable",
+      "line": 23,
+      "parent": null
+    },
+    {
+      "name": "text",
+      "kind": "variable",
+      "line": 26,
+      "parent": null
+    }
+  ],
+  "/Users/awdsyxfrhnzi/Downloads/j/save_exercises.py": [
+    {
+      "name": "save_extracted_exercises",
+      "kind": "function",
+      "line": 4,
+      "parent": null,
+      "params": [
+        "pdf_file_path",
+        "output_dir"
+      ]
+    },
+    {
+      "name": "pdf_text",
+      "kind": "variable",
+      "line": 15,
+      "parent": null
+    },
+    {
+      "name": "exercises",
+      "kind": "variable",
+      "line": 18,
+      "parent": null
+    },
+    {
+      "name": "exercise_text",
+      "kind": "variable",
+      "line": 21,
+      "parent": null
+    },
+    {
+      "name": "output_file_path",
+      "kind": "variable",
+      "line": 22,
+      "parent": null
+    }
+  ],
+  "/Users/awdsyxfrhnzi/Downloads/j/ProofWorkspace.jsx": [
+    {
+      "name": "useStyles",
+      "kind": "variable",
+      "line": 5,
+      "parent": null
+    },
+    {
+      "name": "ProofWorkspace",
+      "kind": "variable",
+      "line": 36,
+      "parent": null
+    },
+    {
+      "name": "classes",
+      "kind": "variable",
+      "line": 37,
+      "parent": null
+    },
+    {
+      "name": "[proofText, setProofText]",
+      "kind": "variable",
+      "line": 38,
+      "parent": null
+    },
+    {
+      "name": "handleTextChange",
+      "kind": "variable",
+      "line": 40,
+      "parent": null
+    },
+    {
+      "name": "handleSave",
+      "kind": "variable",
+      "line": 44,
+      "parent": null
+    }
+  ],
+  "/Users/awdsyxfrhnzi/Downloads/j/LatexRendering.jsx": [
+    {
+      "name": "LatexRendering",
+      "kind": "variable",
+      "line": 11,
+      "parent": null
+    },
+    {
+      "name": "[renderedHtml, setRenderedHtml]",
+      "kind": "variable",
+      "line": 12,
+      "parent": null
+    },
+    {
+      "name": "html",
+      "kind": "variable",
+      "line": 17,
+      "parent": null
+    }
+  ],
+  "/Users/awdsyxfrhnzi/Downloads/j/ImageCanvas.jsx": [
+    {
+      "name": "ImageCanvas",
+      "kind": "variable",
+      "line": 12,
+      "parent": null
+    },
+    {
+      "name": "canvasRef",
+      "kind": "variable",
+      "line": 13,
+      "parent": null
+    },
+    {
+      "name": "canvas",
+      "kind": "variable",
+      "line": 16,
+      "parent": null
+    },
+    {
+      "name": "context",
+      "kind": "variable",
+      "line": 17,
+      "parent": null
+    },
+    {
+      "name": "image",
+      "kind": "variable",
+      "line": 18,
+      "parent": null
+    }
+  ],
+  "/Users/awdsyxfrhnzi/Downloads/j/proof_grading.py": [
+    {
+      "name": "grade_proof",
+      "kind": "function",
+      "line": 1,
+      "parent": null,
+      "params": [
+        "proof_text",
+        "rubric"
+      ]
+    },
+    {
+      "name": "scores",
+      "kind": "variable",
+      "line": 12,
+      "parent": null
+    },
+    {
+      "name": "total_score",
+      "kind": "variable",
+      "line": 13,
+      "parent": null
+    },
+    {
+      "name": "score",
+      "kind": "variable",
+      "line": 16,
+      "parent": null
+    },
+    {
+      "name": "score",
+      "kind": "variable",
+      "line": 17,
+      "parent": null
+    },
+    {
+      "name": "grade_criterion",
+      "kind": "function",
+      "line": 21,
+      "parent": null,
+      "params": [
+        "proof_text",
+        "criterion"
+      ]
+    }
+  ],
+  "/Users/awdsyxfrhnzi/Downloads/j/feedback_generation.py": [
+    {
+      "name": "generate_feedback",
+      "kind": "function",
+      "line": 3,
+      "parent": null,
+      "params": [
+        "proof_text",
+        "rubric"
+      ]
+    },
+    {
+      "name": "scores",
+      "kind": "variable",
+      "line": 14,
+      "parent": null
+    },
+    {
+      "name": "feedback",
+      "kind": "variable",
+      "line": 15,
+      "parent": null
+    }
+  ],
+  "/Users/awdsyxfrhnzi/Downloads/j/MatchSetup.jsx": [
+    {
+      "name": "MatchSetup",
+      "kind": "variable",
+      "line": 10,
+      "parent": null
+    },
+    {
+      "name": "[player1, setPlayer1]",
+      "kind": "variable",
+      "line": 11,
+      "parent": null
+    },
+    {
+      "name": "[player2, setPlayer2]",
+      "kind": "variable",
+      "line": 12,
+      "parent": null
+    },
+    {
+      "name": "handleSubmit",
+      "kind": "variable",
+      "line": 18,
+      "parent": null
+    }
+  ],
+  "/Users/awdsyxfrhnzi/Downloads/j/TimeLimit.jsx": [
+    {
+      "name": "TimeLimit",
+      "kind": "variable",
+      "line": 10,
+      "parent": null
+    },
+    {
+      "name": "[timeRemaining, setTimeRemaining]",
+      "kind": "variable",
+      "line": 11,
+      "parent": null
+    },
+    {
+      "name": "timer",
+      "kind": "variable",
+      "line": 15,
+      "parent": null
+    }
+  ],
+  "/Users/awdsyxfrhnzi/Downloads/j/GradeSubmissions.jsx": [
+    {
+      "name": "GradeSubmissions",
+      "kind": "variable",
+      "line": 4,
+      "parent": null
+    },
+    {
+      "name": "[player1Scores, setPlayer1Scores]",
+      "kind": "variable",
+      "line": 5,
+      "parent": null
+    },
+    {
+      "name": "[player2Scores, setPlayer2Scores]",
+      "kind": "variable",
+      "line": 6,
+      "parent": null
+    },
+    {
+      "name": "gradeSubmissions",
+      "kind": "variable",
+      "line": 8,
+      "parent": null
+    },
+    {
+      "name": "player1Grades",
+      "kind": "variable",
+      "line": 9,
+      "parent": null
+    },
+    {
+      "name": "player2Grades",
+      "kind": "variable",
+      "line": 10,
+      "parent": null
+    }
+  ],
+  "/Users/awdsyxfrhnzi/Downloads/j/friend_system.jsx": [
+    {
+      "name": "FriendSystem",
+      "kind": "variable",
+      "line": 11,
+      "parent": null
+    },
+    {
+      "name": "[friends, setFriends]",
+      "kind": "variable",
+      "line": 13,
+      "parent": null
+    },
+    {
+      "name": "handleAddFriend",
+      "kind": "variable",
+      "line": 19,
+      "parent": null
+    },
+    {
+      "name": "handleRemoveFriend",
+      "kind": "variable",
+      "line": 29,
+      "parent": null
+    }
+  ],
+  "/Users/awdsyxfrhnzi/Downloads/j/extract_exercises.py": [
+    {
+      "name": "extract_exercises",
+      "kind": "function",
+      "line": 5,
+      "parent": null,
+      "params": [
+        "pdf_file_path"
+      ]
+    },
+    {
+      "name": "pdf_text",
+      "kind": "variable",
+      "line": 15,
+      "parent": null
+    },
+    {
+      "name": "exercises",
+      "kind": "variable",
+      "line": 16,
+      "parent": null
+    },
+    {
+      "name": "save_extracted_exercises",
+      "kind": "function",
+      "line": 19,
+      "parent": null,
+      "params": [
+        "pdf_file_path",
+        "output_dir"
+      ]
+    },
+    {
+      "name": "exercises",
+      "kind": "variable",
+      "line": 27,
+      "parent": null
+    },
+    {
+      "name": "output_file_path",
+      "kind": "variable",
+      "line": 29,
+      "parent": null
+    }
+  ],
+  "/Users/awdsyxfrhnzi/Downloads/j/interface.jsx": [
+    {
+      "name": "Interface",
+      "kind": "variable",
+      "line": 13,
+      "parent": null
+    },
+    {
+      "name": "classes",
+      "kind": "variable",
+      "line": 14,
+      "parent": null
+    },
+    {
+      "name": "[proofText, setProofText]",
+      "kind": "variable",
+      "line": 15,
+      "parent": null
+    },
+    {
+      "name": "[renderedHtml, setRenderedHtml]",
+      "kind": "variable",
+      "line": 16,
+      "parent": null
+    },
+    {
+      "name": "handleTextChange",
+      "kind": "variable",
+      "line": 18,
+      "parent": null
+    },
+    {
+      "name": "handleSave",
+      "kind": "variable",
+      "line": 22,
+      "parent": null
+    },
+    {
+      "name": "handleRenderLatex",
+      "kind": "variable",
+      "line": 27,
+      "parent": null
+    }
+  ],
+  "/Users/awdsyxfrhnzi/Downloads/j/ai_analysis.py": [
+    {
+      "name": "analyze_proof",
+      "kind": "function",
+      "line": 1,
+      "parent": null,
+      "params": [
+        "proof_text"
+      ]
+    },
+    {
+      "name": "score",
+      "kind": "variable",
+      "line": 12,
+      "parent": null
+    },
+    {
+      "name": "feedback",
+      "kind": "variable",
+      "line": 13,
+      "parent": null
+    },
+    {
+      "name": "generate_ai_feedback",
+      "kind": "function",
+      "line": 17,
+      "parent": null,
+      "params": [
+        "proof_text"
+      ]
+    },
+    {
+      "name": "feedback",
+      "kind": "variable",
+      "line": 28,
+      "parent": null
+    }
+  ],
+  "/Users/awdsyxfrhnzi/Downloads/j/competitive_arena.jsx": [
+    {
+      "name": "CompetitiveArena",
+      "kind": "variable",
+      "line": 13,
+      "parent": null
+    },
+    {
+      "name": "[player1ProofText, setPlayer1ProofText]",
+      "kind": "variable",
+      "line": 14,
+      "parent": null
+    },
+    {
+      "name": "[player2ProofText, setPlayer2ProofText]",
+      "kind": "variable",
+      "line": 15,
+      "parent": null
+    },
+    {
+      "name": "[player1RenderedHtml, setPlayer1RenderedHtml]",
+      "kind": "variable",
+      "line": 16,
+      "parent": null
+    },
+    {
+      "name": "[player2RenderedHtml, setPlayer2RenderedHtml]",
+      "kind": "variable",
+      "line": 17,
+      "parent": null
+    },
+    {
+      "name": "[timeLimit, setTimeLimit]",
+      "kind": "variable",
+      "line": 18,
+      "parent": null
+    },
+    {
+      "name": "[player1Scores, setPlayer1Scores]",
+      "kind": "variable",
+      "line": 19,
+      "parent": null
+    },
+    {
+      "name": "[player2Scores, setPlayer2Scores]",
+      "kind": "variable",
+      "line": 20,
+      "parent": null
+    },
+    {
+      "name": "[friends, setFriends]",
+      "kind": "variable",
+      "line": 21,
+      "parent": null
+    },
+    {
+      "name": "handlePlayer1TextChange",
+      "kind": "variable",
+      "line": 27,
+      "parent": null
+    },
+    {
+      "name": "handlePlayer2TextChange",
+      "kind": "variable",
+      "line": 35,
+      "parent": null
+    },
+    {
+      "name": "handlePlayer1RenderLatex",
+      "kind": "variable",
+      "line": 43,
+      "parent": null
+    },
+    {
+      "name": "handlePlayer2RenderLatex",
+      "kind": "variable",
+      "line": 51,
+      "parent": null
+    },
+    {
+      "name": "handlePlayer1Save",
+      "kind": "variable",
+      "line": 58,
+      "parent": null
+    },
+    {
+      "name": "handlePlayer2Save",
+      "kind": "variable",
+      "line": 65,
+      "parent": null
+    },
+    {
+      "name": "handleGradeSubmissions",
+      "kind": "variable",
+      "line": 72,
+      "parent": null
+    },
+    {
+      "name": "handleAddFriend",
+      "kind": "variable",
+      "line": 80,
+      "parent": null
+    },
+    {
+      "name": "handleRemoveFriend",
+      "kind": "variable",
+      "line": 88,
+      "parent": null
+    }
+  ]
+}

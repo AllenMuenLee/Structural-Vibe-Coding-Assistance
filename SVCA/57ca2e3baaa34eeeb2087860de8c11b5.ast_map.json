@@ -1,0 +1,810 @@
+{
+  "/Users/awdsyxfrhnzi/Downloads/j/app.py": [
+    {
+      "name": "app",
+      "kind": "variable",
+      "line": 6,
+      "parent": null
+    },
+    {
+      "name": "elo_system",
+      "kind": "variable",
+      "line": 8,
+      "parent": null
+    },
+    {
+      "name": "friend_system",
+      "kind": "variable",
+      "line": 9,
+      "parent": null
+    },
+    {
+      "name": "grade_proof_endpoint",
+      "kind": "function",
+      "line": 12,
+      "parent": null,
+      "params": []
+    },
+    {
+      "name": "proof_text",
+      "kind": "variable",
+      "line": 20,
+      "parent": null
+    },
+    {
+      "name": "rubric",
+      "kind": "variable",
+      "line": 21,
+      "parent": null
+    },
+    {
+      "name": "grading_results",
+      "kind": "variable",
+      "line": 24,
+      "parent": null
+    },
+    {
+      "name": "add_player_endpoint",
+      "kind": "function",
+      "line": 30,
+      "parent": null,
+      "params": []
+    },
+    {
+      "name": "player_id",
+      "kind": "variable",
+      "line": 38,
+      "parent": null
+    },
+    {
+      "name": "initial_rating",
+      "kind": "variable",
+      "line": 39,
+      "parent": null
+    },
+    {
+      "name": "get_rating_endpoint",
+      "kind": "function",
+      "line": 45,
+      "parent": null,
+      "params": []
+    },
+    {
+      "name": "player_id",
+      "kind": "variable",
+      "line": 50,
+      "parent": null
+    },
+    {
+      "name": "rating",
+      "kind": "variable",
+      "line": 55,
+      "parent": null
+    },
+    {
+      "name": "update_ratings_endpoint",
+      "kind": "function",
+      "line": 63,
+      "parent": null,
+      "params": []
+    },
+    {
+      "name": "winner_id",
+      "kind": "variable",
+      "line": 71,
+      "parent": null
+    },
+    {
+      "name": "loser_id",
+      "kind": "variable",
+      "line": 72,
+      "parent": null
+    },
+    {
+      "name": "winner_score",
+      "kind": "variable",
+      "line": 73,
+      "parent": null
+    },
+    {
+      "name": "loser_score",
+      "kind": "variable",
+      "line": 74,
+      "parent": null
+    },
+    {
+      "name": "add_friend_endpoint",
+      "kind": "function",
+      "line": 80,
+      "parent": null,
+      "params": []
+    },
+    {
+      "name": "user_id",
+      "kind": "variable",
+      "line": 88,
+      "parent": null
+    },
+    {
+      "name": "friend_id",
+      "kind": "variable",
+      "line": 89,
+      "parent": null
+    },
+    {
+      "name": "remove_friend_endpoint",
+      "kind": "function",
+      "line": 95,
+      "parent": null,
+      "params": []
+    },
+    {
+      "name": "user_id",
+      "kind": "variable",
+      "line": 103,
+      "parent": null
+    },
+    {
+      "name": "friend_id",
+      "kind": "variable",
+      "line": 104,
+      "parent": null
+    },
+    {
+      "name": "get_friends_endpoint",
+      "kind": "function",
+      "line": 110,
+      "parent": null,
+      "params": []
+    },
+    {
+      "name": "user_id",
+      "kind": "variable",
+      "line": 115,
+      "parent": null
+    },
+    {
+      "name": "friends",
+      "kind": "variable",
+      "line": 120,
+      "parent": null
+    },
+    {
+      "name": "are_friends_endpoint",
+      "kind": "function",
+      "line": 124,
+      "parent": null,
+      "params": []
+    },
+    {
+      "name": "user_id",
+      "kind": "variable",
+      "line": 129,
+      "parent": null
+    },
+    {
+      "name": "friend_id",
+      "kind": "variable",
+      "line": 130,
+      "parent": null
+    },
+    {
+      "name": "are_friends",
+      "kind": "variable",
+      "line": 135,
+      "parent": null
+    }
+  ],
+  "/Users/awdsyxfrhnzi/Downloads/j/extract_exercises.py": [
+    {
+      "name": "extract_exercises",
+      "kind": "function",
+      "line": 5,
+      "parent": null,
+      "params": [
+        "pdf_path",
+        "output_folder"
+      ]
+    },
+    {
+      "name": "extracted_files",
+      "kind": "variable",
+      "line": 16,
+      "parent": null
+    },
+    {
+      "name": "reader",
+      "kind": "variable",
+      "line": 18,
+      "parent": null
+    },
+    {
+      "name": "page_num",
+      "kind": "variable",
+      "line": 19,
+      "parent": null
+    },
+    {
+      "name": "page",
+      "kind": "variable",
+      "line": 20,
+      "parent": null
+    },
+    {
+      "name": "text",
+      "kind": "variable",
+      "line": 21,
+      "parent": null
+    },
+    {
+      "name": "exercise_filename",
+      "kind": "variable",
+      "line": 23,
+      "parent": null
+    },
+    {
+      "name": "exercise_path",
+      "kind": "variable",
+      "line": 24,
+      "parent": null
+    }
+  ],
+  "/Users/awdsyxfrhnzi/Downloads/j/latex_render.py": [
+    {
+      "name": "render_latex",
+      "kind": "function",
+      "line": 3,
+      "parent": null,
+      "params": [
+        "latex_code",
+        "output_path"
+      ]
+    },
+    {
+      "name": "rendered_pdf_path",
+      "kind": "variable",
+      "line": 19,
+      "parent": null
+    },
+    {
+      "name": "output_path",
+      "kind": "variable",
+      "line": 19,
+      "parent": null
+    }
+  ],
+  "/Users/awdsyxfrhnzi/Downloads/j/ai_grade.py": [
+    {
+      "name": "grade_proof",
+      "kind": "function",
+      "line": 4,
+      "parent": null,
+      "params": [
+        "proof_text",
+        "rubric"
+      ]
+    },
+    {
+      "name": "nlp",
+      "kind": "variable",
+      "line": 15,
+      "parent": null
+    },
+    {
+      "name": "doc",
+      "kind": "variable",
+      "line": 16,
+      "parent": null
+    },
+    {
+      "name": "matcher",
+      "kind": "variable",
+      "line": 18,
+      "parent": null
+    },
+    {
+      "name": "patterns",
+      "kind": "variable",
+      "line": 19,
+      "parent": null
+    },
+    {
+      "name": "pattern",
+      "kind": "variable",
+      "line": 22,
+      "parent": null
+    },
+    {
+      "name": "pattern",
+      "kind": "variable",
+      "line": 25,
+      "parent": null
+    },
+    {
+      "name": "matches",
+      "kind": "variable",
+      "line": 28,
+      "parent": null
+    },
+    {
+      "name": "results",
+      "kind": "variable",
+      "line": 29,
+      "parent": null
+    },
+    {
+      "name": "rule_id",
+      "kind": "variable",
+      "line": 32,
+      "parent": null
+    }
+  ],
+  "/Users/awdsyxfrhnzi/Downloads/j/elo_system.py": [
+    {
+      "name": "EloSystem",
+      "kind": "class",
+      "line": 1,
+      "parent": null
+    },
+    {
+      "name": "__init__",
+      "kind": "function",
+      "line": 5,
+      "parent": "EloSystem",
+      "params": [
+        "self",
+        "k_factor=32"
+      ]
+    },
+    {
+      "name": "k_factor",
+      "kind": "variable",
+      "line": 11,
+      "parent": "EloSystem"
+    },
+    {
+      "name": "add_player",
+      "kind": "function",
+      "line": 14,
+      "parent": "EloSystem",
+      "params": [
+        "self",
+        "player_id",
+        "initial_rating=1500"
+      ]
+    },
+    {
+      "name": "initial_rating",
+      "kind": "variable",
+      "line": 22,
+      "parent": "EloSystem"
+    },
+    {
+      "name": "get_rating",
+      "kind": "function",
+      "line": 24,
+      "parent": "EloSystem",
+      "params": [
+        "self",
+        "player_id"
+      ]
+    },
+    {
+      "name": "expected_score",
+      "kind": "function",
+      "line": 33,
+      "parent": "EloSystem",
+      "params": [
+        "self",
+        "rating_a",
+        "rating_b"
+      ]
+    },
+    {
+      "name": "update_ratings",
+      "kind": "function",
+      "line": 43,
+      "parent": "EloSystem",
+      "params": [
+        "self",
+        "winner_id",
+        "loser_id",
+        "winner_score",
+        "loser_score"
+      ]
+    },
+    {
+      "name": "rating_winner",
+      "kind": "variable",
+      "line": 55,
+      "parent": "EloSystem"
+    },
+    {
+      "name": "rating_loser",
+      "kind": "variable",
+      "line": 56,
+      "parent": "EloSystem"
+    },
+    {
+      "name": "expected_winner",
+      "kind": "variable",
+      "line": 58,
+      "parent": "EloSystem"
+    },
+    {
+      "name": "expected_loser",
+      "kind": "variable",
+      "line": 59,
+      "parent": "EloSystem"
+    },
+    {
+      "name": "actual_winner",
+      "kind": "variable",
+      "line": 61,
+      "parent": "EloSystem"
+    },
+    {
+      "name": "actual_loser",
+      "kind": "variable",
+      "line": 62,
+      "parent": "EloSystem"
+    },
+    {
+      "name": "new_rating_winner",
+      "kind": "variable",
+      "line": 64,
+      "parent": "EloSystem"
+    },
+    {
+      "name": "new_rating_loser",
+      "kind": "variable",
+      "line": 65,
+      "parent": "EloSystem"
+    },
+    {
+      "name": "new_rating_winner",
+      "kind": "variable",
+      "line": 67,
+      "parent": "EloSystem"
+    },
+    {
+      "name": "new_rating_loser",
+      "kind": "variable",
+      "line": 68,
+      "parent": "EloSystem"
+    }
+  ],
+  "/Users/awdsyxfrhnzi/Downloads/j/friend_system.py": [
+    {
+      "name": "FriendSystem",
+      "kind": "class",
+      "line": 1,
+      "parent": null
+    },
+    {
+      "name": "__init__",
+      "kind": "function",
+      "line": 5,
+      "parent": "FriendSystem",
+      "params": [
+        "self"
+      ]
+    },
+    {
+      "name": "add_friend",
+      "kind": "function",
+      "line": 8,
+      "parent": "FriendSystem",
+      "params": [
+        "self",
+        "user_id",
+        "friend_id"
+      ]
+    },
+    {
+      "name": "remove_friend",
+      "kind": "function",
+      "line": 20,
+      "parent": "FriendSystem",
+      "params": [
+        "self",
+        "user_id",
+        "friend_id"
+      ]
+    },
+    {
+      "name": "get_friends",
+      "kind": "function",
+      "line": 31,
+      "parent": "FriendSystem",
+      "params": [
+        "self",
+        "user_id"
+      ]
+    },
+    {
+      "name": "are_friends",
+      "kind": "function",
+      "line": 43,
+      "parent": "FriendSystem",
+      "params": [
+        "self",
+        "user_id",
+        "friend_id"
+      ]
+    }
+  ],
+  "/Users/awdsyxfrhnzi/Downloads/j/App.js": [
+    {
+      "name": "App",
+      "kind": "function",
+      "line": 15,
+      "parent": null,
+      "params": []
+    },
+    {
+      "name": "[latexInput, setLatexInput]",
+      "kind": "variable",
+      "line": 16,
+      "parent": null
+    },
+    {
+      "name": "[feedback, setFeedback]",
+      "kind": "variable",
+      "line": 17,
+      "parent": null
+    },
+    {
+      "name": "user_id",
+      "kind": "variable",
+      "line": 18,
+      "parent": null
+    },
+    {
+      "name": "handleLatexChange",
+      "kind": "variable",
+      "line": 20,
+      "parent": null
+    },
+    {
+      "name": "handleFeedback",
+      "kind": "variable",
+      "line": 24,
+      "parent": null
+    },
+    {
+      "name": "aiFeedback",
+      "kind": "variable",
+      "line": 26,
+      "parent": null
+    }
+  ],
+  "/Users/awdsyxfrhnzi/Downloads/j/UploadInterface.js": [
+    {
+      "name": "UploadInterface",
+      "kind": "function",
+      "line": 8,
+      "parent": null,
+      "params": []
+    },
+    {
+      "name": "[file, setFile]",
+      "kind": "variable",
+      "line": 9,
+      "parent": null
+    },
+    {
+      "name": "handleFileChange",
+      "kind": "variable",
+      "line": 16,
+      "parent": null
+    },
+    {
+      "name": "handleSubmit",
+      "kind": "variable",
+      "line": 25,
+      "parent": null
+    }
+  ],
+  "/Users/awdsyxfrhnzi/Downloads/j/ProofWritingInterface.js": [
+    {
+      "name": "ProofWritingInterface",
+      "kind": "function",
+      "line": 8,
+      "parent": null,
+      "params": []
+    },
+    {
+      "name": "[proofText, setProofText]",
+      "kind": "variable",
+      "line": 9,
+      "parent": null
+    },
+    {
+      "name": "handleProofChange",
+      "kind": "variable",
+      "line": 16,
+      "parent": null
+    }
+  ],
+  "/Users/awdsyxfrhnzi/Downloads/j/RealTimeLatex.js": [
+    {
+      "name": "RealTimeLatex",
+      "kind": "function",
+      "line": 13,
+      "parent": null,
+      "params": [
+        "{ latex }"
+      ]
+    },
+    {
+      "name": "[renderedHtml, setRenderedHtml]",
+      "kind": "variable",
+      "line": 14,
+      "parent": null
+    },
+    {
+      "name": "html",
+      "kind": "variable",
+      "line": 19,
+      "parent": null
+    }
+  ],
+  "/Users/awdsyxfrhnzi/Downloads/j/CanvasDrawing.js": [
+    {
+      "name": "CanvasDrawing",
+      "kind": "function",
+      "line": 8,
+      "parent": null,
+      "params": []
+    },
+    {
+      "name": "canvasRef",
+      "kind": "variable",
+      "line": 9,
+      "parent": null
+    },
+    {
+      "name": "[isDrawing, setIsDrawing]",
+      "kind": "variable",
+      "line": 10,
+      "parent": null
+    },
+    {
+      "name": "startDrawing",
+      "kind": "variable",
+      "line": 17,
+      "parent": null
+    },
+    {
+      "name": "draw",
+      "kind": "variable",
+      "line": 27,
+      "parent": null
+    },
+    {
+      "name": "canvas",
+      "kind": "variable",
+      "line": 29,
+      "parent": null
+    },
+    {
+      "name": "context",
+      "kind": "variable",
+      "line": 30,
+      "parent": null
+    },
+    {
+      "name": "stopDrawing",
+      "kind": "variable",
+      "line": 44,
+      "parent": null
+    },
+    {
+      "name": "canvas",
+      "kind": "variable",
+      "line": 46,
+      "parent": null
+    },
+    {
+      "name": "context",
+      "kind": "variable",
+      "line": 47,
+      "parent": null
+    }
+  ],
+  "/Users/awdsyxfrhnzi/Downloads/j/FeedbackDisplay.js": [
+    {
+      "name": "FeedbackDisplay",
+      "kind": "function",
+      "line": 10,
+      "parent": null,
+      "params": [
+        "{ feedback }"
+      ]
+    }
+  ],
+  "/Users/awdsyxfrhnzi/Downloads/j/CompetitiveArena.js": [
+    {
+      "name": "CompetitiveArena",
+      "kind": "function",
+      "line": 9,
+      "parent": null,
+      "params": []
+    },
+    {
+      "name": "[players, setPlayers]",
+      "kind": "variable",
+      "line": 10,
+      "parent": null
+    },
+    {
+      "name": "[eloSystem]",
+      "kind": "variable",
+      "line": 11,
+      "parent": null
+    },
+    {
+      "name": "addPlayer",
+      "kind": "variable",
+      "line": 13,
+      "parent": null
+    },
+    {
+      "name": "getRating",
+      "kind": "variable",
+      "line": 18,
+      "parent": null
+    },
+    {
+      "name": "updateRatings",
+      "kind": "variable",
+      "line": 22,
+      "parent": null
+    }
+  ],
+  "/Users/awdsyxfrhnzi/Downloads/j/FriendList.js": [
+    {
+      "name": "FriendList",
+      "kind": "function",
+      "line": 11,
+      "parent": null,
+      "params": [
+        "{ user_id }"
+      ]
+    },
+    {
+      "name": "[friends, setFriends]",
+      "kind": "variable",
+      "line": 12,
+      "parent": null
+    },
+    {
+      "name": "fetchFriends",
+      "kind": "variable",
+      "line": 15,
+      "parent": null
+    },
+    {
+      "name": "friendsList",
+      "kind": "variable",
+      "line": 16,
+      "parent": null
+    },
+    {
+      "name": "handleAddFriend",
+      "kind": "variable",
+      "line": 22,
+      "parent": null
+    },
+    {
+      "name": "handleRemoveFriend",
+      "kind": "variable",
+      "line": 27,
+      "parent": null
+    }
+  ],
+  "/Users/awdsyxfrhnzi/Downloads/j/requirements.txt": [],
+  "/Users/awdsyxfrhnzi/Downloads/j/index.html": [],
+  "/Users/awdsyxfrhnzi/Downloads/j/package.json": []
+}

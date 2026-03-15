@@ -1,0 +1,272 @@
+{
+  "/Users/awdsyxfrhnzi/Downloads/j/server.js": [
+    {
+      "name": "express",
+      "kind": "variable",
+      "line": 1,
+      "parent": null
+    },
+    {
+      "name": "app",
+      "kind": "variable",
+      "line": 2,
+      "parent": null
+    },
+    {
+      "name": "port",
+      "kind": "variable",
+      "line": 3,
+      "parent": null
+    },
+    {
+      "name": "Game",
+      "kind": "variable",
+      "line": 4,
+      "parent": null
+    },
+    {
+      "name": "game",
+      "kind": "variable",
+      "line": 17,
+      "parent": null
+    },
+    {
+      "name": "index",
+      "kind": "variable",
+      "line": 25,
+      "parent": null
+    },
+    {
+      "name": "game",
+      "kind": "variable",
+      "line": 26,
+      "parent": null
+    },
+    {
+      "name": "moveSuccess",
+      "kind": "variable",
+      "line": 27,
+      "parent": null
+    },
+    {
+      "name": "game",
+      "kind": "variable",
+      "line": 39,
+      "parent": null
+    },
+    {
+      "name": "gameOver",
+      "kind": "variable",
+      "line": 40,
+      "parent": null
+    }
+  ],
+  "/Users/awdsyxfrhnzi/Downloads/j/gameLogic.js": [
+    {
+      "name": "GameBoard",
+      "kind": "class",
+      "line": 5,
+      "parent": null
+    },
+    {
+      "name": "constructor",
+      "kind": "method",
+      "line": 9,
+      "parent": "GameBoard",
+      "params": []
+    },
+    {
+      "name": "isFull",
+      "kind": "method",
+      "line": 17,
+      "parent": "GameBoard",
+      "params": []
+    },
+    {
+      "name": "checkWinner",
+      "kind": "method",
+      "line": 25,
+      "parent": "GameBoard",
+      "params": []
+    },
+    {
+      "name": "lines",
+      "kind": "variable",
+      "line": 26,
+      "parent": "GameBoard"
+    },
+    {
+      "name": "[a, b, c]",
+      "kind": "variable",
+      "line": 38,
+      "parent": "GameBoard"
+    },
+    {
+      "name": "placeMark",
+      "kind": "method",
+      "line": 52,
+      "parent": "GameBoard",
+      "params": [
+        "index",
+        "mark"
+      ]
+    },
+    {
+      "name": "reset",
+      "kind": "method",
+      "line": 61,
+      "parent": "GameBoard",
+      "params": []
+    },
+    {
+      "name": "Game",
+      "kind": "class",
+      "line": 70,
+      "parent": null
+    },
+    {
+      "name": "constructor",
+      "kind": "method",
+      "line": 74,
+      "parent": "Game",
+      "params": []
+    },
+    {
+      "name": "switchPlayer",
+      "kind": "method",
+      "line": 82,
+      "parent": "Game",
+      "params": []
+    },
+    {
+      "name": "makeMove",
+      "kind": "method",
+      "line": 91,
+      "parent": "Game",
+      "params": [
+        "index"
+      ]
+    },
+    {
+      "name": "isGameOver",
+      "kind": "method",
+      "line": 104,
+      "parent": "Game",
+      "params": []
+    },
+    {
+      "name": "winner",
+      "kind": "variable",
+      "line": 105,
+      "parent": "Game"
+    },
+    {
+      "name": "reset",
+      "kind": "method",
+      "line": 118,
+      "parent": "Game",
+      "params": []
+    }
+  ],
+  "/Users/awdsyxfrhnzi/Downloads/j/index.html": [],
+  "/Users/awdsyxfrhnzi/Downloads/j/style.css": [],
+  "/Users/awdsyxfrhnzi/Downloads/j/app.js": [
+    {
+      "name": "cells",
+      "kind": "variable",
+      "line": 2,
+      "parent": null
+    },
+    {
+      "name": "status",
+      "kind": "variable",
+      "line": 3,
+      "parent": null
+    },
+    {
+      "name": "resetButton",
+      "kind": "variable",
+      "line": 4,
+      "parent": null
+    },
+    {
+      "name": "currentPlayer",
+      "kind": "variable",
+      "line": 5,
+      "parent": null
+    },
+    {
+      "name": "gameBoard",
+      "kind": "variable",
+      "line": 6,
+      "parent": null
+    },
+    {
+      "name": "winLines",
+      "kind": "variable",
+      "line": 8,
+      "parent": null
+    },
+    {
+      "name": "handleCellClick",
+      "kind": "function",
+      "line": 19,
+      "parent": null,
+      "params": [
+        "event"
+      ]
+    },
+    {
+      "name": "cell",
+      "kind": "variable",
+      "line": 20,
+      "parent": null
+    },
+    {
+      "name": "index",
+      "kind": "variable",
+      "line": 21,
+      "parent": null
+    },
+    {
+      "name": "winner",
+      "kind": "variable",
+      "line": 30,
+      "parent": null
+    },
+    {
+      "name": "currentPlayer",
+      "kind": "variable",
+      "line": 36,
+      "parent": null
+    },
+    {
+      "name": "handleReset",
+      "kind": "function",
+      "line": 41,
+      "parent": null,
+      "params": []
+    },
+    {
+      "name": "currentPlayer",
+      "kind": "variable",
+      "line": 44,
+      "parent": null
+    },
+    {
+      "name": "calculateWinner",
+      "kind": "function",
+      "line": 48,
+      "parent": null,
+      "params": [
+        "board"
+      ]
+    },
+    {
+      "name": "[a, b, c]",
+      "kind": "variable",
+      "line": 50,
+      "parent": null
+    }
+  ]
+}

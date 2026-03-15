@@ -102,7 +102,6 @@ def build_code_editor(flowchart_data=None, on_back_to_canvas=None) -> QWidget:
     root.current_file = None
     root.chatbot_widget = None
     root.chatbot_btn = None
-    # Shared terminal module runs commands to completion; no process tracking here.
 
     terminal_input.returnPressed.connect(lambda: execute_terminal_command(root))
     root.stop_process_btn.clicked.connect(lambda: _stop_terminal_process(root))
@@ -127,25 +126,33 @@ def build_code_editor(flowchart_data=None, on_back_to_canvas=None) -> QWidget:
 
     return root
 
+
 def execute_terminal_command(root):
-    """Execute command typed in terminal input."""
+    """Execute command typed in terminal input, or forward as stdin to a running process."""
     command = root.terminal_input.text().strip()
 
-    print(command)
-    
     if not command:
         return
-    
-    # Clear input
+
     root.terminal_input.clear()
-    
-    # Get project root
+
+    # If a process is already running, send the text to its stdin instead of
+    # spawning a new command (this is what makes input() prompts work).
+    proc = getattr(root, "terminal_process", None)
+    if proc and proc.state() != QProcess.ProcessState.NotRunning:
+        root.terminal.moveCursor(QTextCursor.MoveOperation.End)
+        root.terminal.insertPlainText(command + "\n")
+        root.terminal.moveCursor(QTextCursor.MoveOperation.End)
+        root.terminal.ensureCursorVisible()
+        proc.write((command + "\n").encode())
+        return
+
+    # No running process — start one.
     project_root = ""
     if root.flowchart_data:
         project_root = root.flowchart_data.get('project_root', '')
 
     _run_in_terminal(root, command, project_root if project_root else None)
-    root.terminal_input.clear()
 
 
 def _focus_find(root):
@@ -180,7 +187,7 @@ def _set_editor_lexer(root, filename: str):
 
     root.code_editor.setLexer(lexer)
     root.code_lexer = lexer
-    
+
     apply_editor_theme(root.code_editor)
     _apply_lexer_theme(root, lexer)
 
@@ -330,17 +337,17 @@ def find_prev(root):
 
 def load_file(root, filename):
     """Load a file into the code editor."""
-    
+
     if not root.flowchart_data:
         return
-    
+
     project_root = root.flowchart_data.get('project_root', '')
     file_path = os.path.join(project_root, filename)
-    
+
     if not os.path.exists(file_path):
         QMessageBox.warning(root, "Error", f"File not found: {filename}")
         return
-    
+
     try:
         with open(file_path, 'r', encoding='utf-8') as f:
             content = f.read()
@@ -354,52 +361,50 @@ def load_file(root, filename):
 
 def save_file(root):
     """Save the current file."""
-    
+
     if not root.current_file:
         QMessageBox.warning(root, "No File", "No file is currently open.")
         return
-    
+
     try:
         content = root.code_editor.text()
-        
+
         with open(root.current_file, 'w', encoding='utf-8') as f:
             f.write(content)
-        
+
         filename = os.path.basename(root.current_file)
         QMessageBox.information(root, "Success", f"File saved: {filename}")
-        
+
     except Exception as e:
         QMessageBox.critical(root, "Error", f"Failed to save file: {e}")
 
 
 def on_run_project(root):
     """Run the project and capture output in terminal."""
-    
+
     if not root.flowchart_data:
         QMessageBox.warning(root, "Error", "No project loaded!")
         return
-    
+
     project_root = root.flowchart_data.get('project_root', '')
-    
-    # Ask user what to run
+
     main_file, ok = QInputDialog.getText(
-        root, 
-        "Run Project", 
+        root,
+        "Run Project",
         "Enter the main file to run (e.g., main.py):",
         text="main.py"
     )
-    
+
     if not ok or not main_file:
         return
-    
+
     main_file_path = os.path.join(project_root, main_file)
-    
+
     if not os.path.exists(main_file_path):
         QMessageBox.warning(root, "Error", f"File not found: {main_file}")
         return
-    
+
     try:
-        # Determine how to run the file based on extension
         if main_file.endswith('.py'):
             command = f"python {main_file}"
         elif main_file.endswith('.js'):
@@ -407,15 +412,15 @@ def on_run_project(root):
         else:
             QMessageBox.warning(root, "Error", "Unsupported file type!")
             return
-        
-        # Show command in input (no custom terminal output)
+
         if root.terminal_input:
             root.terminal_input.setText(command)
 
         _run_in_terminal(root, command, project_root)
-        
+
     except Exception:
         pass
+
 
 def toggle_chatbot(root, show):
     if not show:
@@ -488,12 +493,9 @@ def record_editor_diff(editor_widget) -> bool:
     return True
 
 
-
-
 def _run_in_terminal(root, command: str, cwd: str | None):
     if not command:
         return
-    # Prevent overlapping runs.
     if hasattr(root, "terminal_process") and root.terminal_process:
         if root.terminal_process.state() != QProcess.ProcessState.NotRunning:
             return
@@ -511,6 +513,7 @@ def _run_in_terminal(root, command: str, cwd: str | None):
     def on_finished(exit_code, exit_status):
         if root.terminal_input:
             root.terminal_input.setEnabled(True)
+            root.terminal_input.setPlaceholderText("Type command and press Enter...")
         if root.terminal_run_btn:
             root.terminal_run_btn.setEnabled(True)
         if root.stop_process_btn:
@@ -519,14 +522,15 @@ def _run_in_terminal(root, command: str, cwd: str | None):
             set_debug_visible(root.terminal_debug_btn, True)
         root.terminal_process = None
 
+    # Keep input ENABLED so user can respond to input() prompts while process runs.
     if root.terminal_input:
-        root.terminal_input.setEnabled(False)
+        root.terminal_input.setEnabled(True)
+        root.terminal_input.setPlaceholderText("Process running — type input and press Enter...")
     if root.terminal_run_btn:
         root.terminal_run_btn.setEnabled(False)
     if root.stop_process_btn:
         root.stop_process_btn.show()
 
-    # Echo the command so it is visible in the terminal.
     root.terminal.moveCursor(QTextCursor.MoveOperation.End)
     root.terminal.insertPlainText(command + "\n")
     root.terminal.moveCursor(QTextCursor.MoveOperation.End)
@@ -539,6 +543,7 @@ def _run_in_terminal(root, command: str, cwd: str | None):
         parent=root,
         on_output=append_output,
         on_finished=on_finished,
+        env_extras={"PYTHONUNBUFFERED": "1", "PYTHONIOENCODING": "utf-8"},
     )
 
 
@@ -575,34 +580,31 @@ def _stop_terminal_process(root):
 
 class CodeEditorWidget(QWidget):
     """Main code editor widget wrapper."""
-    
+
     def __init__(self, flowchart_data=None, on_back_to_canvas=None):
         super().__init__()
         self.setObjectName("CodeEditorWidget")
-        
+
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
         editor_widget = build_code_editor(flowchart_data, on_back_to_canvas)
         layout.addWidget(editor_widget)
-        
-        # Store reference to editor widget for cleanup
+
         self.editor_widget = editor_widget
-    
+
     def closeEvent(self, event):
         """Clean up running processes when closing."""
-        # Clean up worker threads
         if hasattr(self.editor_widget, 'ai_worker'):
             try:
                 self.editor_widget.ai_worker.terminate()
                 self.editor_widget.ai_worker.wait(1000)
             except:
                 pass
-        
-        # Clean up chatbot
+
         if hasattr(self.editor_widget, 'chatbot_widget') and self.editor_widget.chatbot_widget:
             try:
                 self.editor_widget.chatbot_widget.close()
             except:
                 pass
-        
+
         super().closeEvent(event)

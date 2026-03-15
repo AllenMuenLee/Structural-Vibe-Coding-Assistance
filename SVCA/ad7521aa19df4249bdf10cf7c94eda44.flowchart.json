@@ -1,0 +1,67 @@
+{
+  "name": "j",
+  "start_id": "integrate project",
+  "steps": {
+    "initialize project": {
+      "id": "initialize project",
+      "description": "install dependencies",
+      "filenames": [],
+      "files_to_import": [],
+      "command": [
+        "initialize the project"
+      ],
+      "chlidren": []
+    },
+    "function 1": {
+      "id": "function 1",
+      "description": "function1 does this",
+      "filenames": [
+        "/Users/awdsyxfrhnzi/Downloads/j/file1.extension"
+      ],
+      "files_to_import": [],
+      "command": [],
+      "chlidren": []
+    },
+    "function 2": {
+      "id": "function 2",
+      "description": "function2 does this",
+      "filenames": [
+        "/Users/awdsyxfrhnzi/Downloads/j/file1.extension"
+      ],
+      "files_to_import": [],
+      "command": [
+        "install an api"
+      ],
+      "chlidren": []
+    },
+    "function 3": {
+      "id": "function 3",
+      "description": "function 3 does this",
+      "filenames": [
+        "/Users/awdsyxfrhnzi/Downloads/j/example.extension"
+      ],
+      "files_to_import": [
+        "/Users/awdsyxfrhnzi/Downloads/j/file1.extension"
+      ],
+      "command": [],
+      "chlidren": []
+    },
+    "integrate project": {
+      "id": "integrate project",
+      "description": "Integrate function 1, function 2, and function 3",
+      "filenames": [
+        "/Users/awdsyxfrhnzi/Downloads/j/file1.extension"
+      ],
+      "files_to_import": [],
+      "command": [],
+      "chlidren": [
+        "function 1",
+        "function 2",
+        "function 3"
+      ]
+    }
+  },
+  "framework": "Any framework that's applicable",
+  "project_root": "/Users/awdsyxfrhnzi/Downloads/j",
+  "flowchart_id": "ad7521aa19df4249bdf10cf7c94eda44"
+}

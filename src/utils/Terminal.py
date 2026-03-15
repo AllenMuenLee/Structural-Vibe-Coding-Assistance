@@ -31,6 +31,7 @@ def start_process(
     on_output: Optional[Callable[[str], None]] = None,
     on_finished: Optional[Callable[[int, QProcess.ExitStatus], None]] = None,
     on_error: Optional[Callable[[QProcess.ProcessError], None]] = None,
+    env_extras: Optional[dict] = None,
 ) -> QProcess:
     if not command or not isinstance(command, str):
         raise ValueError("command must be a non-empty string")
@@ -39,6 +40,14 @@ def start_process(
     process.setProcessChannelMode(QProcess.ProcessChannelMode.MergedChannels)
     if cwd:
         process.setWorkingDirectory(cwd)
+
+    # Apply environment extras (e.g. PYTHONUNBUFFERED)
+    if env_extras:
+        from PyQt6.QtCore import QProcessEnvironment
+        env = QProcessEnvironment.systemEnvironment()
+        for k, v in env_extras.items():
+            env.insert(k, v)
+        process.setProcessEnvironment(env)
 
     def _read():
         data = process.readAllStandardOutput()
@@ -77,7 +86,10 @@ def open_system_terminal(project_root: str, command: Optional[str] = None) -> No
     """Open the system terminal in the project directory."""
     system = platform.system()
     if system == "Windows":
-        QProcess.startDetached("cmd", ["/K", f'cd /d "{project_root}"'])
+        cmd = f'cd /d "{project_root}"'
+        if command:
+            cmd += f" && {command}"
+        QProcess.startDetached("cmd", ["/K", cmd])
         return
     if system == "Darwin":
         script = f'cd "{project_root}"'
@@ -87,5 +99,8 @@ def open_system_terminal(project_root: str, command: Optional[str] = None) -> No
         return
     terminals = ["gnome-terminal", "konsole", "xterm"]
     for term in terminals:
-        if QProcess.startDetached(term, ["--working-directory", project_root]):
+        args = ["--working-directory", project_root]
+        if command:
+            args += ["--", "bash", "-c", command]
+        if QProcess.startDetached(term, args):
             break

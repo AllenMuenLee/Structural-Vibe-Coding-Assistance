@@ -1,0 +1,83 @@
+{
+  "/Users/awdsyxfrhnzi/Downloads/lil/input_handler.py": [
+    {
+      "name": "get_user_input",
+      "kind": "function",
+      "line": 1,
+      "parent": null,
+      "params": []
+    },
+    {
+      "name": "user_input",
+      "kind": "variable",
+      "line": 8,
+      "parent": null
+    }
+  ],
+  "/Users/awdsyxfrhnzi/Downloads/lil/parser.py": [
+    {
+      "name": "parse_input",
+      "kind": "function",
+      "line": 1,
+      "parent": null,
+      "params": [
+        "user_input"
+      ]
+    },
+    {
+      "name": "parts",
+      "kind": "variable",
+      "line": 11,
+      "parent": null
+    },
+    {
+      "name": "parts",
+      "kind": "variable",
+      "line": 14,
+      "parent": null
+    }
+  ],
+  "/Users/awdsyxfrhnzi/Downloads/lil/calculator.py": [
+    {
+      "name": "perform_calculation",
+      "kind": "function",
+      "line": 3,
+      "parent": null,
+      "params": [
+        "user_input"
+      ]
+    }
+  ],
+  "/Users/awdsyxfrhnzi/Downloads/lil/output_handler.py": [
+    {
+      "name": "display_result",
+      "kind": "function",
+      "line": 1,
+      "parent": null,
+      "params": [
+        "result"
+      ]
+    }
+  ],
+  "/Users/awdsyxfrhnzi/Downloads/lil/main.py": [
+    {
+      "name": "main",
+      "kind": "function",
+      "line": 5,
+      "parent": null,
+      "params": []
+    },
+    {
+      "name": "user_input",
+      "kind": "variable",
+      "line": 9,
+      "parent": null
+    },
+    {
+      "name": "result",
+      "kind": "variable",
+      "line": 10,
+      "parent": null
+    }
+  ]
+}

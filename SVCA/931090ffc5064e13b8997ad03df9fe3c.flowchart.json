@@ -1,0 +1,223 @@
+{
+  "name": "j",
+  "start_id": "friend_system",
+  "steps": {
+    "initialize project": {
+      "id": "initialize project",
+      "description": "Install dependencies and set up environment",
+      "filenames": [],
+      "files_to_import": [],
+      "command": [
+        "pip install --yes flask pypdf2 pdfminer.six beautifulsoup4 requests tensorflow torch",
+        "npm install --yes express react react-dom axios @tensorflow/tfjs @tensorflow/tfjs-node"
+      ],
+      "chlidren": [
+        "pdf_upload_handler",
+        "pdf_text_extraction",
+        "exercise_extraction",
+        "interactive_proof_interface",
+        "real_time_latex_rendering",
+        "image_canvas",
+        "ai_proof_analysis",
+        "competitive_arena",
+        "friend_system"
+      ]
+    },
+    "pdf_upload_handler": {
+      "id": "pdf_upload_handler",
+      "description": "Handle PDF uploads from the manager",
+      "filenames": [
+        "/Users/awdsyxfrhnzi/Downloads/j/upload.py"
+      ],
+      "files_to_import": [],
+      "command": [],
+      "chlidren": []
+    },
+    "pdf_text_extraction": {
+      "id": "pdf_text_extraction",
+      "description": "Extract text content from uploaded PDFs",
+      "filenames": [
+        "/Users/awdsyxfrhnzi/Downloads/j/extract_text.py"
+      ],
+      "files_to_import": [
+        "/Users/awdsyxfrhnzi/Downloads/j/upload.py"
+      ],
+      "command": [],
+      "chlidren": []
+    },
+    "exercise_extraction": {
+      "id": "exercise_extraction",
+      "description": "Scan for exercises in the book and store them in.txt files",
+      "filenames": [
+        "/Users/awdsyxfrhnzi/Downloads/j/extract_exercises.py"
+      ],
+      "files_to_import": [
+        "/Users/awdsyxfrhnzi/Downloads/j/extract_text.py"
+      ],
+      "command": [],
+      "chlidren": []
+    },
+    "interactive_proof_interface": {
+      "id": "interactive_proof_interface",
+      "description": "Create a clean, distraction-free workspace for writing proofs",
+      "filenames": [
+        "/Users/awdsyxfrhnzi/Downloads/j/ProofInterface.jsx"
+      ],
+      "files_to_import": [],
+      "command": [],
+      "chlidren": [
+        "problem_statement_display",
+        "proof_text_area",
+        "math_keyboard",
+        "image_submission"
+      ]
+    },
+    "problem_statement_display": {
+      "id": "problem_statement_display",
+      "description": "Display the problem statement on the left side of the interface",
+      "filenames": [
+        "/Users/awdsyxfrhnzi/Downloads/j/ProblemStatement.jsx"
+      ],
+      "files_to_import": [
+        "/Users/awdsyxfrhnzi/Downloads/j/ProofInterface.jsx"
+      ],
+      "command": [],
+      "chlidren": []
+    },
+    "proof_text_area": {
+      "id": "proof_text_area",
+      "description": "Provide a large text area for proof writing with edit/submit functionality",
+      "filenames": [
+        "/Users/awdsyxfrhnzi/Downloads/j/ProofTextArea.jsx"
+      ],
+      "files_to_import": [
+        "/Users/awdsyxfrhnzi/Downloads/j/ProofInterface.jsx"
+      ],
+      "command": [],
+      "chlidren": []
+    },
+    "math_keyboard": {
+      "id": "math_keyboard",
+      "description": "Implement a special mathematical keyboard for symbols",
+      "filenames": [
+        "/Users/awdsyxfrhnzi/Downloads/j/MathKeyboard.jsx"
+      ],
+      "files_to_import": [
+        "/Users/awdsyxfrhnzi/Downloads/j/ProofInterface.jsx"
+      ],
+      "command": [],
+      "chlidren": []
+    },
+    "image_submission": {
+      "id": "image_submission",
+      "description": "Allow users to draw an image and submit it for grading",
+      "filenames": [
+        "/Users/awdsyxfrhnzi/Downloads/j/ImageCanvas.jsx"
+      ],
+      "files_to_import": [
+        "/Users/awdsyxfrhnzi/Downloads/j/ProofInterface.jsx"
+      ],
+      "command": [],
+      "chlidren": []
+    },
+    "real_time_latex_rendering": {
+      "id": "real_time_latex_rendering",
+      "description": "Enable real-time LaTeX rendering for professional formatting",
+      "filenames": [
+        "/Users/awdsyxfrhnzi/Downloads/j/LatexRenderer.jsx"
+      ],
+      "files_to_import": [
+        "/Users/awdsyxfrhnzi/Downloads/j/ProofInterface.jsx"
+      ],
+      "command": [],
+      "chlidren": []
+    },
+    "image_canvas": {
+      "id": "image_canvas",
+      "description": "Provide a small canvas for users to draw images",
+      "filenames": [
+        "/Users/awdsyxfrhnzi/Downloads/j/ImageCanvas.jsx"
+      ],
+      "files_to_import": [],
+      "command": [],
+      "chlidren": []
+    },
+    "ai_proof_analysis": {
+      "id": "ai_proof_analysis",
+      "description": "Implement AI-powered proof analysis and feedback based on a provided rubric",
+      "filenames": [
+        "/Users/awdsyxfrhnzi/Downloads/j/AIProofAnalysis.py"
+      ],
+      "files_to_import": [],
+      "command": [],
+      "chlidren": []
+    },
+    "competitive_arena": {
+      "id": "competitive_arena",
+      "description": "Create a real-time competitive proof-solving environment",
+      "filenames": [
+        "/Users/awdsyxfrhnzi/Downloads/j/CompetitiveArena.jsx"
+      ],
+      "files_to_import": [
+        "/Users/awdsyxfrhnzi/Downloads/j/ProofInterface.jsx",
+        "/Users/awdsyxfrhnzi/Downloads/j/AIProofAnalysis.py"
+      ],
+      "command": [],
+      "chlidren": [
+        "domain_selection",
+        "time_limit",
+        "grading_system"
+      ]
+    },
+    "domain_selection": {
+      "id": "domain_selection",
+      "description": "Allow players to select a mathematical domain for the competition",
+      "filenames": [
+        "/Users/awdsyxfrhnzi/Downloads/j/DomainSelection.jsx"
+      ],
+      "files_to_import": [
+        "/Users/awdsyxfrhnzi/Downloads/j/CompetitiveArena.jsx"
+      ],
+      "command": [],
+      "chlidren": []
+    },
+    "time_limit": {
+      "id": "time_limit",
+      "description": "Implement a time limit for the proof-solving competition",
+      "filenames": [
+        "/Users/awdsyxfrhnzi/Downloads/j/TimeLimit.jsx"
+      ],
+      "files_to_import": [
+        "/Users/awdsyxfrhnzi/Downloads/j/CompetitiveArena.jsx"
+      ],
+      "command": [],
+      "chlidren": []
+    },
+    "grading_system": {
+      "id": "grading_system",
+      "description": "Grade users' proofs based on AI analysis",
+      "filenames": [
+        "/Users/awdsyxfrhnzi/Downloads/j/GradingSystem.jsx"
+      ],
+      "files_to_import": [
+        "/Users/awdsyxfrhnzi/Downloads/j/CompetitiveArena.jsx",
+        "/Users/awdsyxfrhnzi/Downloads/j/AIProofAnalysis.py"
+      ],
+      "command": [],
+      "chlidren": []
+    },
+    "friend_system": {
+      "id": "friend_system",
+      "description": "Implement a friend system for users",
+      "filenames": [
+        "/Users/awdsyxfrhnzi/Downloads/j/FriendSystem.jsx"
+      ],
+      "files_to_import": [],
+      "command": [],
+      "chlidren": []
+    }
+  },
+  "framework": "Python, JavaScript, Node.js, Express, React, TensorFlow, PyTorch",
+  "project_root": "/Users/awdsyxfrhnzi/Downloads/j",
+  "flowchart_id": "931090ffc5064e13b8997ad03df9fe3c"
+}

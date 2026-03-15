@@ -1,0 +1,192 @@
+{
+  "name": "j",
+  "start_id": "friend system",
+  "steps": {
+    "initialize project": {
+      "id": "initialize project",
+      "description": "Install dependencies and set up environment",
+      "filenames": [],
+      "files_to_import": [],
+      "command": [
+        "pip install flask tensorflow pytesseract python-docx",
+        "npm install express react redux axios",
+        "npm install --save @tensorflow/tfjs @tensorflow/tfjs-node"
+      ],
+      "chlidren": [
+        "backend setup",
+        "frontend setup",
+        "pdf processing",
+        "exercise extraction",
+        "interactive interface",
+        "latex rendering",
+        "image submission",
+        "ai grading",
+        "competitive arena",
+        "friend system"
+      ]
+    },
+    "backend setup": {
+      "id": "backend setup",
+      "description": "Set up the backend server using Flask",
+      "filenames": [
+        "/Users/awdsyxfrhnzi/Downloads/j/app.py"
+      ],
+      "files_to_import": [],
+      "command": [],
+      "chlidren": [
+        "pdf processing",
+        "exercise extraction",
+        "ai grading",
+        "competitive arena",
+        "friend system"
+      ]
+    },
+    "frontend setup": {
+      "id": "frontend setup",
+      "description": "Set up the frontend using React",
+      "filenames": [
+        "/Users/awdsyxfrhnzi/Downloads/j/index.html",
+        "/Users/awdsyxfrhnzi/Downloads/j/App.js"
+      ],
+      "files_to_import": [],
+      "command": [],
+      "chlidren": [
+        "interactive interface",
+        "latex rendering",
+        "image submission"
+      ]
+    },
+    "pdf processing": {
+      "id": "pdf processing",
+      "description": "Handle PDF uploads and store them",
+      "filenames": [
+        "/Users/awdsyxfrhnzi/Downloads/j/app.py"
+      ],
+      "files_to_import": [],
+      "command": [],
+      "chlidren": []
+    },
+    "exercise extraction": {
+      "id": "exercise extraction",
+      "description": "Extract exercises from PDFs and store them as.txt files",
+      "filenames": [
+        "/Users/awdsyxfrhnzi/Downloads/j/app.py"
+      ],
+      "files_to_import": [],
+      "command": [],
+      "chlidren": []
+    },
+    "interactive interface": {
+      "id": "interactive interface",
+      "description": "Create a clean, distraction-free workspace for writing proofs",
+      "filenames": [
+        "/Users/awdsyxfrhnzi/Downloads/j/App.js"
+      ],
+      "files_to_import": [],
+      "command": [],
+      "chlidren": [
+        "latex rendering",
+        "image submission"
+      ]
+    },
+    "latex rendering": {
+      "id": "latex rendering",
+      "description": "Implement real-time LaTeX rendering",
+      "filenames": [
+        "/Users/awdsyxfrhnzi/Downloads/j/App.js"
+      ],
+      "files_to_import": [],
+      "command": [],
+      "chlidren": []
+    },
+    "image submission": {
+      "id": "image submission",
+      "description": "Allow users to draw images and submit them for grading",
+      "filenames": [
+        "/Users/awdsyxfrhnzi/Downloads/j/App.js"
+      ],
+      "files_to_import": [],
+      "command": [],
+      "chlidren": []
+    },
+    "ai grading": {
+      "id": "ai grading",
+      "description": "Implement AI-powered proof analysis and feedback",
+      "filenames": [
+        "/Users/awdsyxfrhnzi/Downloads/j/app.py"
+      ],
+      "files_to_import": [],
+      "command": [],
+      "chlidren": []
+    },
+    "competitive arena": {
+      "id": "competitive arena",
+      "description": "Set up the competitive math arena with ELO-based ranking",
+      "filenames": [
+        "/Users/awdsyxfrhnzi/Downloads/j/app.py"
+      ],
+      "files_to_import": [],
+      "command": [],
+      "chlidren": []
+    },
+    "friend system": {
+      "id": "friend system",
+      "description": "Implement the friend system for users",
+      "filenames": [
+        "/Users/awdsyxfrhnzi/Downloads/j/app.py"
+      ],
+      "files_to_import": [],
+      "command": [],
+      "chlidren": []
+    }
+  },
+  "framework": "Python, JavaScript, Node.js, Express, React, TensorFlow, PyTorch",
+  "project_root": "/Users/awdsyxfrhnzi/Downloads/j",
+  "flowchart_id": "39255d3c7fff4e339a7bbdd916ef8141",
+  "layout_positions": {
+    "initialize project": [
+      940.0,
+      200.0
+    ],
+    "backend setup": [
+      820.0,
+      360.0
+    ],
+    "frontend setup": [
+      1060.0,
+      360.0
+    ],
+    "ai grading": [
+      340.0,
+      520.0
+    ],
+    "competitive arena": [
+      580.0,
+      520.0
+    ],
+    "exercise extraction": [
+      820.0,
+      520.0
+    ],
+    "friend system": [
+      1060.0,
+      520.0
+    ],
+    "pdf processing": [
+      1300.0,
+      520.0
+    ],
+    "interactive interface": [
+      1540.0,
+      520.0
+    ],
+    "image submission": [
+      820.0,
+      680.0
+    ],
+    "latex rendering": [
+      1060.0,
+      680.0
+    ]
+  }
+}

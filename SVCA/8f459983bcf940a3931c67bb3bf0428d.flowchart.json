@@ -1,0 +1,103 @@
+{
+  "name": "j",
+  "start_id": "main_calculator",
+  "steps": {
+    "initialize project": {
+      "id": "initialize project",
+      "description": "install dependencies",
+      "filenames": [],
+      "files_to_import": [],
+      "command": [
+        "pip install sympy --yes"
+      ],
+      "chlidren": []
+    },
+    "input_handler": {
+      "id": "input_handler",
+      "description": "handle user input from terminal",
+      "filenames": [
+        "/Users/awdsyxfrhnzi/Downloads/j/input_handler.py"
+      ],
+      "files_to_import": [],
+      "command": [],
+      "chlidren": []
+    },
+    "basic_operations": {
+      "id": "basic_operations",
+      "description": "implement basic arithmetic operations (+, -, *, /)",
+      "filenames": [
+        "/Users/awdsyxfrhnzi/Downloads/j/operations.py"
+      ],
+      "files_to_import": [],
+      "command": [],
+      "chlidren": []
+    },
+    "trigonometric_operations": {
+      "id": "trigonometric_operations",
+      "description": "implement trigonometric operations (sin, cos, tan, cot, sec, csc)",
+      "filenames": [
+        "/Users/awdsyxfrhnzi/Downloads/j/operations.py"
+      ],
+      "files_to_import": [],
+      "command": [],
+      "chlidren": []
+    },
+    "advanced_operations": {
+      "id": "advanced_operations",
+      "description": "implement advanced operations (integration, power, e, pi)",
+      "filenames": [
+        "/Users/awdsyxfrhnzi/Downloads/j/operations.py"
+      ],
+      "files_to_import": [],
+      "command": [],
+      "chlidren": []
+    },
+    "main_calculator": {
+      "id": "main_calculator",
+      "description": "integrate all operations and handle user interaction",
+      "filenames": [
+        "/Users/awdsyxfrhnzi/Downloads/j/main.py"
+      ],
+      "files_to_import": [
+        "/Users/awdsyxfrhnzi/Downloads/j/input_handler.py",
+        "/Users/awdsyxfrhnzi/Downloads/j/operations.py"
+      ],
+      "command": [],
+      "chlidren": [
+        "input_handler",
+        "basic_operations",
+        "trigonometric_operations",
+        "advanced_operations"
+      ]
+    }
+  },
+  "framework": "Python",
+  "project_root": "/Users/awdsyxfrhnzi/Downloads/j",
+  "flowchart_id": "8f459983bcf940a3931c67bb3bf0428d",
+  "layout_positions": {
+    "initialize project": [
+      820.0,
+      200.0
+    ],
+    "main_calculator": [
+      1060.0,
+      200.0
+    ],
+    "advanced_operations": [
+      580.0,
+      361.0
+    ],
+    "basic_operations": [
+      820.0,
+      360.0
+    ],
+    "input_handler": [
+      1060.0,
+      360.0
+    ],
+    "trigonometric_operations": [
+      1300.0,
+      360.0
+    ]
+  }
+}

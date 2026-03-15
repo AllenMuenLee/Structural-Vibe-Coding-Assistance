@@ -1,0 +1,220 @@
+{
+  "name": "j",
+  "start_id": "friend_system",
+  "steps": {
+    "initialize project": {
+      "id": "initialize project",
+      "description": "Install dependencies and set up environment",
+      "filenames": [],
+      "files_to_import": [],
+      "command": [
+        "pip install pdfminer.six pytesseract pillow numpy tensorflow torch torchvision",
+        "npm install express react react-dom axios @tensorflow/tfjs @tensorflow/tfjs-node"
+      ],
+      "chlidren": [
+        "pdf_upload",
+        "exercise_extraction",
+        "interactive_interface",
+        "ai_analysis",
+        "competitive_arena",
+        "friend_system"
+      ]
+    },
+    "pdf_upload": {
+      "id": "pdf_upload",
+      "description": "Handle PDF uploads from the manager",
+      "filenames": [
+        "/Users/awdsyxfrhnzi/Downloads/j/upload.py"
+      ],
+      "files_to_import": [],
+      "command": [],
+      "chlidren": []
+    },
+    "exercise_extraction": {
+      "id": "exercise_extraction",
+      "description": "Extract exercises from PDF and save them as.txt files",
+      "filenames": [
+        "/Users/awdsyxfrhnzi/Downloads/j/extract_exercises.py"
+      ],
+      "files_to_import": [
+        "/Users/awdsyxfrhnzi/Downloads/j/upload.py"
+      ],
+      "command": [],
+      "chlidren": [
+        "extract_text",
+        "save_exercises"
+      ]
+    },
+    "extract_text": {
+      "id": "extract_text",
+      "description": "Extract text from PDF using pdfminer.six",
+      "filenames": [
+        "/Users/awdsyxfrhnzi/Downloads/j/extract_text.py"
+      ],
+      "files_to_import": [],
+      "command": [],
+      "chlidren": []
+    },
+    "save_exercises": {
+      "id": "save_exercises",
+      "description": "Save extracted exercises to.txt files",
+      "filenames": [
+        "/Users/awdsyxfrhnzi/Downloads/j/save_exercises.py"
+      ],
+      "files_to_import": [
+        "/Users/awdsyxfrhnzi/Downloads/j/extract_text.py"
+      ],
+      "command": [],
+      "chlidren": []
+    },
+    "interactive_interface": {
+      "id": "interactive_interface",
+      "description": "Create interactive proof writing interface",
+      "filenames": [
+        "/Users/awdsyxfrhnzi/Downloads/j/interface.jsx"
+      ],
+      "files_to_import": [],
+      "command": [],
+      "chlidren": [
+        "proof_workspace",
+        "math_keyboard",
+        "latex_rendering",
+        "image_canvas"
+      ]
+    },
+    "proof_workspace": {
+      "id": "proof_workspace",
+      "description": "Create a clean, distraction-free workspace for writing proofs",
+      "filenames": [
+        "/Users/awdsyxfrhnzi/Downloads/j/ProofWorkspace.jsx"
+      ],
+      "files_to_import": [],
+      "command": [],
+      "chlidren": []
+    },
+    "math_keyboard": {
+      "id": "math_keyboard",
+      "description": "Implement a special mathematical keyboard for symbols",
+      "filenames": [
+        "/Users/awdsyxfrhnzi/Downloads/j/MathKeyboard.jsx"
+      ],
+      "files_to_import": [],
+      "command": [],
+      "chlidren": []
+    },
+    "latex_rendering": {
+      "id": "latex_rendering",
+      "description": "Implement real-time LaTeX rendering",
+      "filenames": [
+        "/Users/awdsyxfrhnzi/Downloads/j/LatexRendering.jsx"
+      ],
+      "files_to_import": [],
+      "command": [],
+      "chlidren": []
+    },
+    "image_canvas": {
+      "id": "image_canvas",
+      "description": "Implement a small canvas for drawing images",
+      "filenames": [
+        "/Users/awdsyxfrhnzi/Downloads/j/ImageCanvas.jsx"
+      ],
+      "files_to_import": [],
+      "command": [],
+      "chlidren": []
+    },
+    "ai_analysis": {
+      "id": "ai_analysis",
+      "description": "Implement AI-powered proof analysis and feedback",
+      "filenames": [
+        "/Users/awdsyxfrhnzi/Downloads/j/ai_analysis.py"
+      ],
+      "files_to_import": [],
+      "command": [],
+      "chlidren": [
+        "proof_grading",
+        "feedback_generation"
+      ]
+    },
+    "proof_grading": {
+      "id": "proof_grading",
+      "description": "Grade the user's proof based on a provided rubric",
+      "filenames": [
+        "/Users/awdsyxfrhnzi/Downloads/j/proof_grading.py"
+      ],
+      "files_to_import": [],
+      "command": [],
+      "chlidren": []
+    },
+    "feedback_generation": {
+      "id": "feedback_generation",
+      "description": "Generate feedback based on the grading",
+      "filenames": [
+        "/Users/awdsyxfrhnzi/Downloads/j/feedback_generation.py"
+      ],
+      "files_to_import": [
+        "/Users/awdsyxfrhnzi/Downloads/j/proof_grading.py"
+      ],
+      "command": [],
+      "chlidren": []
+    },
+    "competitive_arena": {
+      "id": "competitive_arena",
+      "description": "Implement real-time competitive proof-solving",
+      "filenames": [
+        "/Users/awdsyxfrhnzi/Downloads/j/competitive_arena.jsx"
+      ],
+      "files_to_import": [],
+      "command": [],
+      "chlidren": [
+        "match_setup",
+        "time_limit",
+        "grade_submissions"
+      ]
+    },
+    "match_setup": {
+      "id": "match_setup",
+      "description": "Set up a match between two players",
+      "filenames": [
+        "/Users/awdsyxfrhnzi/Downloads/j/MatchSetup.jsx"
+      ],
+      "files_to_import": [],
+      "command": [],
+      "chlidren": []
+    },
+    "time_limit": {
+      "id": "time_limit",
+      "description": "Implement a time limit for the match",
+      "filenames": [
+        "/Users/awdsyxfrhnzi/Downloads/j/TimeLimit.jsx"
+      ],
+      "files_to_import": [],
+      "command": [],
+      "chlidren": []
+    },
+    "grade_submissions": {
+      "id": "grade_submissions",
+      "description": "Grade the submissions from both players",
+      "filenames": [
+        "/Users/awdsyxfrhnzi/Downloads/j/GradeSubmissions.jsx"
+      ],
+      "files_to_import": [
+        "/Users/awdsyxfrhnzi/Downloads/j/proof_grading.py"
+      ],
+      "command": [],
+      "chlidren": []
+    },
+    "friend_system": {
+      "id": "friend_system",
+      "description": "Implement a friend system for users",
+      "filenames": [
+        "/Users/awdsyxfrhnzi/Downloads/j/friend_system.jsx"
+      ],
+      "files_to_import": [],
+      "command": [],
+      "chlidren": []
+    }
+  },
+  "framework": "Python, JavaScript, Node.js, Express, React, TensorFlow, PyTorch",
+  "project_root": "/Users/awdsyxfrhnzi/Downloads/j",
+  "flowchart_id": "ab563ae6dd794d859921484606a0c7ae"
+}

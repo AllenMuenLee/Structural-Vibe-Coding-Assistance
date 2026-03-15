@@ -1,0 +1,85 @@
+{
+  "name": "lil",
+  "start_id": "integrate calculator",
+  "steps": {
+    "initialize project": {
+      "id": "initialize project",
+      "description": "Install dependencies and set up environment",
+      "filenames": [],
+      "files_to_import": [],
+      "command": [
+        "pip install --yes"
+      ],
+      "chlidren": []
+    },
+    "get user input": {
+      "id": "get user input",
+      "description": "Function to get user input from the terminal",
+      "filenames": [
+        "/Users/awdsyxfrhnzi/Downloads/lil/input_handler.py"
+      ],
+      "files_to_import": [],
+      "command": [],
+      "chlidren": []
+    },
+    "parse user input": {
+      "id": "parse user input",
+      "description": "Function to parse the user input and extract numbers and operators",
+      "filenames": [
+        "/Users/awdsyxfrhnzi/Downloads/lil/input_parser.py"
+      ],
+      "files_to_import": [
+        "/Users/awdsyxfrhnzi/Downloads/lil/input_handler.py"
+      ],
+      "command": [],
+      "chlidren": []
+    },
+    "perform calculation": {
+      "id": "perform calculation",
+      "description": "Function to perform the calculation based on the parsed input",
+      "filenames": [
+        "/Users/awdsyxfrhnzi/Downloads/lil/calculator.py"
+      ],
+      "files_to_import": [
+        "/Users/awdsyxfrhnzi/Downloads/lil/input_parser.py"
+      ],
+      "command": [],
+      "chlidren": []
+    },
+    "display result": {
+      "id": "display result",
+      "description": "Function to display the result of the calculation to the user",
+      "filenames": [
+        "/Users/awdsyxfrhnzi/Downloads/lil/output_display.py"
+      ],
+      "files_to_import": [
+        "/Users/awdsyxfrhnzi/Downloads/lil/calculator.py"
+      ],
+      "command": [],
+      "chlidren": []
+    },
+    "integrate calculator": {
+      "id": "integrate calculator",
+      "description": "Integrate all functions to create the simple calculator",
+      "filenames": [
+        "/Users/awdsyxfrhnzi/Downloads/lil/main.py"
+      ],
+      "files_to_import": [
+        "/Users/awdsyxfrhnzi/Downloads/lil/input_handler.py",
+        "/Users/awdsyxfrhnzi/Downloads/lil/input_parser.py",
+        "/Users/awdsyxfrhnzi/Downloads/lil/calculator.py",
+        "/Users/awdsyxfrhnzi/Downloads/lil/output_display.py"
+      ],
+      "command": [],
+      "chlidren": [
+        "get user input",
+        "parse user input",
+        "perform calculation",
+        "display result"
+      ]
+    }
+  },
+  "framework": "Python",
+  "project_root": "/Users/awdsyxfrhnzi/Downloads/lil",
+  "flowchart_id": "8028bb1fb87e44b68beafe19348d4aba"
+}

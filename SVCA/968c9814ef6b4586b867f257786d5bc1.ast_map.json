@@ -1,0 +1,859 @@
+{
+  "/Users/awdsyxfrhnzi/Downloads/j/upload.py": [
+    {
+      "name": "app",
+      "kind": "variable",
+      "line": 4,
+      "parent": null
+    },
+    {
+      "name": "upload_pdf",
+      "kind": "function",
+      "line": 7,
+      "parent": null,
+      "params": []
+    },
+    {
+      "name": "file",
+      "kind": "variable",
+      "line": 20,
+      "parent": null
+    },
+    {
+      "name": "file_path",
+      "kind": "variable",
+      "line": 26,
+      "parent": null
+    }
+  ],
+  "/Users/awdsyxfrhnzi/Downloads/j/extract_latex.py": [
+    {
+      "name": "extract_latex_from_pdf",
+      "kind": "function",
+      "line": 4,
+      "parent": null,
+      "params": [
+        "file_path"
+      ]
+    },
+    {
+      "name": "document",
+      "kind": "variable",
+      "line": 14,
+      "parent": null
+    },
+    {
+      "name": "latex_code",
+      "kind": "variable",
+      "line": 15,
+      "parent": null
+    },
+    {
+      "name": "page_num",
+      "kind": "variable",
+      "line": 17,
+      "parent": null
+    },
+    {
+      "name": "page",
+      "kind": "variable",
+      "line": 18,
+      "parent": null
+    },
+    {
+      "name": "text",
+      "kind": "variable",
+      "line": 19,
+      "parent": null
+    },
+    {
+      "name": "latex_matches",
+      "kind": "variable",
+      "line": 22,
+      "parent": null
+    },
+    {
+      "name": "match",
+      "kind": "variable",
+      "line": 23,
+      "parent": null
+    }
+  ],
+  "/Users/awdsyxfrhnzi/Downloads/j/save_to_txt.py": [
+    {
+      "name": "save_latex_to_txt",
+      "kind": "function",
+      "line": 5,
+      "parent": null,
+      "params": [
+        "file_path",
+        "output_dir"
+      ]
+    },
+    {
+      "name": "latex_code",
+      "kind": "variable",
+      "line": 13,
+      "parent": null
+    },
+    {
+      "name": "file_name",
+      "kind": "variable",
+      "line": 14,
+      "parent": null
+    },
+    {
+      "name": "output_path",
+      "kind": "variable",
+      "line": 15,
+      "parent": null
+    }
+  ],
+  "/Users/awdsyxfrhnzi/Downloads/j/ProofWorkspace.jsx": [
+    {
+      "name": "useStyles",
+      "kind": "variable",
+      "line": 5,
+      "parent": null
+    },
+    {
+      "name": "ProofWorkspace",
+      "kind": "variable",
+      "line": 28,
+      "parent": null
+    },
+    {
+      "name": "classes",
+      "kind": "variable",
+      "line": 29,
+      "parent": null
+    },
+    {
+      "name": "handleUploadPdf",
+      "kind": "variable",
+      "line": 54,
+      "parent": null
+    }
+  ],
+  "/Users/awdsyxfrhnzi/Downloads/j/MathKeyboard.jsx": [
+    {
+      "name": "MathKeyboard",
+      "kind": "variable",
+      "line": 11,
+      "parent": null
+    },
+    {
+      "name": "handleSymbolClick",
+      "kind": "variable",
+      "line": 17,
+      "parent": null
+    }
+  ],
+  "/Users/awdsyxfrhnzi/Downloads/j/LatexRendering.jsx": [
+    {
+      "name": "LatexRendering",
+      "kind": "variable",
+      "line": 11,
+      "parent": null
+    },
+    {
+      "name": "[renderedLatex, setRenderedLatex]",
+      "kind": "variable",
+      "line": 12,
+      "parent": null
+    },
+    {
+      "name": "html",
+      "kind": "variable",
+      "line": 17,
+      "parent": null
+    }
+  ],
+  "/Users/awdsyxfrhnzi/Downloads/j/ImageCanvas.jsx": [
+    {
+      "name": "ImageCanvas",
+      "kind": "variable",
+      "line": 11,
+      "parent": null
+    },
+    {
+      "name": "canvasRef",
+      "kind": "variable",
+      "line": 12,
+      "parent": null
+    },
+    {
+      "name": "[drawing, setDrawing]",
+      "kind": "variable",
+      "line": 13,
+      "parent": null
+    },
+    {
+      "name": "startDrawing",
+      "kind": "variable",
+      "line": 19,
+      "parent": null
+    },
+    {
+      "name": "draw",
+      "kind": "variable",
+      "line": 28,
+      "parent": null
+    },
+    {
+      "name": "canvas",
+      "kind": "variable",
+      "line": 30,
+      "parent": null
+    },
+    {
+      "name": "context",
+      "kind": "variable",
+      "line": 31,
+      "parent": null
+    },
+    {
+      "name": "rect",
+      "kind": "variable",
+      "line": 32,
+      "parent": null
+    },
+    {
+      "name": "stopDrawing",
+      "kind": "variable",
+      "line": 46,
+      "parent": null
+    },
+    {
+      "name": "canvas",
+      "kind": "variable",
+      "line": 48,
+      "parent": null
+    },
+    {
+      "name": "context",
+      "kind": "variable",
+      "line": 49,
+      "parent": null
+    },
+    {
+      "name": "canvas",
+      "kind": "variable",
+      "line": 56,
+      "parent": null
+    },
+    {
+      "name": "context",
+      "kind": "variable",
+      "line": 57,
+      "parent": null
+    }
+  ],
+  "/Users/awdsyxfrhnzi/Downloads/j/proof_grading.py": [
+    {
+      "name": "grade_proof",
+      "kind": "function",
+      "line": 1,
+      "parent": null,
+      "params": [
+        "proof",
+        "rubric"
+      ]
+    },
+    {
+      "name": "score",
+      "kind": "variable",
+      "line": 12,
+      "parent": null
+    },
+    {
+      "name": "generate_feedback",
+      "kind": "function",
+      "line": 18,
+      "parent": null,
+      "params": [
+        "proof",
+        "rubric"
+      ]
+    },
+    {
+      "name": "feedback",
+      "kind": "variable",
+      "line": 29,
+      "parent": null
+    }
+  ],
+  "/Users/awdsyxfrhnzi/Downloads/j/feedback_generation.py": [
+    {
+      "name": "generate_feedback",
+      "kind": "function",
+      "line": 1,
+      "parent": null,
+      "params": [
+        "proof",
+        "rubric"
+      ]
+    },
+    {
+      "name": "feedback",
+      "kind": "variable",
+      "line": 12,
+      "parent": null
+    },
+    {
+      "name": "total_score",
+      "kind": "variable",
+      "line": 13,
+      "parent": null
+    },
+    {
+      "name": "max_score",
+      "kind": "variable",
+      "line": 14,
+      "parent": null
+    },
+    {
+      "name": "score",
+      "kind": "variable",
+      "line": 18,
+      "parent": null
+    },
+    {
+      "name": "weight",
+      "kind": "variable",
+      "line": 18,
+      "parent": null
+    },
+    {
+      "name": "score",
+      "kind": "variable",
+      "line": 21,
+      "parent": null
+    }
+  ],
+  "/Users/awdsyxfrhnzi/Downloads/j/DomainSelection.jsx": [
+    {
+      "name": "DomainSelection",
+      "kind": "variable",
+      "line": 8,
+      "parent": null
+    },
+    {
+      "name": "[selectedDomain, setSelectedDomain]",
+      "kind": "variable",
+      "line": 9,
+      "parent": null
+    },
+    {
+      "name": "handleDomainChange",
+      "kind": "variable",
+      "line": 15,
+      "parent": null
+    }
+  ],
+  "/Users/awdsyxfrhnzi/Downloads/j/ProblemAssignment.jsx": [
+    {
+      "name": "ProblemAssignment",
+      "kind": "variable",
+      "line": 10,
+      "parent": null
+    },
+    {
+      "name": "[player1Problem, setPlayer1Problem]",
+      "kind": "variable",
+      "line": 11,
+      "parent": null
+    },
+    {
+      "name": "[player2Problem, setPlayer2Problem]",
+      "kind": "variable",
+      "line": 12,
+      "parent": null
+    }
+  ],
+  "/Users/awdsyxfrhnzi/Downloads/j/TimeLimit.jsx": [
+    {
+      "name": "TimeLimit",
+      "kind": "variable",
+      "line": 10,
+      "parent": null
+    },
+    {
+      "name": "[timeRemaining, setTimeRemaining]",
+      "kind": "variable",
+      "line": 11,
+      "parent": null
+    },
+    {
+      "name": "timer",
+      "kind": "variable",
+      "line": 15,
+      "parent": null
+    }
+  ],
+  "/Users/awdsyxfrhnzi/Downloads/j/GradingAndResults.jsx": [
+    {
+      "name": "GradingAndResults",
+      "kind": "variable",
+      "line": 16,
+      "parent": null
+    },
+    {
+      "name": "[player1Score, setPlayer1Score]",
+      "kind": "variable",
+      "line": 17,
+      "parent": null
+    },
+    {
+      "name": "[player2Score, setPlayer2Score]",
+      "kind": "variable",
+      "line": 18,
+      "parent": null
+    },
+    {
+      "name": "[player1Feedback, setPlayer1Feedback]",
+      "kind": "variable",
+      "line": 19,
+      "parent": null
+    },
+    {
+      "name": "[player2Feedback, setPlayer2Feedback]",
+      "kind": "variable",
+      "line": 20,
+      "parent": null
+    },
+    {
+      "name": "{ score, feedback }",
+      "kind": "variable",
+      "line": 24,
+      "parent": null
+    },
+    {
+      "name": "{ score, feedback }",
+      "kind": "variable",
+      "line": 32,
+      "parent": null
+    }
+  ],
+  "/Users/awdsyxfrhnzi/Downloads/j/friend_system.jsx": [
+    {
+      "name": "FriendSystem",
+      "kind": "variable",
+      "line": 10,
+      "parent": null
+    },
+    {
+      "name": "[friends, setFriends]",
+      "kind": "variable",
+      "line": 11,
+      "parent": null
+    },
+    {
+      "name": "[newFriend, setNewFriend]",
+      "kind": "variable",
+      "line": 12,
+      "parent": null
+    },
+    {
+      "name": "addFriend",
+      "kind": "variable",
+      "line": 17,
+      "parent": null
+    },
+    {
+      "name": "removeFriend",
+      "kind": "variable",
+      "line": 28,
+      "parent": null
+    }
+  ],
+  "/Users/awdsyxfrhnzi/Downloads/j/extract_exercises.py": [
+    {
+      "name": "extract_exercises_from_pdf",
+      "kind": "function",
+      "line": 6,
+      "parent": null,
+      "params": [
+        "file_path",
+        "output_dir"
+      ]
+    },
+    {
+      "name": "pdf",
+      "kind": "variable",
+      "line": 18,
+      "parent": null
+    },
+    {
+      "name": "num_pages",
+      "kind": "variable",
+      "line": 19,
+      "parent": null
+    },
+    {
+      "name": "page_num",
+      "kind": "variable",
+      "line": 21,
+      "parent": null
+    },
+    {
+      "name": "page",
+      "kind": "variable",
+      "line": 22,
+      "parent": null
+    },
+    {
+      "name": "text",
+      "kind": "variable",
+      "line": 23,
+      "parent": null
+    },
+    {
+      "name": "exercise_pattern",
+      "kind": "variable",
+      "line": 26,
+      "parent": null
+    },
+    {
+      "name": "exercises",
+      "kind": "variable",
+      "line": 27,
+      "parent": null
+    },
+    {
+      "name": "file_name",
+      "kind": "variable",
+      "line": 30,
+      "parent": null
+    },
+    {
+      "name": "output_path",
+      "kind": "variable",
+      "line": 31,
+      "parent": null
+    },
+    {
+      "name": "extract_exercises",
+      "kind": "function",
+      "line": 37,
+      "parent": null,
+      "params": []
+    },
+    {
+      "name": "file",
+      "kind": "variable",
+      "line": 50,
+      "parent": null
+    },
+    {
+      "name": "file_path",
+      "kind": "variable",
+      "line": 56,
+      "parent": null
+    },
+    {
+      "name": "output_dir",
+      "kind": "variable",
+      "line": 59,
+      "parent": null
+    }
+  ],
+  "/Users/awdsyxfrhnzi/Downloads/j/interface.jsx": [
+    {
+      "name": "InteractiveProofInterface",
+      "kind": "variable",
+      "line": 17,
+      "parent": null
+    },
+    {
+      "name": "[proof, setProof]",
+      "kind": "variable",
+      "line": 18,
+      "parent": null
+    },
+    {
+      "name": "[renderedLatex, setRenderedLatex]",
+      "kind": "variable",
+      "line": 19,
+      "parent": null
+    },
+    {
+      "name": "[selectedDomain, setSelectedDomain]",
+      "kind": "variable",
+      "line": 20,
+      "parent": null
+    },
+    {
+      "name": "[player1Problem, setPlayer1Problem]",
+      "kind": "variable",
+      "line": 21,
+      "parent": null
+    },
+    {
+      "name": "[player2Problem, setPlayer2Problem]",
+      "kind": "variable",
+      "line": 22,
+      "parent": null
+    },
+    {
+      "name": "[timeRemaining, setTimeRemaining]",
+      "kind": "variable",
+      "line": 23,
+      "parent": null
+    },
+    {
+      "name": "[player1Score, setPlayer1Score]",
+      "kind": "variable",
+      "line": 24,
+      "parent": null
+    },
+    {
+      "name": "[player2Score, setPlayer2Score]",
+      "kind": "variable",
+      "line": 25,
+      "parent": null
+    },
+    {
+      "name": "[player1Feedback, setPlayer1Feedback]",
+      "kind": "variable",
+      "line": 26,
+      "parent": null
+    },
+    {
+      "name": "[player2Feedback, setPlayer2Feedback]",
+      "kind": "variable",
+      "line": 27,
+      "parent": null
+    },
+    {
+      "name": "[friends, setFriends]",
+      "kind": "variable",
+      "line": 28,
+      "parent": null
+    },
+    {
+      "name": "[newFriend, setNewFriend]",
+      "kind": "variable",
+      "line": 29,
+      "parent": null
+    },
+    {
+      "name": "handleProofChange",
+      "kind": "variable",
+      "line": 31,
+      "parent": null
+    },
+    {
+      "name": "handleLatexRender",
+      "kind": "variable",
+      "line": 35,
+      "parent": null
+    },
+    {
+      "name": "handleDomainChange",
+      "kind": "variable",
+      "line": 39,
+      "parent": null
+    },
+    {
+      "name": "handleProblemAssignment",
+      "kind": "variable",
+      "line": 43,
+      "parent": null
+    },
+    {
+      "name": "handleTimeLimit",
+      "kind": "variable",
+      "line": 48,
+      "parent": null
+    },
+    {
+      "name": "handleScoreUpdate",
+      "kind": "variable",
+      "line": 52,
+      "parent": null
+    },
+    {
+      "name": "handleFeedbackUpdate",
+      "kind": "variable",
+      "line": 60,
+      "parent": null
+    },
+    {
+      "name": "handleAddFriend",
+      "kind": "variable",
+      "line": 68,
+      "parent": null
+    },
+    {
+      "name": "handleRemoveFriend",
+      "kind": "variable",
+      "line": 72,
+      "parent": null
+    }
+  ],
+  "/Users/awdsyxfrhnzi/Downloads/j/ai_analysis.py": [
+    {
+      "name": "analyze_proof",
+      "kind": "function",
+      "line": 5,
+      "parent": null,
+      "params": [
+        "file_path",
+        "rubric"
+      ]
+    },
+    {
+      "name": "latex_code",
+      "kind": "variable",
+      "line": 16,
+      "parent": null
+    },
+    {
+      "name": "score",
+      "kind": "variable",
+      "line": 17,
+      "parent": null
+    },
+    {
+      "name": "feedback",
+      "kind": "variable",
+      "line": 18,
+      "parent": null
+    }
+  ],
+  "/Users/awdsyxfrhnzi/Downloads/j/competitive_arena.jsx": [
+    {
+      "name": "CompetitiveArena",
+      "kind": "variable",
+      "line": 17,
+      "parent": null
+    },
+    {
+      "name": "[proof, setProof]",
+      "kind": "variable",
+      "line": 18,
+      "parent": null
+    },
+    {
+      "name": "[renderedLatex, setRenderedLatex]",
+      "kind": "variable",
+      "line": 19,
+      "parent": null
+    },
+    {
+      "name": "[selectedDomain, setSelectedDomain]",
+      "kind": "variable",
+      "line": 20,
+      "parent": null
+    },
+    {
+      "name": "[player1Problem, setPlayer1Problem]",
+      "kind": "variable",
+      "line": 21,
+      "parent": null
+    },
+    {
+      "name": "[player2Problem, setPlayer2Problem]",
+      "kind": "variable",
+      "line": 22,
+      "parent": null
+    },
+    {
+      "name": "[timeRemaining, setTimeRemaining]",
+      "kind": "variable",
+      "line": 23,
+      "parent": null
+    },
+    {
+      "name": "[player1Score, setPlayer1Score]",
+      "kind": "variable",
+      "line": 24,
+      "parent": null
+    },
+    {
+      "name": "[player2Score, setPlayer2Score]",
+      "kind": "variable",
+      "line": 25,
+      "parent": null
+    },
+    {
+      "name": "[player1Feedback, setPlayer1Feedback]",
+      "kind": "variable",
+      "line": 26,
+      "parent": null
+    },
+    {
+      "name": "[player2Feedback, setPlayer2Feedback]",
+      "kind": "variable",
+      "line": 27,
+      "parent": null
+    },
+    {
+      "name": "[friends, setFriends]",
+      "kind": "variable",
+      "line": 28,
+      "parent": null
+    },
+    {
+      "name": "[newFriend, setNewFriend]",
+      "kind": "variable",
+      "line": 29,
+      "parent": null
+    },
+    {
+      "name": "handleProofChange",
+      "kind": "variable",
+      "line": 35,
+      "parent": null
+    },
+    {
+      "name": "handleLatexRender",
+      "kind": "variable",
+      "line": 43,
+      "parent": null
+    },
+    {
+      "name": "handleDomainChange",
+      "kind": "variable",
+      "line": 51,
+      "parent": null
+    },
+    {
+      "name": "handleProblemAssignment",
+      "kind": "variable",
+      "line": 60,
+      "parent": null
+    },
+    {
+      "name": "handleTimeLimit",
+      "kind": "variable",
+      "line": 69,
+      "parent": null
+    },
+    {
+      "name": "handleScoreUpdate",
+      "kind": "variable",
+      "line": 78,
+      "parent": null
+    },
+    {
+      "name": "handleFeedbackUpdate",
+      "kind": "variable",
+      "line": 88,
+      "parent": null
+    },
+    {
+      "name": "handleAddFriend",
+      "kind": "variable",
+      "line": 97,
+      "parent": null
+    },
+    {
+      "name": "handleRemoveFriend",
+      "kind": "variable",
+      "line": 105,
+      "parent": null
+    }
+  ]
+}

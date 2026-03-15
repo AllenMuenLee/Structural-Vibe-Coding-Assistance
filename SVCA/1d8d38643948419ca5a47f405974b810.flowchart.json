@@ -1,0 +1,292 @@
+{
+  "name": "j",
+  "start_id": "friend_system",
+  "steps": {
+    "initialize project": {
+      "id": "initialize project",
+      "description": "Install dependencies and set up environment",
+      "filenames": [],
+      "files_to_import": [],
+      "command": [
+        "pip install --yes pdfminer.six PyMuPDF python-docx",
+        "npm install --yes express react react-dom axios @tensorflow/tfjs"
+      ],
+      "chlidren": [
+        "pdf_upload_and_extraction",
+        "interactive_proof_writing_interface",
+        "ai_proof_analysis",
+        "competitive_math_arena",
+        "friend_system"
+      ]
+    },
+    "pdf_upload_and_extraction": {
+      "id": "pdf_upload_and_extraction",
+      "description": "Handle PDF uploads and extract exercises",
+      "filenames": [
+        "/Users/awdsyxfrhnzi/Downloads/j/pdf_upload.py",
+        "/Users/awdsyxfrhnzi/Downloads/j/exercise_extraction.py"
+      ],
+      "files_to_import": [],
+      "command": [],
+      "chlidren": [
+        "handle_pdf_upload",
+        "extract_exercises"
+      ]
+    },
+    "handle_pdf_upload": {
+      "id": "handle_pdf_upload",
+      "description": "Manage PDF uploads from the manager",
+      "filenames": [
+        "/Users/awdsyxfrhnzi/Downloads/j/pdf_upload.py"
+      ],
+      "files_to_import": [],
+      "command": [],
+      "chlidren": []
+    },
+    "extract_exercises": {
+      "id": "extract_exercises",
+      "description": "Extract exercises from PDF and store them in .txt files",
+      "filenames": [
+        "/Users/awdsyxfrhnzi/Downloads/j/exercise_extraction.py"
+      ],
+      "files_to_import": [
+        "/Users/awdsyxfrhnzi/Downloads/j/pdf_upload.py"
+      ],
+      "command": [],
+      "chlidren": []
+    },
+    "interactive_proof_writing_interface": {
+      "id": "interactive_proof_writing_interface",
+      "description": "Create an interactive interface for writing proofs",
+      "filenames": [
+        "/Users/awdsyxfrhnzi/Downloads/j/interface.js",
+        "/Users/awdsyxfrhnzi/Downloads/j/App.js",
+        "/Users/awdsyxfrhnzi/Downloads/j/ProofEditor.js",
+        "/Users/awdsyxfrhnzi/Downloads/j/MathKeyboard.js",
+        "/Users/awdsyxfrhnzi/Downloads/j/RealTimeLatex.js",
+        "/Users/awdsyxfrhnzi/Downloads/j/DrawingCanvas.js"
+      ],
+      "files_to_import": [],
+      "command": [],
+      "chlidren": [
+        "create_app_component",
+        "create_proof_editor",
+        "create_math_keyboard",
+        "create_real_time_latex",
+        "create_drawing_canvas"
+      ]
+    },
+    "create_app_component": {
+      "id": "create_app_component",
+      "description": "Set up the main React application component",
+      "filenames": [
+        "/Users/awdsyxfrhnzi/Downloads/j/App.js"
+      ],
+      "files_to_import": [],
+      "command": [],
+      "chlidren": []
+    },
+    "create_proof_editor": {
+      "id": "create_proof_editor",
+      "description": "Create the proof editor component",
+      "filenames": [
+        "/Users/awdsyxfrhnzi/Downloads/j/ProofEditor.js"
+      ],
+      "files_to_import": [
+        "/Users/awdsyxfrhnzi/Downloads/j/App.js"
+      ],
+      "command": [],
+      "chlidren": []
+    },
+    "create_math_keyboard": {
+      "id": "create_math_keyboard",
+      "description": "Create the mathematical keyboard component",
+      "filenames": [
+        "/Users/awdsyxfrhnzi/Downloads/j/MathKeyboard.js"
+      ],
+      "files_to_import": [
+        "/Users/awdsyxfrhnzi/Downloads/j/App.js"
+      ],
+      "command": [],
+      "chlidren": []
+    },
+    "create_real_time_latex": {
+      "id": "create_real_time_latex",
+      "description": "Implement real-time LaTeX rendering",
+      "filenames": [
+        "/Users/awdsyxfrhnzi/Downloads/j/RealTimeLatex.js"
+      ],
+      "files_to_import": [
+        "/Users/awdsyxfrhnzi/Downloads/j/App.js"
+      ],
+      "command": [],
+      "chlidren": []
+    },
+    "create_drawing_canvas": {
+      "id": "create_drawing_canvas",
+      "description": "Create the drawing canvas component",
+      "filenames": [
+        "/Users/awdsyxfrhnzi/Downloads/j/DrawingCanvas.js"
+      ],
+      "files_to_import": [
+        "/Users/awdsyxfrhnzi/Downloads/j/App.js"
+      ],
+      "command": [],
+      "chlidren": []
+    },
+    "ai_proof_analysis": {
+      "id": "ai_proof_analysis",
+      "description": "Implement AI-powered proof analysis and feedback",
+      "filenames": [
+        "/Users/awdsyxfrhnzi/Downloads/j/ai_analysis.py",
+        "/Users/awdsyxfrhnzi/Downloads/j/rubric.json"
+      ],
+      "files_to_import": [],
+      "command": [],
+      "chlidren": [
+        "load_rubric",
+        "analyze_proof"
+      ]
+    },
+    "load_rubric": {
+      "id": "load_rubric",
+      "description": "Load the grading rubric from a JSON file",
+      "filenames": [
+        "/Users/awdsyxfrhnzi/Downloads/j/rubric.json"
+      ],
+      "files_to_import": [],
+      "command": [],
+      "chlidren": []
+    },
+    "analyze_proof": {
+      "id": "analyze_proof",
+      "description": "Analyze the proof based on the rubric and provide feedback",
+      "filenames": [
+        "/Users/awdsyxfrhnzi/Downloads/j/ai_analysis.py"
+      ],
+      "files_to_import": [
+        "/Users/awdsyxfrhnzi/Downloads/j/rubric.json"
+      ],
+      "command": [],
+      "chlidren": []
+    },
+    "competitive_math_arena": {
+      "id": "competitive_math_arena",
+      "description": "Implement the competitive math arena with ELO-based ranking",
+      "filenames": [
+        "/Users/awdsyxfrhnzi/Downloads/j/arena.js",
+        "/Users/awdsyxfrhnzi/Downloads/j/matchmaking.js",
+        "/Users/awdsyxfrhnzi/Downloads/j/elo_system.js"
+      ],
+      "files_to_import": [],
+      "command": [],
+      "chlidren": [
+        "implement_matchmaking",
+        "implement_elo_system"
+      ]
+    },
+    "implement_matchmaking": {
+      "id": "implement_matchmaking",
+      "description": "Implement the matchmaking system for competitive proofs",
+      "filenames": [
+        "/Users/awdsyxfrhnzi/Downloads/j/matchmaking.js"
+      ],
+      "files_to_import": [],
+      "command": [],
+      "chlidren": []
+    },
+    "implement_elo_system": {
+      "id": "implement_elo_system",
+      "description": "Implement the ELO rating system for users",
+      "filenames": [
+        "/Users/awdsyxfrhnzi/Downloads/j/elo_system.js"
+      ],
+      "files_to_import": [],
+      "command": [],
+      "chlidren": []
+    },
+    "friend_system": {
+      "id": "friend_system",
+      "description": "Implement the friend system for users",
+      "filenames": [
+        "/Users/awdsyxfrhnzi/Downloads/j/friend_system.js"
+      ],
+      "files_to_import": [],
+      "command": [],
+      "chlidren": []
+    }
+  },
+  "framework": "Python, JavaScript, Node.js, Express, React, TensorFlow, PyTorch",
+  "project_root": "/Users/awdsyxfrhnzi/Downloads/j",
+  "flowchart_id": "1d8d38643948419ca5a47f405974b810",
+  "layout_positions": {
+    "initialize project": [
+      940.0,
+      200.0
+    ],
+    "ai_proof_analysis": [
+      460.0,
+      360.0
+    ],
+    "competitive_math_arena": [
+      700.0,
+      360.0
+    ],
+    "friend_system": [
+      940.0,
+      360.0
+    ],
+    "interactive_proof_writing_interface": [
+      1180.0,
+      360.0
+    ],
+    "pdf_upload_and_extraction": [
+      1420.0,
+      360.0
+    ],
+    "analyze_proof": [
+      -260.0,
+      520.0
+    ],
+    "load_rubric": [
+      -20.0,
+      520.0
+    ],
+    "implement_elo_system": [
+      220.0,
+      520.0
+    ],
+    "implement_matchmaking": [
+      460.0,
+      520.0
+    ],
+    "create_app_component": [
+      700.0,
+      520.0
+    ],
+    "create_drawing_canvas": [
+      940.0,
+      520.0
+    ],
+    "create_math_keyboard": [
+      1180.0,
+      520.0
+    ],
+    "create_proof_editor": [
+      1420.0,
+      520.0
+    ],
+    "create_real_time_latex": [
+      1660.0,
+      520.0
+    ],
+    "extract_exercises": [
+      1900.0,
+      520.0
+    ],
+    "handle_pdf_upload": [
+      2140.0,
+      520.0
+    ]
+  }
+}

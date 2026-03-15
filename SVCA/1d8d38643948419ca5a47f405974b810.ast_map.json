@@ -1,0 +1,467 @@
+{
+  "/Users/awdsyxfrhnzi/Downloads/j/pdf_upload.py": [
+    {
+      "name": "upload_pdf",
+      "kind": "function",
+      "line": 1,
+      "parent": null,
+      "params": [
+        "file_path"
+      ]
+    }
+  ],
+  "/Users/awdsyxfrhnzi/Downloads/j/exercise_extraction.py": [
+    {
+      "name": "extract_exercises",
+      "kind": "function",
+      "line": 4,
+      "parent": null,
+      "params": [
+        "pdf_path",
+        "output_dir"
+      ]
+    },
+    {
+      "name": "reader",
+      "kind": "variable",
+      "line": 19,
+      "parent": null
+    },
+    {
+      "name": "num_pages",
+      "kind": "variable",
+      "line": 20,
+      "parent": null
+    },
+    {
+      "name": "extracted_files",
+      "kind": "variable",
+      "line": 21,
+      "parent": null
+    },
+    {
+      "name": "page_num",
+      "kind": "variable",
+      "line": 23,
+      "parent": null
+    },
+    {
+      "name": "page",
+      "kind": "variable",
+      "line": 24,
+      "parent": null
+    },
+    {
+      "name": "text",
+      "kind": "variable",
+      "line": 25,
+      "parent": null
+    },
+    {
+      "name": "output_path",
+      "kind": "variable",
+      "line": 28,
+      "parent": null
+    }
+  ],
+  "/Users/awdsyxfrhnzi/Downloads/j/App.js": [
+    {
+      "name": "App",
+      "kind": "function",
+      "line": 10,
+      "parent": null,
+      "params": []
+    }
+  ],
+  "/Users/awdsyxfrhnzi/Downloads/j/ProofEditor.js": [
+    {
+      "name": "ProofEditor",
+      "kind": "function",
+      "line": 8,
+      "parent": null,
+      "params": []
+    },
+    {
+      "name": "[exercises, setExercises]",
+      "kind": "variable",
+      "line": 9,
+      "parent": null
+    },
+    {
+      "name": "handleExercisesUpdate",
+      "kind": "variable",
+      "line": 16,
+      "parent": null
+    }
+  ],
+  "/Users/awdsyxfrhnzi/Downloads/j/MathKeyboard.js": [
+    {
+      "name": "MathKeyboard",
+      "kind": "function",
+      "line": 9,
+      "parent": null,
+      "params": []
+    },
+    {
+      "name": "[input, setInput]",
+      "kind": "variable",
+      "line": 10,
+      "parent": null
+    },
+    {
+      "name": "handleInputChange",
+      "kind": "variable",
+      "line": 17,
+      "parent": null
+    },
+    {
+      "name": "handleButtonClick",
+      "kind": "variable",
+      "line": 26,
+      "parent": null
+    }
+  ],
+  "/Users/awdsyxfrhnzi/Downloads/j/RealTimeLatex.js": [
+    {
+      "name": "RealTimeLatex",
+      "kind": "function",
+      "line": 12,
+      "parent": null,
+      "params": [
+        "{ latex }"
+      ]
+    },
+    {
+      "name": "[renderedLatex, setRenderedLatex]",
+      "kind": "variable",
+      "line": 13,
+      "parent": null
+    }
+  ],
+  "/Users/awdsyxfrhnzi/Downloads/j/DrawingCanvas.js": [
+    {
+      "name": "DrawingCanvas",
+      "kind": "function",
+      "line": 8,
+      "parent": null,
+      "params": []
+    },
+    {
+      "name": "canvasRef",
+      "kind": "variable",
+      "line": 9,
+      "parent": null
+    },
+    {
+      "name": "canvas",
+      "kind": "variable",
+      "line": 12,
+      "parent": null
+    },
+    {
+      "name": "context",
+      "kind": "variable",
+      "line": 13,
+      "parent": null
+    },
+    {
+      "name": "drawing",
+      "kind": "variable",
+      "line": 17,
+      "parent": null
+    },
+    {
+      "name": "startDrawing",
+      "kind": "variable",
+      "line": 19,
+      "parent": null
+    },
+    {
+      "name": "drawing",
+      "kind": "variable",
+      "line": 20,
+      "parent": null
+    },
+    {
+      "name": "finishDrawing",
+      "kind": "variable",
+      "line": 25,
+      "parent": null
+    },
+    {
+      "name": "drawing",
+      "kind": "variable",
+      "line": 26,
+      "parent": null
+    },
+    {
+      "name": "draw",
+      "kind": "variable",
+      "line": 30,
+      "parent": null
+    }
+  ],
+  "/Users/awdsyxfrhnzi/Downloads/j/rubric.json": [],
+  "/Users/awdsyxfrhnzi/Downloads/j/ai_analysis.py": [
+    {
+      "name": "load_rubric",
+      "kind": "function",
+      "line": 3,
+      "parent": null,
+      "params": [
+        "rubric_path"
+      ]
+    },
+    {
+      "name": "analyze_proof",
+      "kind": "function",
+      "line": 16,
+      "parent": null,
+      "params": [
+        "proof",
+        "rubric"
+      ]
+    },
+    {
+      "name": "feedback",
+      "kind": "variable",
+      "line": 27,
+      "parent": null
+    },
+    {
+      "name": "criterion",
+      "kind": "variable",
+      "line": 28,
+      "parent": null
+    },
+    {
+      "name": "criterion_name",
+      "kind": "variable",
+      "line": 29,
+      "parent": null
+    },
+    {
+      "name": "criterion_description",
+      "kind": "variable",
+      "line": 30,
+      "parent": null
+    },
+    {
+      "name": "max_points",
+      "kind": "variable",
+      "line": 31,
+      "parent": null
+    },
+    {
+      "name": "points_earned",
+      "kind": "variable",
+      "line": 34,
+      "parent": null
+    }
+  ],
+  "/Users/awdsyxfrhnzi/Downloads/j/matchmaking.js": [
+    {
+      "name": "matchUsers",
+      "kind": "function",
+      "line": 7,
+      "parent": null,
+      "params": [
+        "users"
+      ]
+    },
+    {
+      "name": "matches",
+      "kind": "variable",
+      "line": 12,
+      "parent": null
+    },
+    {
+      "name": "i",
+      "kind": "variable",
+      "line": 13,
+      "parent": null
+    },
+    {
+      "name": "calculateTotalScore",
+      "kind": "function",
+      "line": 25,
+      "parent": null,
+      "params": [
+        "user"
+      ]
+    },
+    {
+      "name": "totalScore",
+      "kind": "variable",
+      "line": 26,
+      "parent": null
+    },
+    {
+      "name": "runMatchmaking",
+      "kind": "function",
+      "line": 38,
+      "parent": null,
+      "params": [
+        "users"
+      ]
+    }
+  ],
+  "/Users/awdsyxfrhnzi/Downloads/j/elo_system.js": [
+    {
+      "name": "expectedScore",
+      "kind": "function",
+      "line": 7,
+      "parent": null,
+      "params": [
+        "ratingA",
+        "ratingB"
+      ]
+    },
+    {
+      "name": "updateRating",
+      "kind": "function",
+      "line": 19,
+      "parent": null,
+      "params": [
+        "rating",
+        "expectedScore",
+        "actualScore",
+        "kFactor = 32"
+      ]
+    },
+    {
+      "name": "calculateNewRatings",
+      "kind": "function",
+      "line": 32,
+      "parent": null,
+      "params": [
+        "ratingA",
+        "ratingB",
+        "resultA",
+        "resultB",
+        "kFactor = 32"
+      ]
+    },
+    {
+      "name": "expectedA",
+      "kind": "variable",
+      "line": 33,
+      "parent": null
+    },
+    {
+      "name": "expectedB",
+      "kind": "variable",
+      "line": 34,
+      "parent": null
+    },
+    {
+      "name": "newRatingA",
+      "kind": "variable",
+      "line": 35,
+      "parent": null
+    },
+    {
+      "name": "newRatingB",
+      "kind": "variable",
+      "line": 36,
+      "parent": null
+    }
+  ],
+  "/Users/awdsyxfrhnzi/Downloads/j/friend_system.js": [
+    {
+      "name": "addFriend",
+      "kind": "function",
+      "line": 6,
+      "parent": null,
+      "params": [
+        "user",
+        "friendId"
+      ]
+    },
+    {
+      "name": "removeFriend",
+      "kind": "function",
+      "line": 17,
+      "parent": null,
+      "params": [
+        "user",
+        "friendId"
+      ]
+    },
+    {
+      "name": "index",
+      "kind": "variable",
+      "line": 18,
+      "parent": null
+    },
+    {
+      "name": "areFriends",
+      "kind": "function",
+      "line": 30,
+      "parent": null,
+      "params": [
+        "userA",
+        "userB"
+      ]
+    },
+    {
+      "name": "getFriends",
+      "kind": "function",
+      "line": 39,
+      "parent": null,
+      "params": [
+        "user"
+      ]
+    }
+  ],
+  "/Users/awdsyxfrhnzi/Downloads/j/interface.js": [
+    {
+      "name": "Interface",
+      "kind": "function",
+      "line": 12,
+      "parent": null,
+      "params": []
+    }
+  ],
+  "/Users/awdsyxfrhnzi/Downloads/j/arena.js": [
+    {
+      "name": "competitiveArena",
+      "kind": "function",
+      "line": 7,
+      "parent": null,
+      "params": [
+        "users"
+      ]
+    },
+    {
+      "name": "matches",
+      "kind": "variable",
+      "line": 9,
+      "parent": null
+    },
+    {
+      "name": "[userA, userB]",
+      "kind": "variable",
+      "line": 13,
+      "parent": null
+    },
+    {
+      "name": "resultA",
+      "kind": "variable",
+      "line": 14,
+      "parent": null
+    },
+    {
+      "name": "resultB",
+      "kind": "variable",
+      "line": 15,
+      "parent": null
+    },
+    {
+      "name": "{ newRatingA, newRatingB }",
+      "kind": "variable",
+      "line": 17,
+      "parent": null
+    }
+  ]
+}

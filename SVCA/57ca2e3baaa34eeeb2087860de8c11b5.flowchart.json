@@ -1,0 +1,269 @@
+{
+  "name": "j",
+  "start_id": "friend_list",
+  "steps": {
+    "initialize project": {
+      "id": "initialize project",
+      "description": "Install dependencies and initialize the project",
+      "filenames": [],
+      "files_to_import": [],
+      "command": [
+        "pip install flask pymupdf tensorflow",
+        "npm install react react-dom axios"
+      ],
+      "chlidren": [
+        "backend setup",
+        "frontend setup"
+      ]
+    },
+    "backend setup": {
+      "id": "backend setup",
+      "description": "Set up the backend environment",
+      "filenames": [
+        "/Users/awdsyxfrhnzi/Downloads/j/app.py",
+        "/Users/awdsyxfrhnzi/Downloads/j/requirements.txt"
+      ],
+      "files_to_import": [],
+      "command": [],
+      "chlidren": [
+        "pdf_upload",
+        "exercise_extraction",
+        "latex_rendering",
+        "ai_grading",
+        "elo_system",
+        "friend_system"
+      ]
+    },
+    "pdf_upload": {
+      "id": "pdf_upload",
+      "description": "Handle PDF uploads and store them in the server",
+      "filenames": [
+        "/Users/awdsyxfrhnzi/Downloads/j/app.py"
+      ],
+      "files_to_import": [],
+      "command": [],
+      "chlidren": []
+    },
+    "exercise_extraction": {
+      "id": "exercise_extraction",
+      "description": "Extract exercises from PDFs and store them as.txt files",
+      "filenames": [
+        "/Users/awdsyxfrhnzi/Downloads/j/app.py",
+        "/Users/awdsyxfrhnzi/Downloads/j/extract_exercises.py"
+      ],
+      "files_to_import": [],
+      "command": [],
+      "chlidren": []
+    },
+    "latex_rendering": {
+      "id": "latex_rendering",
+      "description": "Render LaTeX code for exercises and proofs",
+      "filenames": [
+        "/Users/awdsyxfrhnzi/Downloads/j/app.py",
+        "/Users/awdsyxfrhnzi/Downloads/j/latex_render.py"
+      ],
+      "files_to_import": [],
+      "command": [],
+      "chlidren": []
+    },
+    "ai_grading": {
+      "id": "ai_grading",
+      "description": "Grade proofs using AI based on a provided rubric",
+      "filenames": [
+        "/Users/awdsyxfrhnzi/Downloads/j/app.py",
+        "/Users/awdsyxfrhnzi/Downloads/j/ai_grade.py"
+      ],
+      "files_to_import": [],
+      "command": [],
+      "chlidren": []
+    },
+    "elo_system": {
+      "id": "elo_system",
+      "description": "Manage the ELO-based competitive system",
+      "filenames": [
+        "/Users/awdsyxfrhnzi/Downloads/j/app.py",
+        "/Users/awdsyxfrhnzi/Downloads/j/elo_system.py"
+      ],
+      "files_to_import": [],
+      "command": [],
+      "chlidren": []
+    },
+    "friend_system": {
+      "id": "friend_system",
+      "description": "Manage the friend system for users",
+      "filenames": [
+        "/Users/awdsyxfrhnzi/Downloads/j/app.py",
+        "/Users/awdsyxfrhnzi/Downloads/j/friend_system.py"
+      ],
+      "files_to_import": [],
+      "command": [],
+      "chlidren": []
+    },
+    "frontend setup": {
+      "id": "frontend setup",
+      "description": "Set up the frontend environment",
+      "filenames": [
+        "/Users/awdsyxfrhnzi/Downloads/j/index.html",
+        "/Users/awdsyxfrhnzi/Downloads/j/App.js",
+        "/Users/awdsyxfrhnzi/Downloads/j/package.json"
+      ],
+      "files_to_import": [],
+      "command": [],
+      "chlidren": [
+        "upload_interface",
+        "proof_writing_interface",
+        "real_time_latex",
+        "canvas_drawing",
+        "feedback_display",
+        "competitive_arena",
+        "friend_list"
+      ]
+    },
+    "upload_interface": {
+      "id": "upload_interface",
+      "description": "Create an interface for uploading PDF textbooks",
+      "filenames": [
+        "/Users/awdsyxfrhnzi/Downloads/j/App.js",
+        "/Users/awdsyxfrhnzi/Downloads/j/UploadInterface.js"
+      ],
+      "files_to_import": [],
+      "command": [],
+      "chlidren": []
+    },
+    "proof_writing_interface": {
+      "id": "proof_writing_interface",
+      "description": "Create a clean, distraction-free workspace for writing proofs",
+      "filenames": [
+        "/Users/awdsyxfrhnzi/Downloads/j/App.js",
+        "/Users/awdsyxfrhnzi/Downloads/j/ProofWritingInterface.js"
+      ],
+      "files_to_import": [],
+      "command": [],
+      "chlidren": []
+    },
+    "real_time_latex": {
+      "id": "real_time_latex",
+      "description": "Implement real-time LaTeX rendering for math symbols",
+      "filenames": [
+        "/Users/awdsyxfrhnzi/Downloads/j/App.js",
+        "/Users/awdsyxfrhnzi/Downloads/j/RealTimeLatex.js"
+      ],
+      "files_to_import": [],
+      "command": [],
+      "chlidren": []
+    },
+    "canvas_drawing": {
+      "id": "canvas_drawing",
+      "description": "Allow users to draw images on a small canvas",
+      "filenames": [
+        "/Users/awdsyxfrhnzi/Downloads/j/App.js",
+        "/Users/awdsyxfrhnzi/Downloads/j/CanvasDrawing.js"
+      ],
+      "files_to_import": [],
+      "command": [],
+      "chlidren": []
+    },
+    "feedback_display": {
+      "id": "feedback_display",
+      "description": "Display AI-generated feedback on proofs",
+      "filenames": [
+        "/Users/awdsyxfrhnzi/Downloads/j/App.js",
+        "/Users/awdsyxfrhnzi/Downloads/j/FeedbackDisplay.js"
+      ],
+      "files_to_import": [],
+      "command": [],
+      "chlidren": []
+    },
+    "competitive_arena": {
+      "id": "competitive_arena",
+      "description": "Implement the competitive math arena with ELO system",
+      "filenames": [
+        "/Users/awdsyxfrhnzi/Downloads/j/App.js",
+        "/Users/awdsyxfrhnzi/Downloads/j/CompetitiveArena.js"
+      ],
+      "files_to_import": [],
+      "command": [],
+      "chlidren": []
+    },
+    "friend_list": {
+      "id": "friend_list",
+      "description": "Display and manage the friend list for users",
+      "filenames": [
+        "/Users/awdsyxfrhnzi/Downloads/j/App.js",
+        "/Users/awdsyxfrhnzi/Downloads/j/FriendList.js"
+      ],
+      "files_to_import": [],
+      "command": [],
+      "chlidren": []
+    }
+  },
+  "framework": "Python, JavaScript, Flask, React, TensorFlow, PyMuPDF, LaTeX",
+  "project_root": "/Users/awdsyxfrhnzi/Downloads/j",
+  "flowchart_id": "57ca2e3baaa34eeeb2087860de8c11b5",
+  "layout_positions": {
+    "initialize project": [
+      940.0,
+      200.0
+    ],
+    "backend setup": [
+      820.0,
+      360.0
+    ],
+    "frontend setup": [
+      1060.0,
+      360.0
+    ],
+    "ai_grading": [
+      -500.0,
+      520.0
+    ],
+    "elo_system": [
+      -260.0,
+      520.0
+    ],
+    "exercise_extraction": [
+      -20.0,
+      520.0
+    ],
+    "friend_system": [
+      220.0,
+      520.0
+    ],
+    "latex_rendering": [
+      460.0,
+      520.0
+    ],
+    "pdf_upload": [
+      700.0,
+      520.0
+    ],
+    "canvas_drawing": [
+      940.0,
+      520.0
+    ],
+    "competitive_arena": [
+      1181.0,
+      520.0
+    ],
+    "feedback_display": [
+      1420.0,
+      520.0
+    ],
+    "friend_list": [
+      1660.0,
+      520.0
+    ],
+    "proof_writing_interface": [
+      1900.0,
+      520.0
+    ],
+    "real_time_latex": [
+      2140.0,
+      520.0
+    ],
+    "upload_interface": [
+      2380.0,
+      520.0
+    ]
+  }
+}
