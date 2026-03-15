@@ -318,7 +318,7 @@ def build_canva(flowchart_data=None, on_back=None) -> QWidget:
     details_header = QHBoxLayout()
     details_title = QLabel("Step Details")
     details_title.setObjectName("DetailsPanelTitle")
-    details_close_btn = QPushButton("X")
+    details_close_btn = QPushButton("×")
     details_close_btn.setObjectName("DetailsCloseButton")
     details_close_btn.setToolTip("Hide step details")
     details_close_btn.setFixedSize(24, 24)

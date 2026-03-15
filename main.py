@@ -20,6 +20,7 @@ class AppController(QObject):
         self.window = QWidget()
         self.window.setWindowTitle("Vibe Coding App")
         self.window.resize(1200, 800)
+        self._apply_app_style()
 
         self.layout = QVBoxLayout(self.window)
         self.layout.setContentsMargins(0, 0, 0, 0)
@@ -129,6 +130,21 @@ class AppController(QObject):
         self.stacked.addWidget(builder)    # Index 1
         self.stacked.addWidget(settings)   # Index 2
 
+    def _apply_app_style(self):
+        base_dir = os.path.join(os.path.dirname(__file__), "app", "style")
+        app_qss = os.path.join(base_dir, "app.qss")
+        editor_qss = os.path.join(base_dir, "code_editor.qss")
+        parts = []
+        for path in (app_qss, editor_qss):
+            if os.path.exists(path):
+                try:
+                    with open(path, "r", encoding="utf-8") as fh:
+                        parts.append(fh.read())
+                except Exception:
+                    pass
+        if parts:
+            self.window.setStyleSheet("\n\n".join(parts))
+
     def _build_splitter(self):
         self.splitter.addWidget(self.stacked)
         self._sync_splitter_state()
@@ -139,12 +155,6 @@ class AppController(QObject):
         self.ai_btn.setCheckable(True)
         self.ai_btn.setToolTip("AI chat")
         self.ai_btn.setFixedSize(56, 56)
-        self.ai_btn.setStyleSheet(
-            "QPushButton { background: #2f6fed; color: #ffffff; border: none; border-radius: 28px; "
-            "font-weight: 700; font-size: 13px; }"
-            "QPushButton:hover { background: #3a7bff; }"
-            "QPushButton:checked { background: #1f56c9; }"
-        )
         self.ai_btn.clicked.connect(self._on_ai_clicked)
         self.ai_btn.installEventFilter(self)
         self.ai_btn.hide()

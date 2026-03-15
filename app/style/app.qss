@@ -1,0 +1,14 @@
+QPushButton#GlobalFloatingAIButton {
+    background: #2f6fed;
+    color: #ffffff;
+    border: none;
+    border-radius: 28px;
+    font-weight: 700;
+    font-size: 13px;
+}
+QPushButton#GlobalFloatingAIButton:hover {
+    background: #3a7bff;
+}
+QPushButton#GlobalFloatingAIButton:checked {
+    background: #1f56c9;
+}

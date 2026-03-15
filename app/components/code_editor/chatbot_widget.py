@@ -27,76 +27,6 @@ class ChatbotWidget(QWidget):
         self.setMinimumWidth(260)
         self.setMaximumWidth(520)
 
-        self.setStyleSheet("""
-            QWidget#ChatbotWidget {
-                background-color: #000000;
-                border-left: 1px solid #ffffff;
-            }
-            QLabel#ChatTitle {
-                color: #ffffff;
-                font-size: 14px;
-                font-weight: 700;
-            }
-            QLabel#ModeTag {
-                color: #ffffff;
-                background-color: #000000;
-                border: 1px solid #ffffff;
-                border-radius: 10px;
-                font-size: 11px;
-                font-weight: 500;
-                padding: 2px 10px;
-            }
-            QTextEdit#ChatHistory {
-                background-color: #000000;
-                color: #ffffff;
-                border: 1px solid #ffffff;
-                border-radius: 6px;
-                padding: 6px;
-                font-size: 13px;
-            }
-            QScrollBar:vertical {
-                background: #000000;
-                width: 6px;
-                border-radius: 3px;
-            }
-            QScrollBar::handle:vertical {
-                background: #ffffff;
-                border-radius: 3px;
-                min-height: 20px;
-            }
-            QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical { height: 0; }
-            QWidget#ChatInputBar {
-                background-color: #000000;
-                border: 1px solid #ffffff;
-                border-radius: 6px;
-            }
-            QTextEdit#ChatInput {
-                background-color: #000000;
-                color: #ffffff;
-                border: 1px solid #ffffff;
-                border-radius: 6px;
-                padding: 6px 8px;
-                font-size: 13px;
-            }
-            QWidget#ModeMenu {
-                background-color: #000000;
-                border: 1px solid #ffffff;
-                border-radius: 6px;
-            }
-            QPushButton {
-                background-color: #000000;
-                color: #ffffff;
-                border: 1px solid #ffffff;
-                border-radius: 6px;
-                padding: 4px 10px;
-                font-size: 13px;
-                font-weight: 600;
-            }
-            QPushButton:hover   { background-color: #1a1a1a; }
-            QPushButton:pressed { background-color: #333333; }
-            QPushButton:disabled { color: #666666; border-color: #444444; }
-        """)
-
         layout = QVBoxLayout(self)
         layout.setContentsMargins(12, 12, 12, 12)
 
@@ -105,15 +35,15 @@ class ChatbotWidget(QWidget):
         title.setObjectName("ChatTitle")
         header.addWidget(title)
         header.addStretch()
-        close_btn = QPushButton("X")
+        close_btn = QPushButton("×")
         close_btn.setObjectName("ChatCloseButton")
         close_btn.clicked.connect(self._handle_close)
         header.addWidget(close_btn)
         layout.addLayout(header)
 
         sep = QLabel()
+        sep.setObjectName("ChatSeparator")
         sep.setFixedHeight(1)
-        sep.setStyleSheet("background: #ffffff;")
         layout.addWidget(sep)
 
         self.chat_history = QTextEdit()
@@ -160,8 +90,9 @@ class ChatbotWidget(QWidget):
 
         self.input_field = QTextEdit()
         self.input_field.setObjectName("ChatInput")
-        self.input_field.setMaximumHeight(70)
+        self.input_field.setFixedHeight(72)
         self.input_field.setPlaceholderText("Ask about your code...")
+        self.input_field.setLineWrapMode(QTextEdit.LineWrapMode.WidgetWidth)
         from PyQt6.QtWidgets import QSizePolicy
         self.input_field.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
         input_layout.addWidget(self.input_field)
@@ -274,22 +205,22 @@ class ChatbotWidget(QWidget):
     def _append_user(self, message: str) -> None:
         formatted = self._format_message(message)
         self.chat_history.append(
-            f"<div style='background:#000000;border:1px solid #ffffff;"
+            f"<div style='background:#10141c;border:1px solid #252b36;"
             f"border-radius:6px;padding:8px 10px;margin:4px 0 2px 20px;'>"
-            f"<span style='color:#ffffff;font-size:11px;font-weight:600;"
+            f"<span style='color:#c9d2de;font-size:11px;font-weight:600;"
             f"letter-spacing:0.4px;'>YOU</span>"
-            f"<div style='color:#ffffff;margin-top:3px;'>{formatted}</div>"
+            f"<div style='color:#e7e9ee;margin-top:3px;'>{formatted}</div>"
             f"</div>"
         )
 
     def _append_ai(self, message: str) -> None:
         formatted = self._format_message(message)
         self.chat_history.append(
-            f"<div style='background:#000000;border:1px solid #ffffff;"
+            f"<div style='background:#10141c;border:1px solid #252b36;"
             f"border-radius:6px;padding:8px 10px;margin:2px 20px 4px 0;'>"
-            f"<span style='color:#ffffff;font-size:11px;font-weight:600;"
+            f"<span style='color:#9fb6ff;font-size:11px;font-weight:600;"
             f"letter-spacing:0.4px;'>AI</span>"
-            f"<div style='color:#ffffff;margin-top:3px;'>{formatted}</div>"
+            f"<div style='color:#e7e9ee;margin-top:3px;'>{formatted}</div>"
             f"</div>"
         )
 
@@ -300,9 +231,9 @@ class ChatbotWidget(QWidget):
             parts.append(self._format_plain(text[last:match.start()]))
             code = html.escape(match.group(2).rstrip("\n"))
             parts.append(
-                f"<pre style='background:#000000;border:1px solid #ffffff;"
+                f"<pre style='background:#0f1115;border:1px solid #252b36;"
                 f"border-radius:6px;padding:8px 10px;font-family:monospace;"
-                f"font-size:12px;color:#ffffff;white-space:pre-wrap;'>"
+                f"font-size:12px;color:#e7e9ee;white-space:pre-wrap;'>"
                 f"<code>{code}</code></pre>"
             )
             last = match.end()
@@ -382,12 +313,13 @@ class ChatbotWidget(QWidget):
         escaped = html.escape(text)
         escaped = re.sub(r"\*\*(.+?)\*\*", r"<b>\1</b>", escaped)
         escaped = re.sub(r"`([^`]+)`",
-                         r"<code style='background:#000000;border:1px solid #ffffff;"
+                         r"<code style='background:#10141c;border:1px solid #252b36;"
                          r"border-radius:3px;padding:1px 4px;font-family:monospace;"
-                         r"color:#ffffff;'>\1</code>",
+                         r"color:#e7e9ee;'>\1</code>",
                          escaped)
         escaped = re.sub(r"_([^_]+)_", r"<i>\1</i>", escaped)
         return escaped
+
 
     def _toggle_mode_menu(self):
         self.mode_menu.setVisible(not self.mode_menu.isVisible())
