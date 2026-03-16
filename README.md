@@ -26,7 +26,7 @@ This project was built for the Amazon Nova Hackathon.
 1. Create and activate a virtual environment (optional but recommended).
 2. Install dependencies:
    ```bash
-   pip install PyQt6 openai python-dotenv
+   pip install PyQt6 PyQt6-QScintilla openai python-dotenv platformdirs tree-sitter-language-pack
    ```
 3. Create a `.env` file (or edit the existing one) with:
    ```env
