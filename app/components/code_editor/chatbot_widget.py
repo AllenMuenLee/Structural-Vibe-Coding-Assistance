@@ -63,7 +63,7 @@ class ChatbotWidget(QWidget):
         self.mode_debug_btn.clicked.connect(lambda: self.set_mode("debug"))
         mode_menu_layout.addWidget(self.mode_debug_btn)
 
-        self.mode_flow_btn = QPushButton("Flowchart")
+        self.mode_flow_btn = QPushButton("Project Tree")
         self.mode_flow_btn.setObjectName("ModeButton")
         self.mode_flow_btn.clicked.connect(lambda: self.set_mode("flowchart"))
         mode_menu_layout.addWidget(self.mode_flow_btn)
@@ -330,7 +330,7 @@ class ChatbotWidget(QWidget):
         self.mode = mode
         label = {
             "debug": "Debug",
-            "flowchart": "Flowchart",
+            "flowchart": "Project Tree",
             "general": "General",
         }.get(mode, mode.title())
         self.mode_tag.setText(f"Selected: {label}")
