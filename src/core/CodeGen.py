@@ -185,15 +185,19 @@ class CodingAgent:
         9. 
         READ THE CONTEXT AND AVOID GENERATING EXISITNG FUNCTIONS OR METHOD
         """
+
+        print("topic:", topic)
         
         prompt = f"""
+        PROJECT DESCIPRTION:
+        {topic}
+
         PROJECT TAGS (SUMMARY OF OTHER FILES):
         {tags_text}
 
         CONTEXT OF EXISTING FILES:
         {context}
 
-        TOPIC: {topic}
         TASK: {step['description']}
         FILES TO GENERATE: {step['filenames']}
         FILES YOU MIGHT NEED TO IMPORT: {step['files_to_import']}
@@ -249,7 +253,7 @@ class CodingAgent:
             step_id = step.get("id", "")
             step_desc = step.get("description", "")
             progress(step_id, step_desc)
-        raw_code = self.call_nova(step, procedure["name"])
+        raw_code = self.call_nova(step, procedure["project_description"])
         
         if raw_code is not None:
             if "### QUESTION:" in raw_code:

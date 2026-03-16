@@ -63,6 +63,7 @@ class ProjectBuildWorker(QThread):
 
             flowchart.create_from_ai_response(ai_data)
             flowchart_dict = flowchart.flowchart_to_dictionary()
+            flowchart_dict["project_description"] = self.description
             flowchart_id = flowchart.flowchart_id
 
             flowchart.save_to_file(flowchart_id, flowchart_dict)
@@ -151,8 +152,9 @@ def _on_project_create(root, title_input, desc_input, hint_label):
     root._build_worker = worker
 
 
-def _on_project_create_manually(root, title_input, hint_label):
+def _on_project_create_manually(root, title_input, desc_input, hint_label):
     project_path = title_input.text().strip()
+    description = desc_input.toPlainText().strip()
     if not project_path:
         hint_label.setText("Please provide a project path.")
         return
@@ -173,6 +175,7 @@ def _on_project_create_manually(root, title_input, hint_label):
     flowchart.add_step(placeholder)
     flowchart.set_start("step1")
     flowchart_dict = flowchart.flowchart_to_dictionary()
+    flowchart_dict["project_description"] = description
     flowchart.save_to_file(flowchart.flowchart_id, flowchart_dict)
     FileMng.save_project(flowchart.flowchart_id, project_root)
     save_current_project_id(flowchart.flowchart_id)
@@ -279,7 +282,7 @@ def build_project_builder(on_project_created=None, on_back=None) -> QWidget:
 
     browse_button.clicked.connect(partial(_on_project_browse, root, title_input))
     create_button.clicked.connect(partial(_on_project_create, root, title_input, desc_input, hint_label))
-    manual_button.clicked.connect(partial(_on_project_create_manually, root, title_input, hint_label))
+    manual_button.clicked.connect(partial(_on_project_create_manually, root, title_input, desc_input, hint_label))
 
     return root
 

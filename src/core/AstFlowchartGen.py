@@ -160,7 +160,7 @@ class AstFlowchartGenerator:
                 break
             except Exception as exc:
                 if is_rate_limit_error(exc):
-                    time.sleep(retry_seconds)
+                    time.sleep(10)
                     continue
                 raise
 
@@ -170,7 +170,7 @@ class AstFlowchartGenerator:
 
     def _call_nova_for_flowchart(self, ast_map):
         SYSTEM_PROMPT = (
-            "You are a senior software architect. Build a simple software structure JSON for the project "
+            "You are a senior software architect. Build a software structure JSON for the project "
             "based on the AST symbol map. Return JSON only."
         )
 
@@ -185,7 +185,7 @@ class AstFlowchartGenerator:
         - Return JSON only, no extra text.
         - One parent a node.
         - one to three children a node.
-        Return ONLY a valid JSON object with this structure:
+        Return ONLY a valid JSON object with this structure:, here is the exapmle
         {{
             "framework": "Any framework that's applicable",
             "nodes": [
